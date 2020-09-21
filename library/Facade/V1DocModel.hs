@@ -1,32 +1,17 @@
 module Facade.V1DocModel
 where
 
-import Facade.Prelude
+import Facade.Prelude hiding (Product, Sum, Enum)
 
 
 data Doc =
-  Doc Imports Aliases Wrappers Enums Products Sums
-
--- *
--------------------------
-
-newtype Imports =
-  Imports (ByTypeName QualifiedTypeRef)
-
-newtype Aliases =
-  Aliases (ByTypeName Type)
-
-newtype Wrappers =
-  Wrappers (ByTypeName WrapperDef)
-
-newtype Enums =
-  Enums (ByTypeName EnumDef)
-
-newtype Products =
-  Products (ByTypeName ProductDef)
-
-newtype Sums =
-  Sums (ByTypeName SumDef)
+  Doc 
+    (ByTypeName ImportDef)
+    (ByTypeName AliasDef)
+    (ByTypeName WrapperDef)
+    (ByTypeName EnumDef)
+    (ByTypeName ProductDef)
+    (ByTypeName SumDef)
 
 -- *
 -------------------------
@@ -34,12 +19,11 @@ newtype Sums =
 newtype ByTypeName a =
   ByTypeName [(Text, a)]
 
-newtype QualifiedTypeRef =
-  QualifiedTypeRef [Text]
+newtype ImportDef =
+  ImportDef QualifiedTypeRef
 
-data TypeRef =
-  QualifiedTypeRefTypeRef QualifiedTypeRef |
-  UnqualifiedTypeRef Text
+newtype AliasDef =
+  AliasDef Type
 
 newtype WrapperDef =
   WrapperDef Type
@@ -55,6 +39,13 @@ newtype SumDef =
 
 -- *
 -------------------------
+
+newtype QualifiedTypeRef =
+  QualifiedTypeRef [Text]
+
+data TypeRef =
+  QualifiedTypeRefTypeRef QualifiedTypeRef |
+  UnqualifiedTypeRef Text
 
 newtype TypeByFieldName =
   TypeByFieldName [(Text, Type)]
