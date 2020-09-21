@@ -11,10 +11,10 @@ data Doc =
 -------------------------
 
 newtype Imports =
-  Imports (ByTypeName QualifiedType)
+  Imports (ByTypeName QualifiedTypeRef)
 
 newtype Aliases =
-  Aliases (ByTypeName TypeExp)
+  Aliases (ByTypeName Type)
 
 newtype Wrappers =
   Wrappers (ByTypeName WrapperDef)
@@ -32,33 +32,34 @@ newtype Sums =
 -------------------------
 
 newtype ByTypeName a =
-  ByTypeName (HashMap Text a)
+  ByTypeName [(Text, a)]
 
-newtype QualifiedType =
-  QualifiedType (Vector Text)
+newtype QualifiedTypeRef =
+  QualifiedTypeRef [Text]
 
 data TypeRef =
-  QualifiedTypeRef QualifiedType |
+  QualifiedTypeRefTypeRef QualifiedTypeRef |
   UnqualifiedTypeRef Text
 
 newtype WrapperDef =
-  WrapperDef TypeExp
+  WrapperDef Type
 
 newtype EnumDef =
-  EnumDef (Vector Text)
+  EnumDef [Text]
 
 newtype ProductDef =
-  ProductDef TypeExpByFieldName
+  ProductDef TypeByFieldName
 
 newtype SumDef =
-  SumDef TypeExpByFieldName
+  SumDef TypeByFieldName
 
 -- *
 -------------------------
 
-newtype TypeExpByFieldName =
-  TypeExpByFieldName (HashMap Text TypeExp)
+newtype TypeByFieldName =
+  TypeByFieldName [(Text, Type)]
 
-data TypeExp
-
-
+data Type =
+  TupleType [Type] |
+  AppType Type Type |
+  RefType TypeRef
