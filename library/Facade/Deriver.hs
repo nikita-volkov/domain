@@ -5,8 +5,10 @@ module Facade.Deriver
 (
   -- * Deriver definitions
   Deriver(..),
+  all,
+  -- ** Standard
   std,
-  -- ** Standard specific
+  -- *** Specific
   enum,
   bounded,
   show,
@@ -15,7 +17,10 @@ module Facade.Deriver
   generic,
   data_,
   typeable,
+  hashable,
   -- ** IsLabel
+  -- |
+  -- Custom instances of 'IsLabel'.
   isLabel,
   -- *** Specific
   constructorIsLabel,
@@ -25,7 +30,7 @@ module Facade.Deriver
 )
 where
 
-import Facade.Prelude hiding (show, ord)
+import Facade.Prelude hiding (show, ord, all)
 import Facade.Model
 import qualified Language.Haskell.TH as TH
 import qualified Facade.Deriver.TH as TH
@@ -47,12 +52,18 @@ newtype Deriver =
 effectless f =
   Deriver (pure . f)
 
+{-|
+Combination of all derivers exported by this module.
+-}
+all =
+  std <> isLabel
+
 
 -- * Std
 -------------------------
 
 {-|
-Combination of all standard derivers exported by this module.
+Combination of all standard derivers.
 -}
 std =
   mconcat [
@@ -63,7 +74,8 @@ std =
     ord,
     generic,
     data_,
-    typeable
+    typeable,
+    hashable
     ]
 
 enum =
@@ -89,6 +101,9 @@ data_ =
 
 typeable =
   effectless TH.typeableInstanceDecs
+
+hashable =
+  effectless TH.hashableInstanceDecs
 
 
 -- * IsLabel

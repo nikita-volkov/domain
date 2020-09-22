@@ -32,6 +32,18 @@ dataInstanceDecs =
 typeableInstanceDecs =
   nonAliasTypeDecDerivingInstanceDecs ''Typeable
 
+hashableInstanceDecs =
+  nonAliasTypeDecEmptyInstanceDecs ''Hashable
+
+
+nonAliasTypeDecEmptyInstanceDecs className =
+  \ case
+    Mo.TypeDec a b ->
+      case b of
+        Mo.AliasTypeDef _ ->
+          []
+        _ ->
+          [emptyInstanceDec className a]
 
 nonAliasTypeDecDerivingInstanceDecs className =
   \ case
@@ -54,6 +66,12 @@ enumTypeDecDerivingInstanceDecs className =
 
 derivingInstanceDec className typeNameText =
   StandaloneDerivD Nothing [] headType
+  where
+    headType =
+      AppT (ConT className) (ConT (TH.textName typeNameText))
+
+emptyInstanceDec className typeNameText =
+  InstanceD Nothing [] headType []
   where
     headType =
       AppT (ConT className) (ConT (TH.textName typeNameText))
@@ -152,7 +170,7 @@ accessorIsLabelInstanceDecs =
       case b of
         Mo.AliasTypeDef _ -> []
         Mo.WrapperTypeDef c ->
-          [wrapperConstructorIsLabelInstanceDec a c]
+          [wrapperAccessorIsLabelInstanceDec a c]
         Mo.EnumTypeDef c ->
           fmap (enumAccessorIsLabelInstanceDec a) c
         Mo.CompositeTypeDef c d ->
