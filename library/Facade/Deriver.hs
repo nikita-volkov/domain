@@ -6,7 +6,7 @@ module Facade.Deriver
   -- * Deriver definitions
   Deriver(..),
   std,
-  -- ** Specific
+  -- ** Standard specific
   enum,
   bounded,
   show,
@@ -15,7 +15,9 @@ module Facade.Deriver
   generic,
   data_,
   typeable,
-  -- * Declarations model
+  -- ** IsLabel
+  constructorIsLabel,
+  -- * Spec model
   module Facade.Model,
 )
 where
@@ -34,7 +36,8 @@ newtype Deriver =
 effectless f =
   Deriver (pure . f)
 
--- *
+
+-- * Std
 -------------------------
 
 {-|
@@ -75,3 +78,39 @@ data_ =
 
 typeable =
   effectless TH.typeableInstanceDecs
+
+
+-- * IsLabel
+-------------------------
+
+{-|
+Generates instances of 'IsLabel' for enums and sums,
+providing mappings from labels to constructors.
+
+E.g., for the following spec:
+
+>sums:
+>  ApiError:
+>    unauthorized:
+>    rejected: Maybe Text
+
+It'll generate the following instances:
+
+>instance IsLabel "unauthorized" ApiError where
+>  fromLabel = UnauthorizedApiError
+>
+>instance IsLabel "rejected" (Maybe Text -> ApiError) where
+>  fromLabel = RejectedApiError
+
+Allowing you to construct the value by simply addressing the label:
+
+>unauthorizedApiError :: ApiError
+>unauthorizedApiError = #unauthorized
+>
+>rejectedApiError :: Maybe Text -> ApiError
+>rejectedApiError reason = #rejected reason
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
+constructorIsLabel =
+  effectless TH.constructorIsLabelInstanceDecs

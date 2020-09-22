@@ -3,9 +3,10 @@ where
 
 import Prelude
 import Facade
+import qualified Facade.Deriver as Deriver
 
 
 main =
   return ()
 
-loadStd "samples/1.yaml"
+load "samples/1.yaml" (Deriver.constructorIsLabel)
