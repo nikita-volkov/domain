@@ -2,7 +2,7 @@ name: facade
 version: 0.1
 synopsis: Handy domain model declaration toolkit
 description:
-  - Let your domain model definition be focused.
+  - Let your domain model definition be focused on domain model only.
   - Let it be readable, avoiding the syntactic noise.
   - Separate its declaration from the problems of declaration of instances,
   accessor functions, optics and etc.
