@@ -1,42 +1,37 @@
-{-|
-Functions are named after what they produce.
--}
-module Facade.V1DocModelAnalysis.TH
+module Facade.TH
 where
 
-import Facade.Prelude hiding (Product, Sum, Enum)
-import Facade.V1DocModel
+import Facade.Prelude
+import Facade.Model
 import qualified Language.Haskell.TH as TH
 import qualified Data.Text as Text
 import qualified Data.Char as Char
 
 
-byTypeNameDecs :: (Text -> a -> TH.Dec) -> ByTypeName a -> [TH.Dec]
-byTypeNameDecs toDec (ByTypeName a) =
-  fmap (uncurry toDec) a
-
-decs (Doc a b c d e f) =
-  byTypeNameDecs typeSynonymDec b <>
-  byTypeNameDecs newtypeDec c <>
-  byTypeNameDecs enumDec d <>
-  byTypeNameDecs recordAdtDec e <>
-  byTypeNameDecs sumAdtDec f
-
-typeType =
+dec =
   \ case
-    AppType a b ->
-      TH.AppT (typeType a) (typeType b)
-    RefType a ->
-      typeRefType a
-    InParensType a ->
-      error "TODO"
-    InSquareBracketsType a ->
-      TH.AppT TH.ListT (typeType a)
+    TypeDec a b ->
+      typeDefDec a b
 
-typeRefType =
-  TH.ConT . TH.mkName . Text.unpack . Text.intercalate "." . coerce
+typeDefDec a =
+  \ case
+    AliasTypeDef b ->
+      typeSynonymDec a b
+    WrapperTypeDef b ->
+      newtypeDec a b
+    EnumTypeDef b ->
+      enumDec a b
+    CompositeTypeDef b c ->
+      case b of
+        ProductComposition ->
+          recordAdtDec a c
+        SumComposition ->
+          sumAdtDec a c
 
-newtypeDec a (WrapperDef b) =
+typeSynonymDec a b =
+  TH.TySynD (textName a) [] (typeType b)
+
+newtypeDec a b =
   TH.NewtypeD [] _name [] Nothing _con []
   where
     _name =
@@ -55,7 +50,26 @@ noBang =
 fieldBang =
   TH.Bang TH.NoSourceUnpackedness TH.SourceStrict
 
-recordAdtDec a (ProductDef (TypeByFieldName b)) =
+typeType =
+  \ case
+    AppType a b ->
+      TH.AppT (typeType a) (typeType b)
+    RefType a ->
+      typeRefType a
+    ListType ->
+      TH.ListT
+    TupleType a ->
+      error "TODO"
+
+typeRefNameText =
+  \ case
+    LocalTypeRef a -> a
+    GlobalTypeRef a b -> Text.intercalate "." a <> "." <> b
+
+typeRefType =
+  TH.ConT . textName . typeRefNameText
+
+recordAdtDec a b =
   TH.DataD [] _name [] Nothing [_con] []
   where
     _name =
@@ -73,7 +87,7 @@ detitledText =
   foldMap (\ (a, b) -> Text.cons (Char.toLower a) b) .
   Text.uncons
 
-sumAdtDec a (SumDef (TypeByFieldName b)) =
+sumAdtDec a b =
   TH.DataD [] (textName a) [] Nothing (fmap (uncurry (sumConstructor a)) b) []
 
 sumConstructor a b c =
@@ -84,11 +98,8 @@ sumConstructor a b c =
 sumConstructorName a b =
   textName (a <> Text.toTitle b)
 
-enumDec a (EnumDef b) =
+enumDec a b =
   TH.DataD [] (textName a) [] Nothing (fmap (enumConstructor a) b) []
 
 enumConstructor a b =
   TH.NormalC (sumConstructorName a b) []
-
-typeSynonymDec a (AliasDef b) =
-  TH.TySynD (textName a) [] (typeType b)
