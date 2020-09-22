@@ -1,7 +1,7 @@
 module Domain
 (
   load,
-  loadStd,
+  loadDerivingAll,
 )
 where
 
@@ -28,6 +28,12 @@ parseFile path =
   ByteString.readFile path &
   fmap parse
 
+{-|
+Load a YAML domain spec file while explicitly defining the instance deriver.
+Will generate the according type definitions and instances.
+
+Call this function on the top-level (where you declare your module members).
+-}
 load :: FilePath -> Deriver.Deriver -> TH.Q [TH.Dec]
 load path (Deriver.Deriver derive) =
   do
@@ -39,6 +45,9 @@ load path (Deriver.Deriver derive) =
         instanceDecs <- fmap concat (traverse derive decs)
         return (fmap TH.typeDec decs <> instanceDecs)
 
-loadStd :: FilePath -> TH.Q [TH.Dec]
-loadStd path =
-  load path Deriver.std
+{-|
+Load a YAML domain spec file using the 'Deriver.all' instance deriver.
+-}
+loadDerivingAll :: FilePath -> TH.Q [TH.Dec]
+loadDerivingAll path =
+  load path Deriver.all
