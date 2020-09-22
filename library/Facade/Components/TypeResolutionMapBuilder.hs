@@ -1,16 +1,16 @@
-module Facade.V1DocModelAnalysis.Components.TypeResolutionMapBuilder
+module Facade.Components.TypeResolutionMapBuilder
 where
 
 import Facade.Prelude
-import Facade.V1DocModel
-import qualified Facade.Model as Norm
+import Facade.Model
+import qualified Facade.V1DocModel as Doc
 import qualified Facade.Util.List as List
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 
 type Model =
-  HashMap Text Norm.TypeRef
+  HashMap Text TypeRef
 
 type Err =
   Text
@@ -18,11 +18,11 @@ type Err =
 type Eff =
   StateT Model (Either Err)
 
-run :: Eff () -> Either Err (HashMap Text Norm.TypeRef)
+run :: Eff () -> Either Err (HashMap Text TypeRef)
 run eff =
   execStateT eff mempty
 
-add :: Text -> Text -> Norm.TypeRef -> Eff ()
+add :: Text -> Text -> TypeRef -> Eff ()
 add label name ref =
   StateT $ fmap ((),) . HashMap.alterF altering name
   where
@@ -37,24 +37,24 @@ add label name ref =
         Nothing ->
           Right (Just ref)
 
-addImportDef :: Text -> ImportDef -> Eff ()
-addImportDef name (ImportDef (TypeRef typeRefSegments)) =
+addImportDef :: Text -> Doc.ImportDef -> Eff ()
+addImportDef name (Doc.ImportDef (Doc.TypeRef typeRefSegments)) =
   case List.unsnoc typeRefSegments of
     Just (typeRefNamespace, typeRefName) ->
-      add "import" name (Norm.GlobalTypeRef typeRefNamespace typeRefName)
+      add "import" name (GlobalTypeRef typeRefNamespace typeRefName)
     Nothing ->
       lift (Left "Broken type ref")
 
 addSelfReference :: Text -> Text -> Eff ()
 addSelfReference label name =
-  add label name (Norm.LocalTypeRef name)
+  add label name (LocalTypeRef name)
 
-byTypeName :: (Text -> a -> Eff ()) -> ByTypeName a -> Eff ()
-byTypeName mapper (ByTypeName btn) =
+byTypeName :: (Text -> a -> Eff ()) -> Doc.ByTypeName a -> Eff ()
+byTypeName mapper (Doc.ByTypeName btn) =
   traverse_ (uncurry mapper) btn
 
-addDoc :: Doc -> Eff ()
-addDoc (Doc a b c d e f) =
+addDoc :: Doc.Doc -> Eff ()
+addDoc (Doc.Doc a b c d e f) =
   do
     byTypeName addImportDef a
     byTypeName (const . addSelfReference "alias") b

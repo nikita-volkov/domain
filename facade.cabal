@@ -24,14 +24,14 @@ library
   other-modules:
     Facade.AesonValueParser
     Facade.Attoparsec
+    Facade.Components.Resolver
+    Facade.Components.TypeResolutionMapBuilder
     Facade.Prelude
     Facade.Util.AesonValueParser
     Facade.Util.List
     Facade.Util.Yaml
     Facade.V1DocModel
     Facade.V1DocModelAnalysis.TH
-    Facade.V1DocModelAnalysis.Components.Resolver
-    Facade.V1DocModelAnalysis.Components.TypeResolutionMapBuilder
   build-depends:
     aeson >=1 && <2,
     aeson-value-parser >=0.19 && <0.20,

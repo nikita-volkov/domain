@@ -1,16 +1,16 @@
-module Facade.V1DocModelAnalysis.Components.Resolver
+module Facade.Components.Resolver
 where
 
 import Facade.Prelude hiding (lookup)
-import Facade.V1DocModel
-import qualified Facade.Model as Norm
+import Facade.Model
+import qualified Facade.V1DocModel as Doc
 import qualified Facade.Util.List as List
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 
 type Env =
-  HashMap Text Norm.TypeRef
+  HashMap Text TypeRef
 
 type Err =
   Text
@@ -18,24 +18,24 @@ type Err =
 type Eff =
   ExceptT Err ((->) Env)
 
-resolve :: Text -> Eff Norm.TypeRef
+resolve :: Text -> Eff TypeRef
 resolve =
   error "TODO"
 
-type_ :: Type -> Eff Norm.Type
+type_ :: Doc.Type -> Eff Type
 type_ =
   \ case
-    RefType a ->
-      Norm.RefType <$> typeRef a
+    Doc.RefType a ->
+      RefType <$> typeRef a
 
-typeRef :: TypeRef -> Eff Norm.TypeRef
-typeRef (TypeRef a) =
+typeRef :: Doc.TypeRef -> Eff TypeRef
+typeRef (Doc.TypeRef a) =
   case List.unsnoc a of
     Just (b, c) ->
       case b of
         [] ->
           resolve c
         _ ->
-          return (Norm.GlobalTypeRef b c)
+          return (GlobalTypeRef b c)
     Nothing ->
       throwE "Broken type ref"
