@@ -31,6 +31,14 @@ import qualified Language.Haskell.TH as TH
 import qualified Facade.Deriver.TH as TH
 
 
+{-|
+Abstraction which allows to define automatic derivation of any class.
+
+It is implemented as a function from the type declaration in this package\'s own AST
+to a list of Template Haskell declarations in its quotation monad.
+
+Its Monoid instance allows you to combine derivers.
+-}
 newtype Deriver =
   Deriver (Dec -> TH.Q [TH.Dec])
   deriving (Semigroup, Monoid)
