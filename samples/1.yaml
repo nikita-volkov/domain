@@ -1,30 +1,13 @@
 
-version: 1
-
-# Only for internal use
-imports:
-  Int64: Prelude.Int64
-  Int: Prelude.Int
-  LazyText: Data.Text.Lazy.Text
-  Maybe: Prelude.Maybe
-  Scientific: Data.Scientific.Scientific
-  Text: Data.Text.Text
-  Uuid: Data.UUID.UUID
-  UTCTime: Data.Time.UTCTime
-
-# Get exported
-aliases:
-  LazyText1: Data.Text.Lazy.Text
-
 wrappers:
   ApiKey: Text
   ApiSecret: Text
-  ContractId: Uuid
+  ContractId: UUID
   Price: Scientific
   SpotPrice: Scientific
   SecondsSinceEpoch: Int64
   ContractSymbol: Text
-  OrderId: Uuid
+  OrderId: UUID
   Size:
 
 sums:
