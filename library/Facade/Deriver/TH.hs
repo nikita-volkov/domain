@@ -144,3 +144,123 @@ sumConstructorIsLabelInstanceDec typeName label type_ =
 
 listAppT base args =
   foldl' AppT base args
+
+
+accessorIsLabelInstanceDecs =
+  \ case
+    Mo.TypeDec a b ->
+      case b of
+        Mo.AliasTypeDef _ -> []
+        Mo.WrapperTypeDef c ->
+          [wrapperConstructorIsLabelInstanceDec a c]
+        Mo.EnumTypeDef c ->
+          fmap (enumAccessorIsLabelInstanceDec a) c
+        Mo.CompositeTypeDef c d ->
+          case c of
+            Mo.ProductComposition ->
+              fmap (uncurry (productAccessorIsLabelInstanceDec a)) d
+            Mo.SumComposition ->
+              fmap (uncurry (sumAccessorIsLabelInstanceDec a)) d
+
+wrapperAccessorIsLabelInstanceDec typeName type_ =
+  productAccessorIsLabelInstanceDec typeName "value" type_
+
+enumAccessorIsLabelInstanceDec typeName label =
+  InstanceD Nothing [] headType [fromLabelDec]
+  where
+    conName =
+      TH.sumConstructorName typeName label
+    headType =
+      listAppT (ConT ''IsLabel) [labelType, repType]
+      where
+        labelType =
+          LitT (StrTyLit (toList label))
+        repType =
+          listAppT ArrowT [sumType, resultType]
+          where
+            sumType =
+              ConT (TH.textName typeName)
+            resultType =
+              ConT ''Bool
+    fromLabelDec =
+      FunD 'fromLabel [Clause [] (NormalB exp) []]
+      where
+        exp =
+          LamCaseE [positiveMatch, negativeMatch]
+          where
+            positiveMatch =
+              Match pat (NormalB exp) []
+              where
+                pat =
+                  ConP conName []
+                exp =
+                  ConE 'True
+            negativeMatch =
+              Match WildP (NormalB exp) []
+              where
+                exp =
+                  ConE 'False
+
+sumAccessorIsLabelInstanceDec typeName label type_ =
+  case type_ of
+    Mo.TupleType 0 ->
+      enumAccessorIsLabelInstanceDec typeName label
+    _ ->
+      InstanceD Nothing [] headType bodyDecs
+      where
+        conName =
+          TH.sumConstructorName typeName label
+        headType =
+          listAppT (ConT ''IsLabel) [labelType, repType]
+          where
+            labelType =
+              LitT (StrTyLit (toList label))
+            repType =
+              listAppT ArrowT [sumType, resultType]
+              where
+                resultType =
+                  AppT (ConT ''Maybe) (TH.typeType type_)
+                sumType =
+                  ConT (TH.textName typeName)
+        bodyDecs =
+          [fromLabelDec]
+          where
+            fromLabelDec =
+              FunD 'fromLabel [Clause [] (NormalB exp) []]
+              where
+                exp =
+                  LamCaseE [positiveMatch, negativeMatch]
+                  where
+                    positiveMatch =
+                      Match pat (NormalB exp) []
+                      where
+                        pat =
+                          ConP conName [VarP (mkName "a")]
+                        exp =
+                          AppE (ConE 'Just) (VarE (mkName "a"))
+                    negativeMatch =
+                      Match WildP (NormalB exp) []
+                      where
+                        exp =
+                          ConE 'Nothing
+
+productAccessorIsLabelInstanceDec typeName field type_ =
+  InstanceD Nothing [] headType [fromLabelDec]
+  where
+    headType =
+      listAppT (ConT ''IsLabel) [labelType, repType]
+      where
+        labelType =
+          LitT (StrTyLit (toList field))
+        repType =
+          listAppT ArrowT [compositeType, resultType]
+          where
+            compositeType =
+              ConT (TH.textName typeName)
+            resultType =
+              TH.typeType type_
+    fromLabelDec =
+      FunD 'fromLabel [Clause [] (NormalB exp) []]
+      where
+        exp =
+          VarE (TH.recordFieldName typeName field)

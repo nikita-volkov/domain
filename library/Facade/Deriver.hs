@@ -16,7 +16,10 @@ module Facade.Deriver
   data_,
   typeable,
   -- ** IsLabel
+  allIsLabel,
+  -- *** Specific
   constructorIsLabel,
+  accessorIsLabel,
   -- * Spec model
   module Facade.Model,
 )
@@ -114,3 +117,10 @@ To make use of that ensure to have the @OverloadedLabels@ compiler extension ena
 -}
 constructorIsLabel =
   effectless TH.constructorIsLabelInstanceDecs
+
+accessorIsLabel =
+  effectless TH.accessorIsLabelInstanceDecs
+
+allIsLabel =
+  constructorIsLabel <>
+  accessorIsLabel
