@@ -1,5 +1,5 @@
 {-|
-Abstraction which allows to define automatic derivation of any class.
+Toolkit for construction and definition of instance derivers for Facade specs.
 -}
 module Facade.Deriver
 (
@@ -78,30 +78,57 @@ std =
     hashable
     ]
 
+{-|
+Derives 'Enum' for types from the \"enum\" section of spec.
+-}
 enum =
   effectless TH.enumInstanceDecs
 
+{-|
+Derives 'Bounded' for types from the \"enum\" section of spec.
+-}
 bounded =
   effectless TH.boundedInstanceDecs
 
+{-|
+Derives 'Show'.
+-}
 show =
   effectless TH.showInstanceDecs
 
+{-|
+Derives 'Eq'.
+-}
 eq =
   effectless TH.eqInstanceDecs
 
+{-|
+Derives 'Ord'.
+-}
 ord =
   effectless TH.ordInstanceDecs
 
+{-|
+Derives 'Generic'.
+-}
 generic =
   effectless TH.genericInstanceDecs
 
+{-|
+Derives 'Data'.
+-}
 data_ =
   effectless TH.dataInstanceDecs
 
+{-|
+Derives 'Typeable'.
+-}
 typeable =
   effectless TH.typeableInstanceDecs
 
+{-|
+Generates 'Generic'-based instances of 'Hashable'.
+-}
 hashable =
   effectless TH.hashableInstanceDecs
 
