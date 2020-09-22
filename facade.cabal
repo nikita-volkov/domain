@@ -27,6 +27,8 @@ library
     Facade.Attoparsec
     Facade.Components.Resolver
     Facade.Components.TypeResolutionMapBuilder
+    Facade.Deriver
+    Facade.Deriver.TH
     Facade.Prelude
     Facade.TH
     Facade.Util.AesonValueParser
