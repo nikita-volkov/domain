@@ -16,7 +16,7 @@ module Facade.Deriver
   data_,
   typeable,
   -- ** IsLabel
-  allIsLabel,
+  isLabel,
   -- *** Specific
   constructorIsLabel,
   accessorIsLabel,
@@ -87,10 +87,12 @@ typeable =
 -------------------------
 
 {-|
-Generates instances of 'IsLabel' for enums and sums,
+Generates instances of 'IsLabel' for wrappers, enums and sums,
 providing mappings from labels to constructors.
 
-E.g., for the following spec:
+=== __Example__
+
+For the following spec:
 
 >sums:
 >  ApiError:
@@ -118,9 +120,40 @@ To make use of that ensure to have the @OverloadedLabels@ compiler extension ena
 constructorIsLabel =
   effectless TH.constructorIsLabelInstanceDecs
 
+{-|
+Generates instances of 'IsLabel' for wrappers, enums, sums and products,
+providing mappings from labels to component accessors.
+
+=== __Product example__
+
+The following spec:
+
+>products:
+>  Config:
+>    host: Text
+>    port: Int
+
+Will generate the following instances:
+
+>instance IsLabel "host" (Config -> Text) where
+>  fromLabel = configHost
+>
+>instance IsLabel "port" (Config -> Int) where
+>  fromLabel = configPort
+
+Which you can use to access individual fields as follows:
+
+>getConfigHost :: Config -> Text
+>getConfigHost = #host
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
 accessorIsLabel =
   effectless TH.accessorIsLabelInstanceDecs
 
-allIsLabel =
+{-|
+Combination of 'constructorIsLabel' and 'accessorIsLabel'.
+-}
+isLabel =
   constructorIsLabel <>
   accessorIsLabel
