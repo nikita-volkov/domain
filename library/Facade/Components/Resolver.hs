@@ -16,20 +16,7 @@ type Err =
   Text
 
 type Eff =
-  ExceptT Err ((->) Env)
-
-run :: Eff a -> HashMap Text TypeRef -> Either Text a
-run =
-  runExceptT
-
-resolve :: Text -> Eff TypeRef
-resolve a =
-  ExceptT $ \ b ->
-    case HashMap.lookup a b of
-      Just c ->
-        Right c
-      Nothing ->
-        Left ("No definition found for name: " <> a)
+  Either Err
 
 type_ :: Doc.Type -> Eff Type
 type_ =
@@ -59,11 +46,11 @@ typeRef (Doc.TypeRef a) =
     Just (b, c) ->
       case b of
         [] ->
-          resolve c
+          return (LocalTypeRef c)
         _ ->
           return (GlobalTypeRef b c)
     Nothing ->
-      throwE "Broken type ref"
+      throwError "Broken type ref"
 
 byTypeName :: Doc.ByTypeName a -> (Text -> a -> Eff b) -> Eff [b]
 byTypeName (Doc.ByTypeName a) b =

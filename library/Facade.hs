@@ -16,8 +16,7 @@ parse :: ByteString -> Either Text [Dec]
 parse input =
   do
     doc <- Yaml.parseByteString input AesonValueParser.doc
-    typeResolutionMap <- TypeResolutionMapBuilder.run (TypeResolutionMapBuilder.addDoc doc)
-    Resolver.run (Resolver.doc doc) typeResolutionMap
+    Resolver.doc doc
 
 parseFile :: FilePath -> IO (Either Text [Dec])
 parseFile path =
