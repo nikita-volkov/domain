@@ -76,10 +76,6 @@ import Text.Printf as Exports (printf, hPrintf)
 import Text.Read as Exports (Read(..), readMaybe, readEither)
 import Unsafe.Coerce as Exports
 
--- selective
--------------------------
-import Control.Selective as Exports
-
 -- text
 -------------------------
 import Data.Text as Exports (Text)
@@ -87,10 +83,6 @@ import Data.Text as Exports (Text)
 -- bytestring
 -------------------------
 import Data.ByteString as Exports (ByteString)
-
--- vector
--------------------------
-import Data.Vector as Exports (Vector)
 
 -- hashable
 -------------------------
@@ -119,14 +111,6 @@ import Control.Monad.Error.Class as Exports hiding (Error(..))
 import Control.Monad.Reader.Class as Exports
 import Control.Monad.State.Class as Exports
 import Control.Monad.Writer.Class as Exports
-
--- profunctors
--------------------------
-import Data.Profunctor as Exports
-import Data.Profunctor.Cayley as Exports
-import Data.Profunctor.Rep as Exports
-import Data.Profunctor.Sieve as Exports
-import Data.Profunctor.Traversing as Exports
 
 showAsText :: Show a => a -> Text
 showAsText = show >>> fromString
