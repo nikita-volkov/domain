@@ -20,7 +20,7 @@ newtype ByTypeName a =
   ByTypeName [(Text, a)]
 
 newtype ImportDef =
-  ImportDef QualifiedTypeRef
+  ImportDef TypeRef
 
 newtype AliasDef =
   AliasDef Type
@@ -40,17 +40,14 @@ newtype SumDef =
 -- *
 -------------------------
 
-newtype QualifiedTypeRef =
-  QualifiedTypeRef [Text]
-
-data TypeRef =
-  QualifiedTypeRefTypeRef QualifiedTypeRef |
-  UnqualifiedTypeRef Text
+newtype TypeRef =
+  TypeRef [Text]
 
 newtype TypeByFieldName =
   TypeByFieldName [(Text, Type)]
 
 data Type =
-  TupleType [Type] |
+  InSquareBracketsType Type |
+  InParensType [Type] |
   AppType Type Type |
   RefType TypeRef
