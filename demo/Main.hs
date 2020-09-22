@@ -8,4 +8,4 @@ import Facade
 main =
   return ()
 
-load "samples/1.yaml"
+loadStd "samples/1.yaml"

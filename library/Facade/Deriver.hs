@@ -5,6 +5,8 @@ module Facade.Deriver
 (
   -- * Deriver definitions
   Deriver(..),
+  std,
+  -- ** Specific
   enum,
   bounded,
   show,
@@ -34,6 +36,21 @@ effectless f =
 
 -- *
 -------------------------
+
+{-|
+Combination of all standard derivers exported by this module.
+-}
+std =
+  mconcat [
+    enum,
+    bounded,
+    show,
+    eq,
+    ord,
+    generic,
+    data_,
+    typeable
+    ]
 
 enum =
   effectless TH.enumInstanceDecs

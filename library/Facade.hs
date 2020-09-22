@@ -1,10 +1,15 @@
 module Facade
+(
+  load,
+  loadStd,
+)
 where
 
 import Facade.Prelude
 import Facade.Model
 import qualified Facade.Util.Yaml as Yaml
 import qualified Facade.AesonValueParser as AesonValueParser
+import qualified Facade.Deriver as Deriver
 import qualified Facade.Components.Resolver as Resolver
 import qualified Facade.Components.TypeResolutionMapBuilder as TypeResolutionMapBuilder
 import qualified Data.ByteString as ByteString
@@ -23,11 +28,17 @@ parseFile path =
   ByteString.readFile path &
   fmap parse
 
-load :: FilePath -> TH.Q [TH.Dec]
-load path =
+load :: FilePath -> Deriver.Deriver -> TH.Q [TH.Dec]
+load path (Deriver.Deriver derive) =
   do
     TH.addDependentFile path
     parseRes <- liftIO (parseFile path)
     case parseRes of
       Left err -> fail (toList err)
-      Right decs -> return (fmap TH.typeDec decs)
+      Right decs -> do
+        instanceDecs <- fmap concat (traverse derive decs)
+        return (fmap TH.typeDec decs <> instanceDecs)
+
+loadStd :: FilePath -> TH.Q [TH.Dec]
+loadStd path =
+  load path Deriver.std
