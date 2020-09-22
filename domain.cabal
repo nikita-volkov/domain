@@ -1,4 +1,4 @@
-name: facade
+name: domain
 version: 0.1
 synopsis: Handy domain model declaration toolkit
 description:
@@ -9,8 +9,8 @@ description:
   - Finally solve the notorious records problem.
   - Similarly solve the less notorious problem of conflicting constructor names of sum-types.
   - Avoid all boilerplate while doing all the above.
-homepage: https://github.com/nikita-volkov/facade
-bug-reports: https://github.com/nikita-volkov/facade/issues
+homepage: https://github.com/nikita-volkov/domain
+bug-reports: https://github.com/nikita-volkov/domain/issues
 author: Nikita Volkov <nikita.y.volkov@mail.ru>
 maintainer: Nikita Volkov <nikita.y.volkov@mail.ru>
 copyright: (c) 2020 Nikita Volkov
@@ -21,28 +21,28 @@ cabal-version: >=1.10
 
 source-repository head
   type: git
-  location: git://github.com/nikita-volkov/facade.git
+  location: git://github.com/nikita-volkov/domain.git
 
 library
   hs-source-dirs: library
   default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DerivingVia, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedLabels, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples
   default-language: Haskell2010
   exposed-modules:
-    Facade
-    Facade.Deriver
+    Domain
+    Domain.Deriver
   other-modules:
-    Facade.AesonValueParser
-    Facade.Attoparsec
-    Facade.Components.Resolver
-    Facade.Components.TypeResolutionMapBuilder
-    Facade.Deriver.TH
-    Facade.Model
-    Facade.Prelude
-    Facade.TH
-    Facade.Util.AesonValueParser
-    Facade.Util.List
-    Facade.Util.Yaml
-    Facade.V1DocModel
+    Domain.AesonValueParser
+    Domain.Attoparsec
+    Domain.Components.Resolver
+    Domain.Components.TypeResolutionMapBuilder
+    Domain.Deriver.TH
+    Domain.Model
+    Domain.Prelude
+    Domain.TH
+    Domain.Util.AesonValueParser
+    Domain.Util.List
+    Domain.Util.Yaml
+    Domain.V1DocModel
   build-depends:
     aeson >=1 && <2,
     aeson-value-parser >=0.19 && <0.20,
@@ -71,6 +71,6 @@ test-suite demo
   default-language: Haskell2010
   ghc-options: -ddump-splices
   build-depends:
-    facade,
+    domain,
     hashable-time >=0.2 && <0.3,
     rerebase >=1.7.4 && <2

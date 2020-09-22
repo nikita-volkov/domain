@@ -1,7 +1,7 @@
-module Facade.Util.AesonValueParser
+module Domain.Util.AesonValueParser
 where
 
-import Facade.Prelude
+import Domain.Prelude
 import AesonValueParser
 
 

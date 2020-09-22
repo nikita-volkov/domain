@@ -1,19 +1,19 @@
-module Facade
+module Domain
 (
   load,
   loadStd,
 )
 where
 
-import Facade.Prelude
-import Facade.Model
-import qualified Facade.Util.Yaml as Yaml
-import qualified Facade.AesonValueParser as AesonValueParser
-import qualified Facade.Deriver as Deriver
-import qualified Facade.Components.Resolver as Resolver
-import qualified Facade.Components.TypeResolutionMapBuilder as TypeResolutionMapBuilder
+import Domain.Prelude
+import Domain.Model
+import qualified Domain.Util.Yaml as Yaml
+import qualified Domain.AesonValueParser as AesonValueParser
+import qualified Domain.Deriver as Deriver
+import qualified Domain.Components.Resolver as Resolver
+import qualified Domain.Components.TypeResolutionMapBuilder as TypeResolutionMapBuilder
 import qualified Data.ByteString as ByteString
-import qualified Facade.TH as TH
+import qualified Domain.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 

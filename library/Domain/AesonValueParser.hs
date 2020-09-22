@@ -1,11 +1,11 @@
-module Facade.AesonValueParser
+module Domain.AesonValueParser
 where
 
-import Facade.Prelude hiding (null)
-import Facade.V1DocModel
+import Domain.Prelude hiding (null)
+import Domain.V1DocModel
 import AesonValueParser
-import Facade.Util.AesonValueParser
-import qualified Facade.Attoparsec as Attoparsec
+import Domain.Util.AesonValueParser
+import qualified Domain.Attoparsec as Attoparsec
 
 
 doc =

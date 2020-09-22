@@ -1,8 +1,8 @@
-module Facade.TH
+module Domain.TH
 where
 
-import Facade.Prelude
-import Facade.Model
+import Domain.Prelude
+import Domain.Model
 import qualified Language.Haskell.TH as TH
 import qualified Data.Text as Text
 import qualified Data.Char as Char

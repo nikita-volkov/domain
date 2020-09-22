@@ -1,11 +1,11 @@
-module Facade.Deriver.TH
+module Domain.Deriver.TH
 where
 
-import Facade.Prelude
+import Domain.Prelude
 import Language.Haskell.TH
-import qualified Facade.Model as Mo
+import qualified Domain.Model as Mo
 import qualified Data.Text as Text
-import qualified Facade.TH as TH
+import qualified Domain.TH as TH
 
 
 enumInstanceDecs =

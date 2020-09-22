@@ -1,10 +1,10 @@
-module Facade.Components.Resolver
+module Domain.Components.Resolver
 where
 
-import Facade.Prelude hiding (lookup)
-import Facade.Model
-import qualified Facade.V1DocModel as Doc
-import qualified Facade.Util.List as List
+import Domain.Prelude hiding (lookup)
+import Domain.Model
+import qualified Domain.V1DocModel as Doc
+import qualified Domain.Util.List as List
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 

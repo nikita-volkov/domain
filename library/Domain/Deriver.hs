@@ -1,7 +1,7 @@
 {-|
-Toolkit for construction and definition of instance derivers for Facade specs.
+Toolkit for construction and definition of instance derivers for Domain specs.
 -}
-module Facade.Deriver
+module Domain.Deriver
 (
   -- * Deriver definitions
   Deriver(..),
@@ -26,14 +26,14 @@ module Facade.Deriver
   constructorIsLabel,
   accessorIsLabel,
   -- * Spec model
-  module Facade.Model,
+  module Domain.Model,
 )
 where
 
-import Facade.Prelude hiding (show, ord, all)
-import Facade.Model
+import Domain.Prelude hiding (show, ord, all)
+import Domain.Model
 import qualified Language.Haskell.TH as TH
-import qualified Facade.Deriver.TH as TH
+import qualified Domain.Deriver.TH as TH
 
 
 {-|

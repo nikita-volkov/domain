@@ -1,7 +1,7 @@
-module Facade.V1DocModel
+module Domain.V1DocModel
 where
 
-import Facade.Prelude hiding (Product, Sum, Enum)
+import Domain.Prelude hiding (Product, Sum, Enum)
 
 
 data Doc =

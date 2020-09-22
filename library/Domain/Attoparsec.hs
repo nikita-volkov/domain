@@ -1,8 +1,8 @@
-module Facade.Attoparsec
+module Domain.Attoparsec
 where
 
-import Facade.Prelude hiding (takeWhile)
-import Facade.V1DocModel
+import Domain.Prelude hiding (takeWhile)
+import Domain.V1DocModel
 import Data.Attoparsec.Text
 import qualified Data.Text as Text
 

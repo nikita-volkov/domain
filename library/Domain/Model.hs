@@ -1,10 +1,10 @@
 {-|
 High level model.
 -}
-module Facade.Model
+module Domain.Model
 where
 
-import Facade.Prelude
+import Domain.Prelude
 
 
 data Dec =

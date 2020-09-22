@@ -2,9 +2,9 @@ module Main
 where
 
 import Prelude
-import Facade
+import Domain
 import Data.Hashable.Time ()
-import qualified Facade.Deriver as Deriver
+import qualified Domain.Deriver as Deriver
 
 
 main =

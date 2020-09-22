@@ -1,7 +1,7 @@
-module Facade.Util.Yaml
+module Domain.Util.Yaml
 where
 
-import Facade.Prelude
+import Domain.Prelude
 import qualified Data.Aeson as Aeson
 import qualified Data.Yaml as Yaml
 import qualified AesonValueParser as Avp

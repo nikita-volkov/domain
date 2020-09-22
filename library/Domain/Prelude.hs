@@ -1,4 +1,4 @@
-module Facade.Prelude
+module Domain.Prelude
 ( 
   module Exports,
   showAsText,

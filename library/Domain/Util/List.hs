@@ -1,7 +1,7 @@
-module Facade.Util.List
+module Domain.Util.List
 where
 
-import Facade.Prelude
+import Domain.Prelude
 import Data.List
 
 
