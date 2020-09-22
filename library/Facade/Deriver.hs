@@ -13,29 +13,36 @@ import qualified Data.Char as Char
 
 
 newtype Deriver =
-  Deriver (Dec -> [TH.Dec])
+  Deriver (Dec -> TH.Q [TH.Dec])
   deriving (Semigroup, Monoid)
+    via ((->) Dec (Ap TH.Q [TH.Dec]))
+
+effectless f =
+  Deriver (pure . f)
+
+-- *
+-------------------------
 
 enum =
-  Deriver TH.enumInstanceDecs
+  effectless TH.enumInstanceDecs
 
 bounded =
-  Deriver TH.boundedInstanceDecs
+  effectless TH.boundedInstanceDecs
 
 show =
-  Deriver TH.showInstanceDecs
+  effectless TH.showInstanceDecs
 
 eq =
-  Deriver TH.eqInstanceDecs
+  effectless TH.eqInstanceDecs
 
 ord =
-  Deriver TH.ordInstanceDecs
+  effectless TH.ordInstanceDecs
 
 generic =
-  Deriver TH.genericInstanceDecs
+  effectless TH.genericInstanceDecs
 
 data_ =
-  Deriver TH.dataInstanceDecs
+  effectless TH.dataInstanceDecs
 
 typeable =
-  Deriver TH.typeableInstanceDecs
+  effectless TH.typeableInstanceDecs
