@@ -10,10 +10,11 @@ imports:
   Scientific: Data.Scientific.Scientific
   Text: Data.Text.Text
   Uuid: Data.UUID.UUID
+  UTCTime: Data.Time.UTCTime
 
 # Get exported
 aliases:
-  LazyText: Data.Text.Lazy.Text
+  LazyText1: Data.Text.Lazy.Text
 
 wrappers:
   ApiKey: Text
@@ -24,6 +25,7 @@ wrappers:
   SecondsSinceEpoch: Int64
   ContractSymbol: Text
   OrderId: Uuid
+  Size:
 
 sums:
   ApiError:
@@ -62,6 +64,7 @@ products:
     positionSizeLimit: Scientific
     settlementTime: UTCTime
     underlyingAsset: Asset
+  Asset:
 
 enums:
   ContractStatus:

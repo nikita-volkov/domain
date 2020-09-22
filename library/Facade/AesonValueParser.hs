@@ -1,7 +1,7 @@
 module Facade.AesonValueParser
 where
 
-import Facade.Prelude
+import Facade.Prelude hiding (null)
 import Facade.V1DocModel
 import AesonValueParser
 import Facade.Util.AesonValueParser
@@ -48,8 +48,11 @@ typeRef =
   string (attoparsedText (Attoparsec.complete Attoparsec.typeRef))
 
 type_ =
-  string (attoparsedText (Attoparsec.complete Attoparsec.type_))
+  string (attoparsedText (Attoparsec.complete Attoparsec.typeOnly)) <|>
+  null $> InParensType []
 
 typeByFieldName =
   TypeByFieldName . toList <$>
   object (fieldMap (attoparsedText (Attoparsec.complete Attoparsec.lcName)) type_)
+    <|>
+  null $> TypeByFieldName []

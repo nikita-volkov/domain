@@ -13,6 +13,9 @@ complete parser =
 typeRef =
   fmap TypeRef $ sepBy1 ucName (char '.')
 
+typeOnly =
+  complete (type_ <|> pure (InParensType []))
+
 type_ =
   appType <|> nonAppType
 
