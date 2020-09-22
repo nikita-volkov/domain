@@ -93,10 +93,17 @@ sumAdtDec a b =
 sumConstructor a b c =
   TH.NormalC
     (sumConstructorName a b)
-    [(fieldBang, typeType c)]
+    (sumConstructorFields c)
 
 sumConstructorName a b =
   textName (onTextFirstChar Char.toUpper b <> a)
+
+sumConstructorFields =
+  \ case
+    TupleType 0 ->
+      []
+    a ->
+      [(fieldBang, typeType a)]
 
 enumDec a b =
   TH.DataD [] (textName a) [] Nothing (fmap (enumConstructor a) b) []
