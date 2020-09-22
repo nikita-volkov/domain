@@ -82,8 +82,7 @@ constructorIsLabelInstanceDecs =
     Mo.TypeDec a b ->
       case b of
         Mo.AliasTypeDef _ -> []
-        Mo.WrapperTypeDef c ->
-          [wrapperConstructorIsLabelInstanceDec a c]
+        Mo.WrapperTypeDef c -> []
         Mo.EnumTypeDef c ->
           fmap (enumConstructorIsLabelInstanceDec a) c
         Mo.CompositeTypeDef c d ->
