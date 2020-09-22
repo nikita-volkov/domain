@@ -8,7 +8,7 @@ import qualified Data.Text as Text
 import qualified Data.Char as Char
 
 
-dec =
+typeDec =
   \ case
     TypeDec a b ->
       typeDefDec a b
@@ -37,7 +37,7 @@ newtypeDec a b =
     _name =
       textName a
     _accessorName =
-      textName (a <> "Value")
+      recordFieldName a "Value"
     _con =
       TH.RecC _name [(_accessorName, noBang, typeType b)]
 
@@ -59,7 +59,7 @@ typeType =
     ListType ->
       TH.ListT
     TupleType a ->
-      error "TODO"
+      TH.TupleT a
 
 typeRefNameText =
   \ case
@@ -78,13 +78,13 @@ recordAdtDec a b =
       TH.RecC _name (fmap (uncurry (recordVarBangType a)) b)
 
 recordVarBangType _conName _fieldName _type =
-  (textName (recordFieldNameText _conName _fieldName), fieldBang, typeType _type)
+  (recordFieldName _conName _fieldName, fieldBang, typeType _type)
 
-recordFieldNameText a b =
-  detitledText a <> Text.toTitle b
+recordFieldName a b =
+  textName (onTextFirstChar Char.toLower a <> onTextFirstChar Char.toUpper b)
 
-detitledText =
-  foldMap (\ (a, b) -> Text.cons (Char.toLower a) b) .
+onTextFirstChar fn =
+  foldMap (\ (a, b) -> Text.cons (fn a) b) .
   Text.uncons
 
 sumAdtDec a b =
@@ -96,7 +96,7 @@ sumConstructor a b c =
     [(fieldBang, typeType c)]
 
 sumConstructorName a b =
-  textName (a <> Text.toTitle b)
+  textName (onTextFirstChar Char.toUpper b <> a)
 
 enumDec a b =
   TH.DataD [] (textName a) [] Nothing (fmap (enumConstructor a) b) []
