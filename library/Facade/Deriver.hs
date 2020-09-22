@@ -2,14 +2,26 @@
 Abstraction which allows to define automatic derivation of any class.
 -}
 module Facade.Deriver
+(
+  -- * Deriver definitions
+  Deriver(..),
+  enum,
+  bounded,
+  show,
+  eq,
+  ord,
+  generic,
+  data_,
+  typeable,
+  -- * Declarations model
+  module Facade.Model,
+)
 where
 
-import Facade.Prelude
+import Facade.Prelude hiding (show, ord)
 import Facade.Model
 import qualified Language.Haskell.TH as TH
 import qualified Facade.Deriver.TH as TH
-import qualified Data.Text as Text
-import qualified Data.Char as Char
 
 
 newtype Deriver =

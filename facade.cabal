@@ -21,14 +21,14 @@ library
   default-language: Haskell2010
   exposed-modules:
     Facade
-    Facade.Model
+    Facade.Deriver
   other-modules:
     Facade.AesonValueParser
     Facade.Attoparsec
     Facade.Components.Resolver
     Facade.Components.TypeResolutionMapBuilder
-    Facade.Deriver
     Facade.Deriver.TH
+    Facade.Model
     Facade.Prelude
     Facade.TH
     Facade.Util.AesonValueParser
