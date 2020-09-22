@@ -18,6 +18,10 @@ type Err =
 type Eff =
   ExceptT Err ((->) Env)
 
+run :: Eff a -> HashMap Text TypeRef -> Either Text a
+run =
+  runExceptT
+
 resolve :: Text -> Eff TypeRef
 resolve a =
   ExceptT $ \ b ->
