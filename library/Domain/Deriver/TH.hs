@@ -6,6 +6,7 @@ import Language.Haskell.TH
 import qualified Domain.Model as Mo
 import qualified Data.Text as Text
 import qualified Domain.TH as TH
+import qualified TemplateHaskell.Compat.V0208 as Compat
 
 
 enumInstanceDecs =
@@ -88,11 +89,9 @@ constructorIsLabelInstanceDecs =
         Mo.WrapperTypeDef c -> []
         Mo.EnumTypeDef c ->
           fmap (enumConstructorIsLabelInstanceDec a) c
-        Mo.CompositeTypeDef c d ->
-          case c of
-            Mo.ProductComposition -> []
-            Mo.SumComposition ->
-              fmap (uncurry (sumConstructorIsLabelInstanceDec a)) d
+        Mo.SumTypeDef c ->
+          fmap (uncurry (sumConstructorIsLabelInstanceDec a)) c
+        Mo.ProductTypeDef c -> []
 
 wrapperConstructorIsLabelInstanceDec typeName type_ =
   InstanceD Nothing [] headType bodyDecs
@@ -133,7 +132,8 @@ enumConstructorIsLabelInstanceDec typeName label =
             body =
               NormalB (ConE (TH.sumConstructorName typeName label))
 
-sumConstructorIsLabelInstanceDec typeName label type_ =
+sumConstructorIsLabelInstanceDec :: Text -> Text -> [Mo.Type] -> Dec
+sumConstructorIsLabelInstanceDec typeName label memberTypes =
   InstanceD Nothing [] headType bodyDecs
   where
     headType =
@@ -142,14 +142,9 @@ sumConstructorIsLabelInstanceDec typeName label type_ =
         labelType =
           LitT (StrTyLit (toList label))
         repType =
-          case type_ of
-            Mo.TupleType 0 ->
-              sumType
-            _ ->
-              listAppT ArrowT [payloadType, sumType]
+          foldr (\ a b -> AppT (AppT ArrowT a) b) sumType $
+          fmap TH.typeType memberTypes
           where
-            payloadType =
-              TH.typeType type_
             sumType =
               ConT (TH.textName typeName)
     bodyDecs =
@@ -160,7 +155,6 @@ sumConstructorIsLabelInstanceDec typeName label type_ =
           where
             body =
               NormalB (ConE (TH.sumConstructorName typeName label))
-
 
 listAppT base args =
   foldl' AppT base args
@@ -175,16 +169,15 @@ accessorIsLabelInstanceDecs =
           [wrapperAccessorIsLabelInstanceDec a c]
         Mo.EnumTypeDef c ->
           fmap (enumAccessorIsLabelInstanceDec a) c
-        Mo.CompositeTypeDef c d ->
-          case c of
-            Mo.ProductComposition ->
-              fmap (uncurry (productAccessorIsLabelInstanceDec a)) d
-            Mo.SumComposition ->
-              fmap (uncurry (sumAccessorIsLabelInstanceDec a)) d
+        Mo.ProductTypeDef c ->
+          fmap (uncurry (productAccessorIsLabelInstanceDec a)) c
+        Mo.SumTypeDef c ->
+          fmap (uncurry (sumAccessorIsLabelInstanceDec a)) c
 
 wrapperAccessorIsLabelInstanceDec typeName type_ =
   productAccessorIsLabelInstanceDec typeName "value" type_
 
+enumAccessorIsLabelInstanceDec :: Text -> Text -> Dec
 enumAccessorIsLabelInstanceDec typeName label =
   InstanceD Nothing [] headType [fromLabelDec]
   where
@@ -221,11 +214,12 @@ enumAccessorIsLabelInstanceDec typeName label =
                 exp =
                   ConE 'False
 
-sumAccessorIsLabelInstanceDec typeName label type_ =
-  case type_ of
-    Mo.TupleType 0 ->
+sumAccessorIsLabelInstanceDec :: Text -> Text -> [Mo.Type] -> Dec
+sumAccessorIsLabelInstanceDec typeName label memberTypes =
+  case null memberTypes of
+    True ->
       enumAccessorIsLabelInstanceDec typeName label
-    _ ->
+    False ->
       InstanceD Nothing [] headType bodyDecs
       where
         conName =
@@ -239,7 +233,7 @@ sumAccessorIsLabelInstanceDec typeName label type_ =
               listAppT ArrowT [sumType, resultType]
               where
                 resultType =
-                  AppT (ConT ''Maybe) (TH.typeType type_)
+                  AppT (ConT ''Maybe) (tupleType memberTypes)
                 sumType =
                   ConT (TH.textName typeName)
         bodyDecs =
@@ -251,18 +245,30 @@ sumAccessorIsLabelInstanceDec typeName label type_ =
                 exp =
                   LamCaseE [positiveMatch, negativeMatch]
                   where
+                    memberTypesLength =
+                      length memberTypes
+                    varNames =
+                      fmap (mkName . showString "_" . show)
+                        (enumFromTo 1 memberTypesLength)
                     positiveMatch =
                       Match pat (NormalB exp) []
                       where
                         pat =
-                          ConP conName [VarP (mkName "a")]
+                          ConP conName varPats
+                          where
+                            varPats =
+                              varNames & fmap VarP
                         exp =
-                          AppE (ConE 'Just) (VarE (mkName "a"))
+                          AppE (ConE 'Just)
+                            (Compat.tupE (fmap VarE varNames))
                     negativeMatch =
                       Match WildP (NormalB exp) []
                       where
                         exp =
                           ConE 'Nothing
+
+tupleType a =
+  foldl' AppT (TupleT (length a)) (fmap TH.typeType a)
 
 productAccessorIsLabelInstanceDec typeName field type_ =
   InstanceD Nothing [] headType [fromLabelDec]

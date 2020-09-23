@@ -22,15 +22,9 @@ data TypeDef =
   AliasTypeDef Type |
   WrapperTypeDef Type |
   EnumTypeDef [Text] |
-  CompositeTypeDef Composition [(Text, Type)] 
+  SumTypeDef [(Text, [Type])] |
+  ProductTypeDef [(Text, Type)] 
   deriving (Generic, Show, Eq, Ord, Lift)
-
-{-|
-Type of composition.
--}
-data Composition =
-  ProductComposition | SumComposition
-  deriving (Generic, Show, Eq, Ord, Enum, Bounded, Lift)
 
 {-|
 Reference to a type.

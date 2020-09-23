@@ -33,8 +33,6 @@ type_ =
 inParensType :: [Doc.Type] -> Eff Type
 inParensType =
   \ case
-    [] ->
-      return (TupleType 0)
     a : [] ->
       type_ a
     a ->
@@ -68,17 +66,25 @@ wrapperDef :: Doc.WrapperDef -> Eff TypeDef
 wrapperDef (Doc.WrapperDef a) =
   WrapperTypeDef <$> type_ a
 
+enumDef :: Doc.EnumDef -> Eff TypeDef
 enumDef (Doc.EnumDef a) =
   pure (EnumTypeDef a)
 
-productDef (Doc.ProductDef a) =
-  a & typeByFieldName & fmap (CompositeTypeDef ProductComposition)
+productDef :: Doc.ProductDef -> Eff TypeDef
+productDef (Doc.ProductDef (Doc.TypeByFieldName a)) =
+  a & traverse (traverse type_) & fmap ProductTypeDef
 
-sumDef (Doc.SumDef a) =
-  a & typeByFieldName & fmap (CompositeTypeDef SumComposition)
+sumDef :: Doc.SumDef -> Eff TypeDef
+sumDef (Doc.SumDef (Doc.TypeByFieldName a)) =
+  a & traverse (traverse sumConstructorType) & fmap SumTypeDef
 
-typeByFieldName (Doc.TypeByFieldName a) =
-  a & traverse (traverse type_)
+sumConstructorType :: Doc.Type -> Eff [Type]
+sumConstructorType =
+  \ case
+    Doc.InParensType a ->
+      traverse type_ a
+    a ->
+      fmap pure (type_ a)
 
 doc :: Doc.Doc -> Eff [TypeDec]
 doc (Doc.Doc a b c d e f) =

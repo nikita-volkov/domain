@@ -21,12 +21,10 @@ typeDefDec a =
       newtypeDec a b
     EnumTypeDef b ->
       enumDec a b
-    CompositeTypeDef b c ->
-      case b of
-        ProductComposition ->
-          recordAdtDec a c
-        SumComposition ->
-          sumAdtDec a c
+    SumTypeDef b ->
+      sumAdtDec a b
+    ProductTypeDef b ->
+      recordAdtDec a b
 
 typeSynonymDec a b =
   TH.TySynD (textName a) [] (typeType b)
@@ -99,11 +97,7 @@ sumConstructorName a b =
   textName (onTextFirstChar Char.toUpper b <> a)
 
 sumConstructorFields =
-  \ case
-    TupleType 0 ->
-      []
-    a ->
-      [(fieldBang, typeType a)]
+  fmap ((fieldBang,) . typeType)
 
 enumDec a b =
   TH.DataD [] (textName a) [] Nothing (fmap (enumConstructor a) b) []
