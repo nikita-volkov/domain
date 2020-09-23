@@ -3,12 +3,12 @@ version: 0.1
 synopsis: Handy domain model declaration toolkit
 description:
   - Let your domain model definition be focused on domain model only.
-  - Let it be readable, avoiding the syntactic noise.
+  - Let it be readable and comfortly editable, avoiding syntactic noise.
   - Separate its declaration from the problems of declaration of instances,
   accessor functions, optics and etc.
-  - Finally solve the notorious records problem.
-  - Similarly solve the less notorious problem of conflicting constructor names of sum-types.
-  - Avoid all boilerplate while doing all the above.
+  - Have the notorious records problem solved.
+  - Similarly have the less notorious problem of conflicting constructor names of sum-types solved.
+  - Avoid boilerplate while doing all the above.
 homepage: https://github.com/nikita-volkov/domain
 bug-reports: https://github.com/nikita-volkov/domain/issues
 author: Nikita Volkov <nikita.y.volkov@mail.ru>
