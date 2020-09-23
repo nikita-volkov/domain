@@ -25,8 +25,12 @@ parse input =
 
 parseFile :: FilePath -> IO (Either Text [Dec])
 parseFile path =
-  ByteString.readFile path &
-  fmap parse
+  catchIOError act handle
+  where
+    act =
+      ByteString.readFile path & fmap parse
+    handle =
+      return . Left . showAsText
 
 {-|
 Load a YAML domain spec file while explicitly defining the instance deriver.
