@@ -10,23 +10,22 @@ import qualified Data.Text as Text
 import qualified Data.Char as Char
 
 
-typeDec =
-  \ case
-    TypeDec a b ->
-      typeDefDec a b
-
-typeDefDec a =
-  \ case
+typeDec nameFields (TypeDec a b) =
+  case b of
     AliasTypeDef b ->
       TH.typeSynonymDec (TH.textName a) (typeType b)
     WrapperTypeDef b ->
-      TH.recordNewtypeDec (TH.textName a) (recordFieldName a "Value") (typeType b)
+      if nameFields
+        then TH.recordNewtypeDec (TH.textName a) (recordFieldName a "Value") (typeType b)
+        else TH.normalNewtypeDec (TH.textName a) (typeType b)
     EnumTypeDef b ->
       TH.enumDec (TH.textName a) (sumConstructorName a <$> b)
     SumTypeDef b ->
       TH.sumAdtDec (TH.textName a) (fmap (bimap (sumConstructorName a) (fmap typeType)) b)
     ProductTypeDef b ->
-      TH.recordAdtDec (TH.textName a) (fmap (bimap (recordFieldName a) typeType) b)
+      if nameFields
+        then TH.recordAdtDec (TH.textName a) (fmap (bimap (recordFieldName a) typeType) b)
+        else TH.productAdtDec (TH.textName a) (fmap (typeType . snd) b)
 
 typeType =
   \ case

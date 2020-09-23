@@ -80,6 +80,37 @@ listAppT :: Type -> [Type] -> Type
 listAppT base args =
   foldl' AppT base args
 
+appliedTupleT :: [Type] -> Type
+appliedTupleT a =
+  foldl' AppT (TupleT (length a)) a
+
+indexName :: Int -> Name
+indexName =
+  mkName . showChar '_' . show
+
+enumNames :: Int -> [Name]
+enumNames =
+  fmap indexName . enumFromTo 0 . pred
+
+{-|
+Lambda expression, which extracts a product member by index.
+-}
+productAccessor :: Name -> Int -> Int -> Exp
+productAccessor conName numMembers index =
+  LamE [pat] exp
+  where
+    varName =
+      indexName index
+    pat =
+      ConP conName pats
+      where
+        pats =
+          replicate index WildP <>
+          pure (VarP varName) <>
+          replicate (numMembers - index - 1) WildP
+    exp =
+      VarE varName
+
 
 -- *
 -------------------------
@@ -111,3 +142,15 @@ enumConstructorIsLabelInstanceDec typeName conName label =
       where
         body =
           NormalB (ConE conName)
+
+productAccessorIsLabelInstanceDec :: Name -> TyLit -> Exp -> Type -> Dec
+productAccessorIsLabelInstanceDec typeName label accessor resultType =
+  InstanceD Nothing [] headType [fromLabelDec]
+  where
+    headType =
+      listAppT (ConT ''IsLabel) [LitT label, repType]
+      where
+        repType =
+          listAppT ArrowT [ConT typeName, resultType]
+    fromLabelDec =
+      FunD 'fromLabel [Clause [] (NormalB accessor) []]

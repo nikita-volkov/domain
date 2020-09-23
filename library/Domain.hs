@@ -2,19 +2,19 @@ module Domain
 (
   -- * Loading from external files
   load,
-  loadDerivingAll,
+  loadStd,
   -- * Inlining
   declare,
-  declareDerivingAll,
+  declareStd,
   spec,
 )
 where
 
 import Domain.Prelude hiding (liftEither, readFile, lift)
-import Domain.ModelTH
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model
+import qualified Domain.ModelTH as ModelTH
 import qualified Domain.Util.Yaml as Yaml
 import qualified Domain.AesonValueParser as AesonValueParser
 import qualified Domain.Deriver as Deriver
@@ -29,34 +29,36 @@ Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
 -}
-load :: Deriver.Deriver -> FilePath -> Q [Dec]
-load deriver path =
-  loadSpec path >>= declare deriver
+load :: Bool -> Deriver.Deriver -> FilePath -> Q [Dec]
+load nameFields deriver path =
+  loadSpec path >>= declare nameFields deriver
 
 {-|
-Load a YAML domain spec file using the 'Deriver.all' instance deriver.
+Load a YAML domain spec file using the 'Deriver.all' instance deriver
+and generating no field accessors.
 -}
-loadDerivingAll :: FilePath -> Q [Dec]
-loadDerivingAll =
-  load Deriver.all
+loadStd :: FilePath -> Q [Dec]
+loadStd =
+  load False Deriver.all
 
 {-|
 Declare datatypes from a spec tree.
 
 Use this in combination with the 'spec' quasi-quoter.
 -}
-declare :: Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
-declare (Deriver.Deriver derive) spec =
+declare :: Bool -> Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
+declare nameFields (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)
-    return (fmap typeDec spec <> instanceDecs)
+    return (fmap (ModelTH.typeDec nameFields) spec <> instanceDecs)
 
 {-|
 Declare datatypes from a spec tree using the 'Deriver.all' instance deriver
+and generating no field accessors.
 -}
-declareDerivingAll :: [Model.TypeDec] -> Q [Dec]
-declareDerivingAll =
-  declare Deriver.all
+declareStd :: [Model.TypeDec] -> Q [Dec]
+declareStd =
+  declare False Deriver.all
 
 {-|
 Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.

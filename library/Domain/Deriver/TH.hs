@@ -143,12 +143,12 @@ accessorIsLabelInstanceDecs =
         Mo.EnumTypeDef c ->
           fmap (enumAccessorIsLabelInstanceDec a) c
         Mo.ProductTypeDef c ->
-          fmap (uncurry (productAccessorIsLabelInstanceDec a)) c
+          fmap (uncurry (productAccessorIsLabelInstanceDec a (fmap fst c))) c
         Mo.SumTypeDef c ->
           fmap (uncurry (sumAccessorIsLabelInstanceDec a)) c
 
 wrapperAccessorIsLabelInstanceDec typeName type_ =
-  productAccessorIsLabelInstanceDec typeName "value" type_
+  productAccessorIsLabelInstanceDec typeName ["value"] "value" type_
 
 enumAccessorIsLabelInstanceDec :: Text -> Text -> Dec
 enumAccessorIsLabelInstanceDec typeName label =
@@ -206,7 +206,7 @@ sumAccessorIsLabelInstanceDec typeName label memberTypes =
               Util.listAppT ArrowT [sumType, resultType]
               where
                 resultType =
-                  AppT (ConT ''Maybe) (tupleType memberTypes)
+                  AppT (ConT ''Maybe) (Util.appliedTupleT (fmap TH.typeType memberTypes))
                 sumType =
                   ConT (Util.textName typeName)
         bodyDecs =
@@ -240,26 +240,18 @@ sumAccessorIsLabelInstanceDec typeName label memberTypes =
                         exp =
                           ConE 'Nothing
 
-tupleType a =
-  foldl' AppT (TupleT (length a)) (fmap TH.typeType a)
+productAccessorIsLabelInstanceDec :: Text -> [Text] -> Text -> Mo.Type -> Dec
+productAccessorIsLabelInstanceDec typeName allFields field type_ =
+  Util.productAccessorIsLabelInstanceDec
+    (Util.textName typeName)
+    (Util.textTyLit field)
+    (productAccessorByName typeName allFields field)
+    (TH.typeType type_)
 
-productAccessorIsLabelInstanceDec typeName field type_ =
-  InstanceD Nothing [] headType [fromLabelDec]
-  where
-    headType =
-      Util.listAppT (ConT ''IsLabel) [labelType, repType]
-      where
-        labelType =
-          LitT (StrTyLit (toList field))
-        repType =
-          Util.listAppT ArrowT [compositeType, resultType]
-          where
-            compositeType =
-              ConT (Util.textName typeName)
-            resultType =
-              TH.typeType type_
-    fromLabelDec =
-      FunD 'fromLabel [Clause [] (NormalB exp) []]
-      where
-        exp =
-          VarE (TH.recordFieldName typeName field)
+productAccessorByName :: Text -> [Text] -> Text -> Exp
+productAccessorByName typeName allFieldNames fieldName =
+  case elemIndex fieldName allFieldNames of
+    Just index ->
+      Util.productAccessor (Util.textName typeName) (length allFieldNames) index
+    Nothing ->
+      VarE 'id
