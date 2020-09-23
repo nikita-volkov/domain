@@ -7,10 +7,16 @@ where
 import Domain.Prelude
 
 
-data Dec =
+{-|
+Declaration of a type.
+-}
+data TypeDec =
   TypeDec Text TypeDef
   deriving (Generic, Show, Eq, Ord)
 
+{-|
+Definition of a type.
+-}
 data TypeDef =
   AliasTypeDef Type |
   WrapperTypeDef Type |
@@ -18,15 +24,24 @@ data TypeDef =
   CompositeTypeDef Composition [(Text, Type)] 
   deriving (Generic, Show, Eq, Ord)
 
+{-|
+Type of composition.
+-}
 data Composition =
   ProductComposition | SumComposition
   deriving (Generic, Show, Eq, Ord, Enum, Bounded)
 
+{-|
+Reference to a type.
+-}
 data TypeRef =
   LocalTypeRef Text |
   GlobalTypeRef [Text] Text
   deriving (Generic, Show, Eq, Ord)
 
+{-|
+Type.
+-}
 data Type =
   ListType |
   TupleType Int |

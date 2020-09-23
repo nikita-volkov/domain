@@ -17,13 +17,13 @@ import qualified Domain.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 
 
-parse :: ByteString -> Either Text [Dec]
+parse :: ByteString -> Either Text [TypeDec]
 parse input =
   do
     doc <- Yaml.parseByteString input AesonValueParser.doc
     Resolver.doc doc
 
-parseFile :: FilePath -> IO (Either Text [Dec])
+parseFile :: FilePath -> IO (Either Text [TypeDec])
 parseFile path =
   catchIOError act handle
   where

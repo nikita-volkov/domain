@@ -45,9 +45,9 @@ to a list of Template Haskell declarations in its quotation monad.
 Its Monoid instance allows you to combine derivers.
 -}
 newtype Deriver =
-  Deriver (Dec -> TH.Q [TH.Dec])
+  Deriver (TypeDec -> TH.Q [TH.Dec])
   deriving (Semigroup, Monoid)
-    via ((->) Dec (Ap TH.Q [TH.Dec]))
+    via ((->) TypeDec (Ap TH.Q [TH.Dec]))
 
 effectless f =
   Deriver (pure . f)

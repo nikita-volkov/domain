@@ -56,7 +56,7 @@ byTypeName :: Doc.ByTypeName a -> (Text -> a -> Eff b) -> Eff [b]
 byTypeName (Doc.ByTypeName a) b =
   traverse (\ (c, d) -> b c d) a
 
-byTypeNameTypeDec :: Doc.ByTypeName a -> (a -> Eff TypeDef) -> Eff [Dec]
+byTypeNameTypeDec :: Doc.ByTypeName a -> (a -> Eff TypeDef) -> Eff [TypeDec]
 byTypeNameTypeDec (Doc.ByTypeName a) b =
   traverse (\ (c, d) -> TypeDec c <$> b d) a
 
@@ -80,7 +80,7 @@ sumDef (Doc.SumDef a) =
 typeByFieldName (Doc.TypeByFieldName a) =
   a & traverse (traverse type_)
 
-doc :: Doc.Doc -> Eff [Dec]
+doc :: Doc.Doc -> Eff [TypeDec]
 doc (Doc.Doc a b c d e f) =
   fmap concat $ sequence [
     byTypeNameTypeDec b aliasDef
