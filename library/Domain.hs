@@ -9,8 +9,8 @@ module Domain
 )
 where
 
-import Domain.Prelude hiding (liftEither)
-import Domain.Model
+import Domain.Prelude hiding (liftEither, readFile)
+import qualified Domain.Model as Model
 import qualified Domain.Util.Yaml as Yaml
 import qualified Domain.AesonValueParser as AesonValueParser
 import qualified Domain.Deriver as Deriver
@@ -21,21 +21,6 @@ import qualified Domain.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Language.Haskell.TH.Quote as TH
 
-
-parse :: ByteString -> Either Text [TypeDec]
-parse input =
-  do
-    doc <- Yaml.parseByteString input AesonValueParser.doc
-    Resolver.doc doc
-
-parseFile :: FilePath -> IO (Either Text [TypeDec])
-parseFile path =
-  catchIOError act handle
-  where
-    act =
-      ByteString.readFile path & fmap parse
-    handle =
-      return . Left . showAsText
 
 {-|
 Load a YAML domain spec file while explicitly defining the instance deriver.
@@ -54,35 +39,16 @@ loadDerivingAll :: FilePath -> TH.Q [TH.Dec]
 loadDerivingAll path =
   load path Deriver.all
 
-loadSpec :: FilePath -> TH.Q [TypeDec]
-loadSpec path =
-  do
-    TH.addDependentFile path
-    parseRes <- liftIO (parseFile path)
-    liftEither parseRes
-
 {-|
 Declare datatypes from a spec tree.
 
 Use this in combination with the 'spec' quasi-quoter.
 -}
-declare :: Deriver.Deriver -> [TypeDec] -> TH.Q [TH.Dec]
+declare :: Deriver.Deriver -> [Model.TypeDec] -> TH.Q [TH.Dec]
 declare (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)
     return (fmap TH.typeDec spec <> instanceDecs)
-
-parseString :: String -> TH.Q [TypeDec]
-parseString input =
-  liftEither $ do
-    doc <- Yaml.parseString input AesonValueParser.doc
-    Resolver.doc doc
-
-liftEither :: Either Text a -> TH.Q a
-liftEither =
-  \ case
-    Left err -> fail (toList err)
-    Right a -> return a 
 
 {-|
 Quasi-quoter, which parses a YAML spec into @['TypeDec']@.
@@ -103,3 +69,36 @@ spec =
       unsupported
     dec =
       unsupported
+
+
+-- * Helpers
+-------------------------
+
+loadSpec :: FilePath -> TH.Q [Model.TypeDec]
+loadSpec path =
+  readFile path >>= parseByteString
+
+readFile :: FilePath -> TH.Q ByteString
+readFile path =
+  do
+    TH.addDependentFile path
+    readRes <- liftIO (tryIOError (ByteString.readFile path))
+    liftEither (first showAsText readRes)
+
+parseString :: String -> TH.Q [Model.TypeDec]
+parseString input =
+  liftEither $ do
+    doc <- Yaml.parseString input AesonValueParser.doc
+    Resolver.doc doc
+
+parseByteString :: ByteString -> TH.Q [Model.TypeDec]
+parseByteString input =
+  liftEither $ do
+    doc <- Yaml.parseByteString input AesonValueParser.doc
+    Resolver.doc doc
+
+liftEither :: Either Text a -> TH.Q a
+liftEither =
+  \ case
+    Left err -> fail (toList err)
+    Right a -> return a 
