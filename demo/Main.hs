@@ -3,7 +3,6 @@ where
 
 import Prelude
 import Domain
-import Data.Hashable.Time ()
 import qualified Domain.Deriver as Deriver
 
 

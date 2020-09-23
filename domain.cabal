@@ -66,5 +66,4 @@ test-suite demo
   ghc-options: -ddump-splices
   build-depends:
     domain,
-    hashable-time >=0.2 && <0.3,
-    rerebase >=1.7.4 && <2
+    rerebase >=1.9 && <2
