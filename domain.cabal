@@ -37,8 +37,10 @@ library
     Domain.Components.TypeResolutionMapBuilder
     Domain.Deriver.TH
     Domain.Model
+    Domain.ModelTH
+    Domain.ModelText
     Domain.Prelude
-    Domain.TH
+    Domain.Util.TH
     Domain.Util.AesonValueParser
     Domain.Util.List
     Domain.Util.Yaml

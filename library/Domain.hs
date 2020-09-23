@@ -11,7 +11,7 @@ module Domain
 where
 
 import Domain.Prelude hiding (liftEither, readFile, lift)
-import Domain.TH
+import Domain.ModelTH
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model

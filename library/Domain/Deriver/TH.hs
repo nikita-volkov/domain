@@ -5,7 +5,8 @@ import Domain.Prelude
 import Language.Haskell.TH
 import qualified Domain.Model as Mo
 import qualified Data.Text as Text
-import qualified Domain.TH as TH
+import qualified Domain.ModelTH as TH
+import qualified Domain.Util.TH as Util
 import qualified TemplateHaskell.Compat.V0208 as Compat
 
 
@@ -72,13 +73,13 @@ derivingInstanceDec className typeNameText =
   StandaloneDerivD Nothing [] headType
   where
     headType =
-      AppT (ConT className) (ConT (TH.textName typeNameText))
+      AppT (ConT className) (ConT (Util.textName typeNameText))
 
 emptyInstanceDec className typeNameText =
   InstanceD Nothing [] headType []
   where
     headType =
-      AppT (ConT className) (ConT (TH.textName typeNameText))
+      AppT (ConT className) (ConT (Util.textName typeNameText))
 
 
 constructorIsLabelInstanceDecs =
@@ -97,17 +98,17 @@ wrapperConstructorIsLabelInstanceDec typeName type_ =
   InstanceD Nothing [] headType bodyDecs
   where
     headType =
-      listAppT (ConT ''IsLabel) [labelType, repType]
+      Util.listAppT (ConT ''IsLabel) [labelType, repType]
       where
         labelType =
           LitT (StrTyLit "value")
         repType =
-          listAppT ArrowT [payloadType, sumType]
+          Util.listAppT ArrowT [payloadType, sumType]
           where
             payloadType =
               TH.typeType type_
             sumType =
-              ConT (TH.textName typeName)
+              ConT (Util.textName typeName)
     bodyDecs =
       [fromLabelDec]
       where
@@ -115,49 +116,21 @@ wrapperConstructorIsLabelInstanceDec typeName type_ =
           FunD 'fromLabel [Clause [] body []]
           where
             body =
-              NormalB (ConE (TH.textName typeName))
+              NormalB (ConE (Util.textName typeName))
 
 enumConstructorIsLabelInstanceDec typeName label =
-  InstanceD Nothing [] headType bodyDecs
-  where
-    headType =
-      AppT (AppT (ConT ''IsLabel) (LitT (StrTyLit (toList label))))
-        (ConT (TH.textName typeName))
-    bodyDecs =
-      [fromLabelDec]
-      where
-        fromLabelDec =
-          FunD 'fromLabel [Clause [] body []]
-          where
-            body =
-              NormalB (ConE (TH.sumConstructorName typeName label))
+  Util.enumConstructorIsLabelInstanceDec
+    (Util.textName typeName)
+    (TH.sumConstructorName typeName label)
+    (Util.textTyLit label)
 
 sumConstructorIsLabelInstanceDec :: Text -> Text -> [Mo.Type] -> Dec
 sumConstructorIsLabelInstanceDec typeName label memberTypes =
-  InstanceD Nothing [] headType bodyDecs
-  where
-    headType =
-      listAppT (ConT ''IsLabel) [labelType, repType]
-      where
-        labelType =
-          LitT (StrTyLit (toList label))
-        repType =
-          foldr (\ a b -> AppT (AppT ArrowT a) b) sumType $
-          fmap TH.typeType memberTypes
-          where
-            sumType =
-              ConT (TH.textName typeName)
-    bodyDecs =
-      [fromLabelDec]
-      where
-        fromLabelDec =
-          FunD 'fromLabel [Clause [] body []]
-          where
-            body =
-              NormalB (ConE (TH.sumConstructorName typeName label))
-
-listAppT base args =
-  foldl' AppT base args
+  Util.sumConstructorIsLabelInstanceDec
+    (Util.textName typeName)
+    (TH.sumConstructorName typeName label)
+    (Util.textTyLit label)
+    (fmap TH.typeType memberTypes)
 
 
 accessorIsLabelInstanceDecs =
@@ -184,15 +157,15 @@ enumAccessorIsLabelInstanceDec typeName label =
     conName =
       TH.sumConstructorName typeName label
     headType =
-      listAppT (ConT ''IsLabel) [labelType, repType]
+      Util.listAppT (ConT ''IsLabel) [labelType, repType]
       where
         labelType =
           LitT (StrTyLit (toList label))
         repType =
-          listAppT ArrowT [sumType, resultType]
+          Util.listAppT ArrowT [sumType, resultType]
           where
             sumType =
-              ConT (TH.textName typeName)
+              ConT (Util.textName typeName)
             resultType =
               ConT ''Bool
     fromLabelDec =
@@ -225,17 +198,17 @@ sumAccessorIsLabelInstanceDec typeName label memberTypes =
         conName =
           TH.sumConstructorName typeName label
         headType =
-          listAppT (ConT ''IsLabel) [labelType, repType]
+          Util.listAppT (ConT ''IsLabel) [labelType, repType]
           where
             labelType =
               LitT (StrTyLit (toList label))
             repType =
-              listAppT ArrowT [sumType, resultType]
+              Util.listAppT ArrowT [sumType, resultType]
               where
                 resultType =
                   AppT (ConT ''Maybe) (tupleType memberTypes)
                 sumType =
-                  ConT (TH.textName typeName)
+                  ConT (Util.textName typeName)
         bodyDecs =
           [fromLabelDec]
           where
@@ -274,15 +247,15 @@ productAccessorIsLabelInstanceDec typeName field type_ =
   InstanceD Nothing [] headType [fromLabelDec]
   where
     headType =
-      listAppT (ConT ''IsLabel) [labelType, repType]
+      Util.listAppT (ConT ''IsLabel) [labelType, repType]
       where
         labelType =
           LitT (StrTyLit (toList field))
         repType =
-          listAppT ArrowT [compositeType, resultType]
+          Util.listAppT ArrowT [compositeType, resultType]
           where
             compositeType =
-              ConT (TH.textName typeName)
+              ConT (Util.textName typeName)
             resultType =
               TH.typeType type_
     fromLabelDec =
