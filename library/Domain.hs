@@ -5,7 +5,7 @@ module Domain
 )
 where
 
-import Domain.Prelude
+import Domain.Prelude hiding (liftEither)
 import Domain.Model
 import qualified Domain.Util.Yaml as Yaml
 import qualified Domain.AesonValueParser as AesonValueParser
@@ -15,6 +15,7 @@ import qualified Domain.Components.TypeResolutionMapBuilder as TypeResolutionMap
 import qualified Data.ByteString as ByteString
 import qualified Domain.TH as TH
 import qualified Language.Haskell.TH.Syntax as TH
+import qualified Language.Haskell.TH.Quote as TH
 
 
 parse :: ByteString -> Either Text [TypeDec]
@@ -39,15 +40,8 @@ Will generate the according type definitions and instances.
 Call this function on the top-level (where you declare your module members).
 -}
 load :: FilePath -> Deriver.Deriver -> TH.Q [TH.Dec]
-load path (Deriver.Deriver derive) =
-  do
-    TH.addDependentFile path
-    parseRes <- liftIO (parseFile path)
-    case parseRes of
-      Left err -> fail (toList err)
-      Right decs -> do
-        instanceDecs <- fmap concat (traverse derive decs)
-        return (fmap TH.typeDec decs <> instanceDecs)
+load path deriver =
+  loadSpec path >>= declare deriver
 
 {-|
 Load a YAML domain spec file using the 'Deriver.all' instance deriver.
@@ -55,3 +49,28 @@ Load a YAML domain spec file using the 'Deriver.all' instance deriver.
 loadDerivingAll :: FilePath -> TH.Q [TH.Dec]
 loadDerivingAll path =
   load path Deriver.all
+
+loadSpec :: FilePath -> TH.Q [TypeDec]
+loadSpec path =
+  do
+    TH.addDependentFile path
+    parseRes <- liftIO (parseFile path)
+    liftEither parseRes
+
+declare :: Deriver.Deriver -> [TypeDec] -> TH.Q [TH.Dec]
+declare (Deriver.Deriver derive) spec =
+  do
+    instanceDecs <- fmap concat (traverse derive spec)
+    return (fmap TH.typeDec spec <> instanceDecs)
+
+parseString :: String -> TH.Q [TypeDec]
+parseString input =
+  liftEither $ do
+    doc <- Yaml.parseString input AesonValueParser.doc
+    Resolver.doc doc
+
+liftEither :: Either Text a -> TH.Q a
+liftEither =
+  \ case
+    Left err -> fail (toList err)
+    Right a -> return a 
