@@ -5,6 +5,7 @@ module Domain
   loadDerivingAll,
   -- * Inlining
   declare,
+  declareDerivingAll,
   spec,
 )
 where
@@ -28,16 +29,16 @@ Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
 -}
-load :: FilePath -> Deriver.Deriver -> Q [Dec]
-load path deriver =
+load :: Deriver.Deriver -> FilePath -> Q [Dec]
+load deriver path =
   loadSpec path >>= declare deriver
 
 {-|
 Load a YAML domain spec file using the 'Deriver.all' instance deriver.
 -}
 loadDerivingAll :: FilePath -> Q [Dec]
-loadDerivingAll path =
-  load path Deriver.all
+loadDerivingAll =
+  load Deriver.all
 
 {-|
 Declare datatypes from a spec tree.
@@ -49,6 +50,13 @@ declare (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)
     return (fmap typeDec spec <> instanceDecs)
+
+{-|
+Declare datatypes from a spec tree using the 'Deriver.all' instance deriver
+-}
+declareDerivingAll :: [Model.TypeDec] -> Q [Dec]
+declareDerivingAll =
+  declare Deriver.all
 
 {-|
 Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.
