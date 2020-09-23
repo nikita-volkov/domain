@@ -1,6 +1,6 @@
 
 wrappers:
-  ApiKey: Text
+  ApiKey: Either Text Int
   ApiSecret: Text
   ContractId: UUID
   Price: Scientific

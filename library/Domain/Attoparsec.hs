@@ -17,14 +17,19 @@ typeOnly =
   complete type_ <|> complete typeListType
 
 type_ =
-  appType <|> nonAppType
-
-appType =
   do
     a <- nonAppType
-    skipSpace1
-    b <- type_
-    return (AppType a b)
+    cont a
+  where
+    cont a =
+      asum [
+        do
+          skipSpace1
+          b <- nonAppType
+          cont (AppType a b)
+        ,
+        pure a
+        ]
 
 nonAppType =
   inSquareBracketsType <|> inParensType <|> refType
