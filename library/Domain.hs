@@ -1,7 +1,11 @@
 module Domain
 (
+  -- * Loading from external files
   load,
   loadDerivingAll,
+  -- * Inlining
+  declare,
+  spec,
 )
 where
 
@@ -57,6 +61,11 @@ loadSpec path =
     parseRes <- liftIO (parseFile path)
     liftEither parseRes
 
+{-|
+Declare datatypes from a spec tree.
+
+Use this in combination with the 'spec' quasi-quoter.
+-}
 declare :: Deriver.Deriver -> [TypeDec] -> TH.Q [TH.Dec]
 declare (Deriver.Deriver derive) spec =
   do
@@ -74,3 +83,23 @@ liftEither =
   \ case
     Left err -> fail (toList err)
     Right a -> return a 
+
+{-|
+Quasi-quoter, which parses a YAML spec into @['TypeDec']@.
+
+Use 'declare' to generate the code from it.
+-}
+spec :: TH.QuasiQuoter
+spec =
+  TH.QuasiQuoter exp pat type_ dec
+  where
+    unsupported =
+      const (fail "Quotation in this context is not supported")
+    exp =
+      TH.lift <=< parseString
+    pat =
+      unsupported
+    type_ =
+      unsupported
+    dec =
+      unsupported
