@@ -35,6 +35,9 @@ typeableInstanceDecs =
 hashableInstanceDecs =
   nonAliasTypeDecEmptyInstanceDecs ''Hashable
 
+liftInstanceDecs =
+  nonAliasTypeDecDerivingInstanceDecs ''Lift
+
 
 nonAliasTypeDecEmptyInstanceDecs className =
   \ case

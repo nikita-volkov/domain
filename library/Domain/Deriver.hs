@@ -6,8 +6,8 @@ module Domain.Deriver
   -- * Deriver definitions
   Deriver(..),
   all,
-  -- ** Standard
-  std,
+  -- ** Base
+  base,
   -- *** Specific
   enum,
   bounded,
@@ -17,7 +17,9 @@ module Domain.Deriver
   generic,
   data_,
   typeable,
+  -- ** Common
   hashable,
+  lift,
   -- ** IsLabel
   -- |
   -- Custom instances of 'IsLabel'.
@@ -30,7 +32,7 @@ module Domain.Deriver
 )
 where
 
-import Domain.Prelude hiding (show, ord, all)
+import Domain.Prelude hiding (show, ord, all, lift)
 import Domain.Model
 import qualified Language.Haskell.TH as TH
 import qualified Domain.Deriver.TH as TH
@@ -56,16 +58,21 @@ effectless f =
 Combination of all derivers exported by this module.
 -}
 all =
-  std <> isLabel
+  mconcat [
+    base,
+    isLabel,
+    hashable,
+    lift
+    ]
 
 
--- * Std
+-- * Base
 -------------------------
 
 {-|
-Combination of all standard derivers.
+Combination of all derivers for classes from the \"base\" package.
 -}
-std =
+base =
   mconcat [
     enum,
     bounded,
@@ -74,54 +81,69 @@ std =
     ord,
     generic,
     data_,
-    typeable,
-    hashable
+    typeable
     ]
 
 {-|
 Derives 'Enum' for types from the \"enum\" section of spec.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 enum =
   effectless TH.enumInstanceDecs
 
 {-|
 Derives 'Bounded' for types from the \"enum\" section of spec.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 bounded =
   effectless TH.boundedInstanceDecs
 
 {-|
 Derives 'Show'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 show =
   effectless TH.showInstanceDecs
 
 {-|
 Derives 'Eq'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 eq =
   effectless TH.eqInstanceDecs
 
 {-|
 Derives 'Ord'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 ord =
   effectless TH.ordInstanceDecs
 
 {-|
 Derives 'Generic'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveGeneric@ compiler extensions enabled.
 -}
 generic =
   effectless TH.genericInstanceDecs
 
 {-|
 Derives 'Data'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
 data_ =
   effectless TH.dataInstanceDecs
 
 {-|
 Derives 'Typeable'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
 typeable =
   effectless TH.typeableInstanceDecs
@@ -131,6 +153,14 @@ Generates 'Generic'-based instances of 'Hashable'.
 -}
 hashable =
   effectless TH.hashableInstanceDecs
+
+{-|
+Derives 'Lift'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions enabled.
+-}
+lift =
+  effectless TH.liftInstanceDecs
 
 
 -- * IsLabel

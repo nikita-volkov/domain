@@ -51,7 +51,7 @@ declare (Deriver.Deriver derive) spec =
     return (fmap typeDec spec <> instanceDecs)
 
 {-|
-Quasi-quoter, which parses a YAML spec into @['TypeDec']@.
+Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.
 
 Use 'declare' to generate the code from it.
 -}

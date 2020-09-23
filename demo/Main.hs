@@ -9,4 +9,4 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load "samples/1.yaml" Deriver.all
+load "samples/1.yaml" Deriver.base

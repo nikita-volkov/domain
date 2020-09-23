@@ -9,7 +9,7 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-declare Deriver.all [spec|
+declare Deriver.base [spec|
   
   wrappers:
     ApiKey: Text

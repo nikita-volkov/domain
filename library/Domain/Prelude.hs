@@ -112,5 +112,9 @@ import Control.Monad.Reader.Class as Exports
 import Control.Monad.State.Class as Exports
 import Control.Monad.Writer.Class as Exports
 
+-- template-haskell
+-------------------------
+import Language.Haskell.TH.Syntax as Exports (Lift)
+
 showAsText :: Show a => a -> Text
 showAsText = show >>> fromString
