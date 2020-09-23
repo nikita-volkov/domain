@@ -14,7 +14,7 @@ typeRef =
   fmap TypeRef $ sepBy1 ucName (char '.')
 
 typeOnly =
-  complete (type_ <|> pure (InParensType []))
+  complete type_ <|> complete typeListType
 
 type_ =
   appType <|> nonAppType
@@ -36,10 +36,13 @@ inParensType =
   do
     char '('
     skipSpace
-    a <- sepBy type_ (skipSpace *> char ',' <* skipSpace)
+    a <- typeListType
     skipSpace
     char ')'
-    return (InParensType a)
+    return a
+
+typeListType =
+  InParensType <$> sepBy type_ (skipSpace *> char ',' <* skipSpace)
 
 inSquareBracketsType =
   do
