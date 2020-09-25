@@ -48,8 +48,7 @@ typeRef =
   string (attoparsedText (Attoparsec.complete Attoparsec.typeRef))
 
 type_ =
-  string (attoparsedText (Attoparsec.complete Attoparsec.typeOnly)) <|>
-  null $> InParensType []
+  nullable (string (attoparsedText (Attoparsec.complete Attoparsec.typeOnly)))
 
 typeByFieldName =
   TypeByFieldName . toList <$>

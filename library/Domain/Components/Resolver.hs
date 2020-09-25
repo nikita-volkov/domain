@@ -18,6 +18,14 @@ type Err =
 type Eff =
   Either Err
 
+possibleType :: Maybe Doc.Type -> Eff Type
+possibleType =
+  \ case
+    Just a ->
+      type_ a
+    Nothing ->
+      return (TupleType 0)
+
 type_ :: Doc.Type -> Eff Type
 type_ =
   \ case
@@ -60,11 +68,11 @@ byTypeNameTypeDec (Doc.ByTypeName a) b =
 
 aliasDef :: Doc.AliasDef -> Eff TypeDef
 aliasDef (Doc.AliasDef a) =
-  AliasTypeDef <$> type_ a
+  AliasTypeDef <$> possibleType a
 
 wrapperDef :: Doc.WrapperDef -> Eff TypeDef
 wrapperDef (Doc.WrapperDef a) =
-  WrapperTypeDef <$> type_ a
+  WrapperTypeDef <$> possibleType a
 
 enumDef :: Doc.EnumDef -> Eff TypeDef
 enumDef (Doc.EnumDef a) =
@@ -72,19 +80,22 @@ enumDef (Doc.EnumDef a) =
 
 productDef :: Doc.ProductDef -> Eff TypeDef
 productDef (Doc.ProductDef (Doc.TypeByFieldName a)) =
-  a & traverse (traverse type_) & fmap ProductTypeDef
+  a & traverse (traverse possibleType) & fmap ProductTypeDef
 
 sumDef :: Doc.SumDef -> Eff TypeDef
 sumDef (Doc.SumDef (Doc.TypeByFieldName a)) =
   a & traverse (traverse sumConstructorType) & fmap SumTypeDef
 
-sumConstructorType :: Doc.Type -> Eff [Type]
+sumConstructorType :: Maybe Doc.Type -> Eff [Type]
 sumConstructorType =
   \ case
-    Doc.InParensType a ->
-      traverse type_ a
-    a ->
-      fmap pure (type_ a)
+    Just a -> case a of
+      Doc.InParensType a ->
+        traverse type_ a
+      a ->
+        fmap pure (type_ a)
+    Nothing ->
+      return []
 
 doc :: Doc.Doc -> Eff [TypeDec]
 doc (Doc.Doc a b c d e f) =

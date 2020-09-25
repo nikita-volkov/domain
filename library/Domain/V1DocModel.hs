@@ -23,10 +23,10 @@ newtype ImportDef =
   ImportDef TypeRef
 
 newtype AliasDef =
-  AliasDef Type
+  AliasDef (Maybe Type)
 
 newtype WrapperDef =
-  WrapperDef Type
+  WrapperDef (Maybe Type)
 
 newtype EnumDef =
   EnumDef [Text]
@@ -44,7 +44,7 @@ newtype TypeRef =
   TypeRef [Text]
 
 newtype TypeByFieldName =
-  TypeByFieldName [(Text, Type)]
+  TypeByFieldName [(Text, Maybe Type)]
 
 data Type =
   InSquareBracketsType Type |
