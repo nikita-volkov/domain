@@ -27,7 +27,7 @@ module Domain.Deriver
   -- *** Specific
   constructorIsLabel,
   accessorIsLabel,
-  -- * Spec model
+  -- * Schema model
   module Domain.Model,
 )
 where

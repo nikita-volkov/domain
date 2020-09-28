@@ -6,7 +6,7 @@ module Domain
   -- * Inlining
   declare,
   declareStd,
-  spec,
+  schema,
 )
 where
 
@@ -25,7 +25,7 @@ import qualified YamlUnscrambler
 
 
 {-|
-Load a YAML domain spec file while explicitly defining the instance deriver.
+Load a YAML domain schema file while explicitly defining the instance deriver.
 Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
@@ -44,10 +44,10 @@ load ::
   Deriver.Deriver ->
   FilePath -> Q [Dec]
 load fieldNaming deriver path =
-  loadSpec path >>= declare fieldNaming deriver
+  loadSchema path >>= declare fieldNaming deriver
 
 {-|
-Load a YAML domain spec file using the 'Deriver.all' instance deriver
+Load a YAML domain schema file using the 'Deriver.all' instance deriver
 and generating no field accessors.
 -}
 loadStd :: FilePath -> Q [Dec]
@@ -55,9 +55,9 @@ loadStd =
   load Nothing Deriver.all
 
 {-|
-Declare datatypes from a spec tree.
+Declare datatypes from a schema tree.
 
-Use this in combination with the 'spec' quasi-quoter.
+Use this in combination with the 'schema' quasi-quoter.
 -}
 declare ::
   {-|
@@ -72,13 +72,13 @@ declare ::
   -}
   Deriver.Deriver ->
   [Model.TypeDec] -> Q [Dec]
-declare fieldNaming (Deriver.Deriver derive) spec =
+declare fieldNaming (Deriver.Deriver derive) schema =
   do
-    instanceDecs <- fmap (nub . concat) (traverse derive spec)
-    return (fmap (ModelTH.typeDec fieldNaming) spec <> instanceDecs)
+    instanceDecs <- fmap (nub . concat) (traverse derive schema)
+    return (fmap (ModelTH.typeDec fieldNaming) schema <> instanceDecs)
 
 {-|
-Declare datatypes from a spec tree using the 'Deriver.all' instance deriver
+Declare datatypes from a schema tree using the 'Deriver.all' instance deriver
 and generating no field accessors.
 -}
 declareStd :: [Model.TypeDec] -> Q [Dec]
@@ -86,12 +86,12 @@ declareStd =
   declare Nothing Deriver.all
 
 {-|
-Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.
+Quasi-quoter, which parses a YAML schema into @['Model.TypeDec']@.
 
 Use 'declare' to generate the code from it.
 -}
-spec :: QuasiQuoter
-spec =
+schema :: QuasiQuoter
+schema =
   QuasiQuoter exp pat type_ dec
   where
     unsupported =
@@ -109,8 +109,8 @@ spec =
 -- * Helpers
 -------------------------
 
-loadSpec :: FilePath -> Q [Model.TypeDec]
-loadSpec path =
+loadSchema :: FilePath -> Q [Model.TypeDec]
+loadSchema path =
   readFile path >>= parseByteString
 
 readFile :: FilePath -> Q ByteString
