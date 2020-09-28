@@ -9,7 +9,7 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-declare (Just (FieldNaming True)) Deriver.base [spec|
+declare (Just True) Deriver.base [spec|
   
   wrappers:
     ApiKey: Text

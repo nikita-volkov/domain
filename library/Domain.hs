@@ -7,8 +7,6 @@ module Domain
   declare,
   declareStd,
   spec,
-  -- * Settings
-  Settings.FieldNaming(..),
 )
 where
 
@@ -16,7 +14,6 @@ import Domain.Prelude hiding (liftEither, readFile, lift)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model
-import qualified Domain.Settings as Settings
 import qualified Domain.ModelTH as ModelTH
 import qualified Domain.YamlUnscrambler as YamlUnscrambler
 import qualified Domain.Deriver as Deriver
@@ -33,7 +30,19 @@ Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
 -}
-load :: Maybe Settings.FieldNaming -> Deriver.Deriver -> FilePath -> Q [Dec]
+load ::
+  {-|
+  Field naming.
+  When nothing, no fields will be generated.
+  Otherwise the wrapped boolean specifies,
+  whether to prefix the names with underscore.
+  -}
+  Maybe Bool ->
+  {-|
+  How to derive instances.
+  -}
+  Deriver.Deriver ->
+  FilePath -> Q [Dec]
 load fieldNaming deriver path =
   loadSpec path >>= declare fieldNaming deriver
 
@@ -50,7 +59,19 @@ Declare datatypes from a spec tree.
 
 Use this in combination with the 'spec' quasi-quoter.
 -}
-declare :: Maybe Settings.FieldNaming -> Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
+declare ::
+  {-|
+  Field naming.
+  When nothing, no fields will be generated.
+  Otherwise the wrapped boolean specifies,
+  whether to prefix the names with underscore.
+  -}
+  Maybe Bool ->
+  {-|
+  How to derive instances.
+  -}
+  Deriver.Deriver ->
+  [Model.TypeDec] -> Q [Dec]
 declare fieldNaming (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)

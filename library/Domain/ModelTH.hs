@@ -3,7 +3,6 @@ where
 
 import Domain.Prelude
 import Domain.Model
-import Domain.Settings
 import qualified Language.Haskell.TH as TH
 import qualified Domain.Util.TH as TH
 import qualified Domain.ModelText as Text
