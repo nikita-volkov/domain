@@ -12,6 +12,9 @@ import Language.Haskell.TH.Syntax (Lift(..))
 Declaration of a type.
 -}
 data TypeDec =
+  {-|
+  Name of the type and its definition.
+  -}
   TypeDec Text TypeDef
   deriving (Generic, Show, Eq, Ord, Lift)
 
@@ -19,10 +22,33 @@ data TypeDec =
 Definition of a type.
 -}
 data TypeDef =
+  {-|
+  Alias.
+  Think of it as a @type@ declartion.
+  -}
   AliasTypeDef Type |
+  {-|
+  Wrapper type.
+  Think of it as a @newtype@ declartion.
+  -}
   WrapperTypeDef Type |
+  {-|
+  Enumeration.
+  Think of it as an ADT, which only has constructors.
+  -}
   EnumTypeDef [Text] |
+  {-|
+  Sum.
+  A list of pairs of names of its members
+  (which will be mapped to constructors) and
+  types which will populate the according constructors.
+  -}
   SumTypeDef [(Text, [Type])] |
+  {-|
+  Product.
+  Think of it as a record.
+  Carries a list of associations of field names with types.
+  -}
   ProductTypeDef [(Text, Type)] 
   deriving (Generic, Show, Eq, Ord, Lift)
 
@@ -30,7 +56,9 @@ data TypeDef =
 Reference to a type.
 -}
 data TypeRef =
+  {-| Local type reference. -}
   LocalTypeRef Text |
+  {-| Global type reference. -}
   GlobalTypeRef [Text] Text
   deriving (Generic, Show, Eq, Ord, Lift)
 
@@ -38,8 +66,12 @@ data TypeRef =
 Type.
 -}
 data Type =
+  {-| Unapplied list type. -}
   ListType |
+  {-| Unapplied tuple type. -}
   TupleType Int |
+  {-| Reference to a type. -}
   RefType TypeRef |
+  {-| Type application. -}
   AppType Type Type
   deriving (Generic, Show, Eq, Ord, Lift)
