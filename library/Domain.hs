@@ -7,6 +7,8 @@ module Domain
   declare,
   declareStd,
   spec,
+  -- * Settings
+  Settings.FieldNaming(..),
 )
 where
 
@@ -14,6 +16,7 @@ import Domain.Prelude hiding (liftEither, readFile, lift)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model
+import qualified Domain.Settings as Settings
 import qualified Domain.ModelTH as ModelTH
 import qualified Domain.YamlUnscrambler as YamlUnscrambler
 import qualified Domain.Deriver as Deriver
@@ -30,9 +33,9 @@ Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
 -}
-load :: Bool -> Deriver.Deriver -> FilePath -> Q [Dec]
-load nameFields deriver path =
-  loadSpec path >>= declare nameFields deriver
+load :: Maybe Settings.FieldNaming -> Deriver.Deriver -> FilePath -> Q [Dec]
+load fieldNaming deriver path =
+  loadSpec path >>= declare fieldNaming deriver
 
 {-|
 Load a YAML domain spec file using the 'Deriver.all' instance deriver
@@ -40,18 +43,18 @@ and generating no field accessors.
 -}
 loadStd :: FilePath -> Q [Dec]
 loadStd =
-  load False Deriver.all
+  load Nothing Deriver.all
 
 {-|
 Declare datatypes from a spec tree.
 
 Use this in combination with the 'spec' quasi-quoter.
 -}
-declare :: Bool -> Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
-declare nameFields (Deriver.Deriver derive) spec =
+declare :: Maybe Settings.FieldNaming -> Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
+declare fieldNaming (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)
-    return (fmap (ModelTH.typeDec nameFields) spec <> instanceDecs)
+    return (fmap (ModelTH.typeDec fieldNaming) spec <> instanceDecs)
 
 {-|
 Declare datatypes from a spec tree using the 'Deriver.all' instance deriver
@@ -59,7 +62,7 @@ and generating no field accessors.
 -}
 declareStd :: [Model.TypeDec] -> Q [Dec]
 declareStd =
-  declare False Deriver.all
+  declare Nothing Deriver.all
 
 {-|
 Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.

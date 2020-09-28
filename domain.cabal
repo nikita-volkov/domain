@@ -39,6 +39,7 @@ library
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
+    Domain.Settings
     Domain.Util.TH
     Domain.Util.List
     Domain.V1DocModel

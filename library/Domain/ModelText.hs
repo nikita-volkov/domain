@@ -3,6 +3,7 @@ where
 
 import Domain.Prelude
 import Domain.Model
+import Domain.Settings
 import qualified Data.Text as Text
 import qualified Data.Char as Char
 
@@ -15,7 +16,8 @@ typeRef =
         then b
         else Text.intercalate "." a <> "." <> b
 
-recordField a b =
+recordField (FieldNaming underscore) a b =
+  bool mempty "_" underscore <>
   mapFirstChar Char.toLower a <> mapFirstChar Char.toUpper b
 
 sumConstructor a b =
