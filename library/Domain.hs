@@ -15,12 +15,13 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model
 import qualified Domain.ModelTH as ModelTH
-import qualified Domain.Util.Yaml as Yaml
-import qualified Domain.AesonValueParser as AesonValueParser
+import qualified Domain.YamlUnscrambler as YamlUnscrambler
 import qualified Domain.Deriver as Deriver
 import qualified Domain.Components.Resolver as Resolver
 import qualified Domain.Components.TypeResolutionMapBuilder as TypeResolutionMapBuilder
 import qualified Data.ByteString as ByteString
+import qualified Data.Text.Encoding as Text
+import qualified YamlUnscrambler
 
 
 {-|
@@ -96,15 +97,17 @@ readFile path =
     liftEither (first showAsText readRes)
 
 parseString :: String -> Q [Model.TypeDec]
-parseString input =
-  liftEither $ do
-    doc <- Yaml.parseString input AesonValueParser.doc
-    Resolver.doc doc
+parseString =
+  parseText . fromString
+
+parseText :: Text -> Q [Model.TypeDec]
+parseText =
+  parseByteString . Text.encodeUtf8
 
 parseByteString :: ByteString -> Q [Model.TypeDec]
 parseByteString input =
   liftEither $ do
-    doc <- Yaml.parseByteString input AesonValueParser.doc
+    doc <- YamlUnscrambler.parseByteString YamlUnscrambler.doc input
     Resolver.doc doc
 
 liftEither :: Either Text a -> Q a

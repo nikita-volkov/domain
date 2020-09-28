@@ -31,7 +31,6 @@ library
     Domain
     Domain.Deriver
   other-modules:
-    Domain.AesonValueParser
     Domain.Attoparsec
     Domain.Components.Resolver
     Domain.Components.TypeResolutionMapBuilder
@@ -41,16 +40,14 @@ library
     Domain.ModelText
     Domain.Prelude
     Domain.Util.TH
-    Domain.Util.AesonValueParser
     Domain.Util.List
-    Domain.Util.Yaml
     Domain.V1DocModel
+    Domain.YamlUnscrambler
   build-depends:
-    aeson >=1 && <2,
-    aeson-value-parser >=0.19 && <0.20,
     attoparsec >=0.13 && <0.14,
     base >=4.9 && <5,
     bytestring >=0.10 && <0.11,
+    foldl >=1.4.9 && <2,
     hashable >=1 && <2,
     mtl >=2.2 && <3,
     text >=1.2.4 && <2,
@@ -58,7 +55,7 @@ library
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
     transformers >=0.5 && <0.6,
     unordered-containers >=0.2.10 && <0.3,
-    yaml >=0.11 && <0.12
+    yaml-unscrambler >=0.1 && <0.2
 
 test-suite loading-demo
   type: exitcode-stdio-1.0
