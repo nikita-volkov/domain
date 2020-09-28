@@ -74,7 +74,7 @@ declare ::
   [Model.TypeDec] -> Q [Dec]
 declare fieldNaming (Deriver.Deriver derive) spec =
   do
-    instanceDecs <- fmap concat (traverse derive spec)
+    instanceDecs <- fmap (nub . concat) (traverse derive spec)
     return (fmap (ModelTH.typeDec fieldNaming) spec <> instanceDecs)
 
 {-|
