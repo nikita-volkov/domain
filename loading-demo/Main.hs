@@ -9,4 +9,4 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load False Deriver.isLabel "samples/1.yaml"
+load Nothing Deriver.isLabel "samples/1.yaml"

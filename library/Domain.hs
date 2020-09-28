@@ -30,9 +30,21 @@ Will generate the according type definitions and instances.
 
 Call this function on the top-level (where you declare your module members).
 -}
-load :: Bool -> Deriver.Deriver -> FilePath -> Q [Dec]
-load nameFields deriver path =
-  loadSpec path >>= declare nameFields deriver
+load ::
+  {-|
+  Field naming.
+  When nothing, no fields will be generated.
+  Otherwise the wrapped boolean specifies,
+  whether to prefix the names with underscore.
+  -}
+  Maybe Bool ->
+  {-|
+  How to derive instances.
+  -}
+  Deriver.Deriver ->
+  FilePath -> Q [Dec]
+load fieldNaming deriver path =
+  loadSpec path >>= declare fieldNaming deriver
 
 {-|
 Load a YAML domain spec file using the 'Deriver.all' instance deriver
@@ -40,18 +52,30 @@ and generating no field accessors.
 -}
 loadStd :: FilePath -> Q [Dec]
 loadStd =
-  load False Deriver.all
+  load Nothing Deriver.all
 
 {-|
 Declare datatypes from a spec tree.
 
 Use this in combination with the 'spec' quasi-quoter.
 -}
-declare :: Bool -> Deriver.Deriver -> [Model.TypeDec] -> Q [Dec]
-declare nameFields (Deriver.Deriver derive) spec =
+declare ::
+  {-|
+  Field naming.
+  When nothing, no fields will be generated.
+  Otherwise the wrapped boolean specifies,
+  whether to prefix the names with underscore.
+  -}
+  Maybe Bool ->
+  {-|
+  How to derive instances.
+  -}
+  Deriver.Deriver ->
+  [Model.TypeDec] -> Q [Dec]
+declare fieldNaming (Deriver.Deriver derive) spec =
   do
     instanceDecs <- fmap concat (traverse derive spec)
-    return (fmap (ModelTH.typeDec nameFields) spec <> instanceDecs)
+    return (fmap (ModelTH.typeDec fieldNaming) spec <> instanceDecs)
 
 {-|
 Declare datatypes from a spec tree using the 'Deriver.all' instance deriver
@@ -59,7 +83,7 @@ and generating no field accessors.
 -}
 declareStd :: [Model.TypeDec] -> Q [Dec]
 declareStd =
-  declare False Deriver.all
+  declare Nothing Deriver.all
 
 {-|
 Quasi-quoter, which parses a YAML spec into @['Model.TypeDec']@.

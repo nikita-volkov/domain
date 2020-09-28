@@ -15,7 +15,8 @@ typeRef =
         then b
         else Text.intercalate "." a <> "." <> b
 
-recordField a b =
+recordField underscore a b =
+  bool mempty "_" underscore <>
   mapFirstChar Char.toLower a <> mapFirstChar Char.toUpper b
 
 sumConstructor a b =
