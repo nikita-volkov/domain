@@ -18,7 +18,6 @@ import qualified Domain.ModelTH as ModelTH
 import qualified Domain.YamlUnscrambler as YamlUnscrambler
 import qualified Domain.Deriver as Deriver
 import qualified Domain.Components.Resolver as Resolver
-import qualified Domain.Components.TypeResolutionMapBuilder as TypeResolutionMapBuilder
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
 import qualified YamlUnscrambler

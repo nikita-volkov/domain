@@ -36,14 +36,11 @@ typeType =
     AppType a b ->
       TH.AppT (typeType a) (typeType b)
     RefType a ->
-      typeRefType a
+      TH.ConT (TH.textName a)
     ListType ->
       TH.ListT
     TupleType a ->
       TH.TupleT a
-
-typeRefType =
-  TH.ConT . TH.textName . Text.typeRef
 
 recordFieldName fieldNaming a b =
   TH.textName (Text.recordField fieldNaming a b)

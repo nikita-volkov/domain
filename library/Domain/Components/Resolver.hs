@@ -9,9 +9,6 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 
-type Env =
-  HashMap Text TypeRef
-
 type Err =
   Text
 
@@ -46,17 +43,9 @@ inParensType =
     a ->
       fmap (foldl' AppType (TupleType (length a))) (traverse type_ a)
 
-typeRef :: Doc.TypeRef -> Eff TypeRef
+typeRef :: Doc.TypeRef -> Eff Text
 typeRef (Doc.TypeRef a) =
-  case List.unsnoc a of
-    Just (b, c) ->
-      case b of
-        [] ->
-          return (LocalTypeRef c)
-        _ ->
-          return (GlobalTypeRef b c)
-    Nothing ->
-      throwError "Broken type ref"
+  return (Text.intercalate "." a)
 
 byTypeName :: Doc.ByTypeName a -> (Text -> a -> Eff b) -> Eff [b]
 byTypeName (Doc.ByTypeName a) b =

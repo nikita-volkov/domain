@@ -33,7 +33,6 @@ library
   other-modules:
     Domain.Attoparsec
     Domain.Components.Resolver
-    Domain.Components.TypeResolutionMapBuilder
     Domain.Deriver.TH
     Domain.Model
     Domain.ModelTH

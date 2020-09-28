@@ -53,16 +53,6 @@ data TypeDef =
   deriving (Generic, Show, Eq, Ord, Lift)
 
 {-|
-Reference to a type.
--}
-data TypeRef =
-  {-| Local type reference. -}
-  LocalTypeRef Text |
-  {-| Global type reference. -}
-  GlobalTypeRef [Text] Text
-  deriving (Generic, Show, Eq, Ord, Lift)
-
-{-|
 Type.
 -}
 data Type =
@@ -71,7 +61,7 @@ data Type =
   {-| Unapplied tuple type. -}
   TupleType Int |
   {-| Reference to a type. -}
-  RefType TypeRef |
+  RefType Text |
   {-| Type application. -}
   AppType Type Type
   deriving (Generic, Show, Eq, Ord, Lift)
