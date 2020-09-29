@@ -34,6 +34,13 @@ type_ =
       AppType ListType <$> type_ a
     Doc.InParensType a ->
       inParensType a
+    Doc.SequenceType a ->
+      sequenceType a
+
+sequenceType :: [Maybe Doc.Type] -> Eff Type
+sequenceType list =
+  traverse possibleType list &
+  fmap (foldl' AppType (TupleType (length list)))
 
 inParensType :: [Doc.Type] -> Eff Type
 inParensType =
@@ -81,6 +88,8 @@ sumConstructorType =
     Just a -> case a of
       Doc.InParensType a ->
         traverse type_ a
+      Doc.SequenceType a ->
+        traverse possibleType a
       a ->
         fmap pure (type_ a)
     Nothing ->

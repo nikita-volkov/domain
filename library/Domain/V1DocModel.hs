@@ -47,6 +47,7 @@ newtype TypeByFieldName =
   TypeByFieldName [(Text, Maybe Type)]
 
 data Type =
+  SequenceType [Maybe Type] |
   InSquareBracketsType Type |
   InParensType [Type] |
   AppType Type Type |

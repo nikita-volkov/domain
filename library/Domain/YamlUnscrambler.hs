@@ -42,12 +42,15 @@ typeRef =
 
 type_ :: Value (Maybe Type)
 type_ =
-  scalarsValue [
-    nullScalar Nothing
-    ,
-    fmap Just $ stringScalar $ attoparsedString "Type signature" $
-    Attoparsec.complete Attoparsec.typeOnly
-    ]
+  value
+    [
+      nullScalar Nothing
+      ,
+      fmap Just $ stringScalar $ attoparsedString "Type signature" $
+      Attoparsec.complete Attoparsec.typeOnly
+      ]
+    Nothing
+    (Just (Just . SequenceType <$> foldSequence Fold.list type_))
 
 wrapperDef :: Value WrapperDef
 wrapperDef =
