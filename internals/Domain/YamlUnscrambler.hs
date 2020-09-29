@@ -1,4 +1,9 @@
 module Domain.YamlUnscrambler
+(
+  parseText,
+  parseByteString,
+  doc,
+)
 where
 
 import Domain.Prelude

@@ -30,7 +30,26 @@ library
   exposed-modules:
     Domain
     Domain.Deriver
-  other-modules:
+  build-depends:
+    attoparsec >=0.13 && <0.14,
+    base >=4.9 && <5,
+    bytestring >=0.10 && <0.11,
+    foldl >=1.4.9 && <2,
+    hashable >=1 && <2,
+    internals,
+    mtl >=2.2 && <3,
+    text >=1.2.4 && <2,
+    template-haskell >=2.15 && <3,
+    template-haskell-compat-v0208 >=0.1.5 && <0.2,
+    transformers >=0.5 && <0.6,
+    unordered-containers >=0.2.10 && <0.3,
+    yaml-unscrambler >=0.1 && <0.2
+
+library internals
+  hs-source-dirs: internals
+  default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveLift, DerivingVia, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedLabels, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples
+  default-language: Haskell2010
+  exposed-modules:
     Domain.Attoparsec
     Domain.Components.Resolver
     Domain.Deriver.TH
@@ -88,6 +107,24 @@ test-suite test
     Util.TH
   build-depends:
     domain,
+    foldl >=1.4.9 && <2,
+    neat-interpolation >=0.5.1.2 && <0.6,
+    QuickCheck >=2.8.1 && <3,
+    quickcheck-instances >=0.3.11 && <0.4,
+    rerebase >=1.9 && <2,
+    tasty >=0.12 && <2,
+    tasty-hunit >=0.9 && <0.11,
+    tasty-quickcheck >=0.9 && <0.11,
+    template-haskell
+
+test-suite internals-test
+  type: exitcode-stdio-1.0
+  hs-source-dirs: internals-test
+  default-extensions: BangPatterns, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators, UnboxedTuples, ViewPatterns
+  default-language: Haskell2010
+  main-is: Main.hs
+  build-depends:
+    internals,
     foldl >=1.4.9 && <2,
     neat-interpolation >=0.5.1.2 && <0.6,
     QuickCheck >=2.8.1 && <3,
