@@ -8,18 +8,6 @@ import qualified Domain.Attoparsec as Attoparsec
 import qualified Control.Foldl as Fold
 
 
-sequenceValue :: Sequence a -> Value a
-sequenceValue sequence =
-  value [] Nothing (Just sequence)
-
-mappingValue :: Mapping a -> Value a
-mappingValue mapping =
-  value [] (Just mapping) Nothing
-
-scalarsValue :: [Scalar a] -> Value a
-scalarsValue scalars =
-  value scalars Nothing Nothing
-
 possibleByTypeNameAtByKey :: Text -> Value a -> ByKey Text (ByTypeName a)
 possibleByTypeNameAtByKey key body =
   atByKey key (value [nullScalar absent] (Just (byTypeNameMapping body)) Nothing) <|>
@@ -72,7 +60,7 @@ typeByFieldName =
 
 doc :: Value Doc
 doc =
-  mappingValue $ byKeyMapping False $
+  mappingValue $ byKeyMapping (CaseSensitive False) $
     Doc <$>
       possibleByTypeNameAtByKey "imports" importDef <*>
       possibleByTypeNameAtByKey "aliases" aliasDef <*>
