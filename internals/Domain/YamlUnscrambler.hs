@@ -60,8 +60,10 @@ sumDef =
 typeByFieldName :: Value TypeByFieldName
 typeByFieldName =
   fmap TypeByFieldName $
-  mappingValue $
-  foldMapping (,) Fold.list textString type_
+  value [nullScalar mempty] (Just mapping) Nothing
+  where
+    mapping =
+      foldMapping (,) Fold.list textString type_
 
 doc :: Value Doc
 doc =
