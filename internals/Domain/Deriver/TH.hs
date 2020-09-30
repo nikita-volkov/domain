@@ -98,12 +98,12 @@ wrapperConstructorIsLabelInstanceDec typeName type_ =
   InstanceD Nothing [] headType bodyDecs
   where
     headType =
-      Util.listAppT (ConT ''IsLabel) [labelType, repType]
+      Util.multiAppT (ConT ''IsLabel) [labelType, repType]
       where
         labelType =
           LitT (StrTyLit "value")
         repType =
-          Util.listAppT ArrowT [payloadType, sumType]
+          Util.multiAppT ArrowT [payloadType, sumType]
           where
             payloadType =
               TH.typeType type_
@@ -157,12 +157,12 @@ enumAccessorIsLabelInstanceDec typeName label =
     conName =
       TH.sumConstructorName typeName label
     headType =
-      Util.listAppT (ConT ''IsLabel) [labelType, repType]
+      Util.multiAppT (ConT ''IsLabel) [labelType, repType]
       where
         labelType =
           LitT (StrTyLit (toList label))
         repType =
-          Util.listAppT ArrowT [sumType, resultType]
+          Util.multiAppT ArrowT [sumType, resultType]
           where
             sumType =
               ConT (Util.textName typeName)
@@ -198,12 +198,12 @@ sumAccessorIsLabelInstanceDec typeName label memberTypes =
         conName =
           TH.sumConstructorName typeName label
         headType =
-          Util.listAppT (ConT ''IsLabel) [labelType, repType]
+          Util.multiAppT (ConT ''IsLabel) [labelType, repType]
           where
             labelType =
               LitT (StrTyLit (toList label))
             repType =
-              Util.listAppT ArrowT [sumType, resultType]
+              Util.multiAppT ArrowT [sumType, resultType]
               where
                 resultType =
                   AppT (ConT ''Maybe) (Util.appliedTupleT (fmap TH.typeType memberTypes))

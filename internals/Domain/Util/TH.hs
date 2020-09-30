@@ -6,6 +6,7 @@ where
 
 import Domain.Prelude
 import Language.Haskell.TH
+import qualified TemplateHaskell.Compat.V0208 as Compat
 import qualified Data.Text as Text
 
 
@@ -76,13 +77,33 @@ fieldBang :: Bang
 fieldBang =
   Bang NoSourceUnpackedness SourceStrict
 
-listAppT :: Type -> [Type] -> Type
-listAppT base args =
+multiAppT :: Type -> [Type] -> Type
+multiAppT base args =
   foldl' AppT base args
+
+multiAppE :: Exp -> [Exp] -> Exp
+multiAppE base args =
+  foldl' AppE base args
 
 appliedTupleT :: [Type] -> Type
 appliedTupleT a =
   foldl' AppT (TupleT (length a)) a
+
+appliedTupleOrSingletonT :: [Type] -> Type
+appliedTupleOrSingletonT =
+  \ case
+    [a] -> a
+    a -> appliedTupleT a
+
+appliedTupleE :: [Exp] -> Exp
+appliedTupleE =
+  Compat.tupE
+
+appliedTupleOrSingletonE :: [Exp] -> Exp
+appliedTupleOrSingletonE =
+  \ case
+    [a] -> a
+    a -> appliedTupleE a
 
 indexName :: Int -> Name
 indexName =
@@ -91,6 +112,22 @@ indexName =
 enumNames :: Int -> [Name]
 enumNames =
   fmap indexName . enumFromTo 0 . pred
+
+aName :: Name
+aName =
+  mkName "a"
+
+bName :: Name
+bName =
+  mkName "b"
+
+cName :: Name
+cName =
+  mkName "c"
+
+eqConstraintT :: Name -> Type -> Type
+eqConstraintT name =
+  AppT (AppT EqualityT (VarT name))
 
 {-|
 Lambda expression, which extracts a product member by index.
@@ -112,7 +149,8 @@ productAccessor conName numMembers index =
       VarE varName
 
 
--- *
+-- * Instance templates
+-- | Standard instance templates.
 -------------------------
 
 sumConstructorIsLabelInstanceDec :: Name -> Name -> TyLit -> [Type] -> Dec
@@ -120,7 +158,7 @@ sumConstructorIsLabelInstanceDec typeName conName label memberTypes =
   InstanceD Nothing [] headType [fromLabelDec]
   where
     headType =
-      listAppT (ConT ''IsLabel) [LitT label, repType]
+      multiAppT (ConT ''IsLabel) [LitT label, repType]
       where
         repType =
           foldr (\ a b -> AppT (AppT ArrowT a) b) (ConT typeName) memberTypes
@@ -148,9 +186,84 @@ productAccessorIsLabelInstanceDec typeName label accessor resultType =
   InstanceD Nothing [] headType [fromLabelDec]
   where
     headType =
-      listAppT (ConT ''IsLabel) [LitT label, repType]
+      multiAppT (ConT ''IsLabel) [LitT label, repType]
       where
         repType =
-          listAppT ArrowT [ConT typeName, resultType]
+          multiAppT ArrowT [ConT typeName, resultType]
     fromLabelDec =
       FunD 'fromLabel [Clause [] (NormalB accessor) []]
+
+-- ** 'HasField'
+-------------------------
+
+{-| The most general template for 'HasField'. -}
+hasFieldInstanceDec :: TyLit -> Type -> Type -> [Clause] -> Dec
+hasFieldInstanceDec fieldLabel ownerType projectionType getFieldFunClauses =
+  InstanceD Nothing [] headType [getFieldDec]
+  where
+    headType =
+      multiAppT (ConT ''HasField) [LitT fieldLabel, ownerType, projectionType]
+    getFieldDec =
+      FunD 'getField getFieldFunClauses
+
+{-|
+Field which projects enum values into bools.
+-}
+boolEnumHasFieldInstanceDec :: TyLit -> Type -> Name -> Dec
+boolEnumHasFieldInstanceDec fieldLabel ownerType constructorName =
+  hasFieldInstanceDec fieldLabel ownerType projectionType getFieldFunClauses
+  where
+    projectionType =
+      ConT ''Bool
+    getFieldFunClauses =
+      [matching, unmatching]
+      where
+        matching =
+          Clause [ConP constructorName []] (NormalB bodyExp) []
+          where
+            bodyExp =
+              ConE 'True
+        unmatching =
+          Clause [WildP] (NormalB bodyExp) []
+          where
+            bodyExp =
+              ConE 'False
+
+sumHasFieldInstanceDec :: TyLit -> Type -> Name -> [Type] -> Dec
+sumHasFieldInstanceDec fieldLabel ownerType constructorName memberTypes =
+  hasFieldInstanceDec fieldLabel ownerType projectionType getFieldFunClauses
+  where
+    projectionType =
+      AppT (ConT ''Maybe) (appliedTupleOrSingletonT memberTypes)
+    getFieldFunClauses =
+      [matching, unmatching]
+      where
+        varNames =
+          enumFromTo 1 (length memberTypes) &
+          fmap (mkName . showChar '_' . show)
+        matching =
+          Clause [ConP constructorName pats] (NormalB bodyExp) []
+          where
+            pats =
+              fmap VarP varNames
+            bodyExp =
+              AppE (ConE 'Just) (appliedTupleE (fmap VarE varNames))
+        unmatching =
+          Clause [WildP] (NormalB bodyExp) []
+          where
+            bodyExp =
+              ConE 'Nothing
+
+productHasFieldInstanceDec :: TyLit -> Type -> Type -> Name -> Int -> Int -> Dec
+productHasFieldInstanceDec fieldLabel ownerType projectionType constructorName totalMemberTypes offset =
+  hasFieldInstanceDec fieldLabel ownerType projectionType getFieldFunClauses
+  where
+    getFieldFunClauses =
+      [Clause [ConP constructorName pats] (NormalB bodyExp) []]
+      where
+        pats =
+          replicate offset WildP <>
+          bool empty [VarP aName] (totalMemberTypes > 0) <>
+          replicate (totalMemberTypes - offset - 1) WildP
+        bodyExp =
+          VarE aName
