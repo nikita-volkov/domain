@@ -2,10 +2,8 @@ module Domain
 (
   -- * Loading from external files
   load,
-  loadStd,
   -- * Inlining
   declare,
-  declareStd,
   schema,
 )
 where
@@ -46,14 +44,6 @@ load fieldNaming deriver path =
   loadSchema path >>= declare fieldNaming deriver
 
 {-|
-Load a YAML domain schema file using the 'Deriver.all' instance deriver
-and generating no field accessors.
--}
-loadStd :: FilePath -> Q [Dec]
-loadStd =
-  load Nothing Deriver.all
-
-{-|
 Declare datatypes from a schema tree.
 
 Use this in combination with the 'schema' quasi-quoter.
@@ -75,14 +65,6 @@ declare fieldNaming (Deriver.Deriver derive) schema =
   do
     instanceDecs <- fmap (nub . concat) (traverse derive schema)
     return (fmap (ModelTH.typeDec fieldNaming) schema <> instanceDecs)
-
-{-|
-Declare datatypes from a schema tree using the 'Deriver.all' instance deriver
-and generating no field accessors.
--}
-declareStd :: [Model.TypeDec] -> Q [Dec]
-declareStd =
-  declare Nothing Deriver.all
 
 {-|
 Quasi-quoter, which parses a YAML schema into @['Model.TypeDec']@.
