@@ -31,10 +31,13 @@ load ::
   {-|
   Field naming.
   When nothing, no fields will be generated.
-  Otherwise the wrapped boolean specifies,
-  whether to prefix the names with underscore.
+  Otherwise the first wrapped boolean specifies,
+  whether to prefix the names with underscore,
+  and the second - whether to prefix with the type name.
+  Please notice that when you choose not to prefix with the type name
+  you need to have the @DuplicateRecords@ extension enabled.
   -}
-  Maybe Bool ->
+  Maybe (Bool, Bool) ->
   {-|
   How to derive instances.
   -}
@@ -52,10 +55,13 @@ declare ::
   {-|
   Field naming.
   When nothing, no fields will be generated.
-  Otherwise the wrapped boolean specifies,
-  whether to prefix the names with underscore.
+  Otherwise the first wrapped boolean specifies,
+  whether to prefix the names with underscore,
+  and the second - whether to prefix with the type name.
+  Please notice that when you choose not to prefix with the type name
+  you need to have the @DuplicateRecords@ extension enabled.
   -}
-  Maybe Bool ->
+  Maybe (Bool, Bool) ->
   {-|
   How to derive instances.
   -}

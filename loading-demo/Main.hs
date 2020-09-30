@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 module Main
 where
 
@@ -9,4 +10,4 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load Nothing Deriver.isLabel "samples/1.yaml"
+load (Just (True, False)) Deriver.isLabel "samples/1.yaml"

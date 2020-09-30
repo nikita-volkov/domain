@@ -9,7 +9,7 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-declare (Just True) Deriver.base [schema|
+declare (Just (True, True)) Deriver.base [schema|
   sums:
     A:
       a:

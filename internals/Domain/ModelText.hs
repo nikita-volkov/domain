@@ -7,9 +7,9 @@ import qualified Data.Text as Text
 import qualified Data.Char as Char
 
 
-recordField underscore a b =
+recordField (underscore, prefixWithTypeName) a b =
   bool mempty "_" underscore <>
-  mapFirstChar Char.toLower a <> mapFirstChar Char.toUpper b
+  bool b (mapFirstChar Char.toLower a <> mapFirstChar Char.toUpper b) prefixWithTypeName
 
 sumConstructor a b =
   mapFirstChar Char.toUpper b <> a

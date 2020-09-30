@@ -17,7 +17,7 @@ typeDec fieldNaming (TypeDec a b) =
     WrapperTypeDef b ->
       case fieldNaming of
         Just fieldNaming ->
-          TH.recordNewtypeDec (TH.textName a) (recordFieldName fieldNaming a "Value") (typeType b)
+          TH.recordNewtypeDec (TH.textName a) (recordFieldName fieldNaming a "value") (typeType b)
         Nothing ->
           TH.normalNewtypeDec (TH.textName a) (typeType b)
     EnumTypeDef b ->
