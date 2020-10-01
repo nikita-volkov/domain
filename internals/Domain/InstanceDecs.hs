@@ -68,10 +68,18 @@ constructorIsLabel (TypeDec typeName typeDef) =
     SumTypeDef variants ->
       variants &
       foldMap (\ (variantName, memberTypes) ->
-        [
+        mconcat [
+          pure $
           InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
           ,
-          InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
+          case memberTypes of
+            [] ->
+              []
+            [_] ->
+              []
+            _ ->
+              pure $
+              InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
           ]
         )
 

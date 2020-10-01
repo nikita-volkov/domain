@@ -10,4 +10,12 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load (Just (True, False)) Deriver.hasField "samples/1.yaml"
+load
+  (Just (True, False))
+  (mconcat [
+    Deriver.base,
+    Deriver.isLabel,
+    Deriver.hashable,
+    Deriver.hasField
+    ])
+  "samples/1.yaml"
