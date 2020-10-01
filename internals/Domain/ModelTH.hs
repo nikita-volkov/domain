@@ -4,7 +4,7 @@ where
 import Domain.Prelude
 import Domain.Model
 import qualified Language.Haskell.TH as TH
-import qualified Domain.Util.TH as TH
+import qualified THLego.Helpers as TH
 import qualified Domain.ModelText as Text
 import qualified Data.Text as Text
 import qualified Data.Char as Char

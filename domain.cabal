@@ -52,15 +52,12 @@ library internals
   exposed-modules:
     Domain.Attoparsec
     Domain.Components.Resolver
-    Domain.Deriver.TH
+    Domain.InstanceDec
     Domain.InstanceDecs
-    Domain.InstanceDecTemplate
     Domain.Model
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
-    Domain.Util.InstanceDecTemplate
-    Domain.Util.TH
     Domain.Util.List
     Domain.V1DocModel
     Domain.YamlUnscrambler
@@ -74,6 +71,7 @@ library internals
     text >=1.2.4 && <2,
     template-haskell >=2.15 && <3,
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
+    th-lego >=0.1 && <0.2,
     transformers >=0.5 && <0.6,
     unordered-containers >=0.2.10 && <0.3,
     yaml-unscrambler >=0.1 && <0.2
