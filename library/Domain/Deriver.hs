@@ -36,8 +36,7 @@ where
 
 import Domain.Prelude hiding (show, ord, all, lift)
 import Domain.Model
-import qualified Language.Haskell.TH as TH
-import qualified Domain.Deriver.TH as TH
+import qualified Language.Haskell.TH as TH (Q, Dec)
 import qualified Domain.InstanceDecs as InstanceDecs
 
 
@@ -94,7 +93,7 @@ Derives 'Enum' for types from the \"enum\" section of spec.
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 enum =
-  effectless TH.enumInstanceDecs
+  effectless InstanceDecs.enum
 
 {-|
 Derives 'Bounded' for types from the \"enum\" section of spec.
@@ -102,7 +101,7 @@ Derives 'Bounded' for types from the \"enum\" section of spec.
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 bounded =
-  effectless TH.boundedInstanceDecs
+  effectless InstanceDecs.bounded
 
 {-|
 Derives 'Show'.
@@ -110,7 +109,7 @@ Derives 'Show'.
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 show =
-  effectless TH.showInstanceDecs
+  effectless InstanceDecs.show
 
 {-|
 Derives 'Eq'.
@@ -118,7 +117,7 @@ Derives 'Eq'.
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 eq =
-  effectless TH.eqInstanceDecs
+  effectless InstanceDecs.eq
 
 {-|
 Derives 'Ord'.
@@ -126,7 +125,7 @@ Derives 'Ord'.
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
 ord =
-  effectless TH.ordInstanceDecs
+  effectless InstanceDecs.ord
 
 {-|
 Derives 'Generic'.
@@ -134,7 +133,7 @@ Derives 'Generic'.
 Requires to have the @StandaloneDeriving@ and @DeriveGeneric@ compiler extensions enabled.
 -}
 generic =
-  effectless TH.genericInstanceDecs
+  effectless InstanceDecs.generic
 
 {-|
 Derives 'Data'.
@@ -142,7 +141,7 @@ Derives 'Data'.
 Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
 data_ =
-  effectless TH.dataInstanceDecs
+  effectless InstanceDecs.data_
 
 {-|
 Derives 'Typeable'.
@@ -150,13 +149,13 @@ Derives 'Typeable'.
 Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
 typeable =
-  effectless TH.typeableInstanceDecs
+  effectless InstanceDecs.typeable
 
 {-|
 Generates 'Generic'-based instances of 'Hashable'.
 -}
 hashable =
-  effectless TH.hashableInstanceDecs
+  effectless InstanceDecs.hashable
 
 {-|
 Derives 'Lift'.
@@ -164,7 +163,7 @@ Derives 'Lift'.
 Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions enabled.
 -}
 lift =
-  effectless TH.liftInstanceDecs
+  effectless InstanceDecs.lift
 
 
 -- * HasField
@@ -223,7 +222,7 @@ Allowing you to construct the value by simply addressing the label:
 To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
 -}
 constructorIsLabel =
-  effectless TH.constructorIsLabelInstanceDecs
+  effectless InstanceDecs.constructorIsLabel
 
 {-|
 Generates instances of 'IsLabel' for wrappers, enums, sums and products,
@@ -254,7 +253,7 @@ Which you can use to access individual fields as follows:
 To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
 -}
 accessorIsLabel =
-  effectless TH.accessorIsLabelInstanceDecs
+  effectless InstanceDecs.accessorIsLabel
 
 {-|
 Combination of 'constructorIsLabel' and 'accessorIsLabel'.
