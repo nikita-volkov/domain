@@ -59,6 +59,7 @@ library internals
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
+    Domain.Util.InstanceDecTemplate
     Domain.Util.TH
     Domain.Util.List
     Domain.V1DocModel

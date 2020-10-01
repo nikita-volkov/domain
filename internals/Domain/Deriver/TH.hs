@@ -7,6 +7,7 @@ import qualified Domain.Model as Mo
 import qualified Data.Text as Text
 import qualified Domain.ModelTH as TH
 import qualified Domain.Util.TH as Util
+import qualified Domain.Util.InstanceDecTemplate as InstanceDecTemplate
 import qualified TemplateHaskell.Compat.V0208 as Compat
 
 
@@ -119,14 +120,14 @@ wrapperConstructorIsLabelInstanceDec typeName type_ =
               NormalB (ConE (Util.textName typeName))
 
 enumConstructorIsLabelInstanceDec typeName label =
-  Util.enumConstructorIsLabelInstanceDec
+  InstanceDecTemplate.enumConstructorIsLabel
     (Util.textName typeName)
     (TH.sumConstructorName typeName label)
     (Util.textTyLit label)
 
 sumConstructorIsLabelInstanceDec :: Text -> Text -> [Mo.Type] -> Dec
 sumConstructorIsLabelInstanceDec typeName label memberTypes =
-  Util.sumConstructorIsLabelInstanceDec
+  InstanceDecTemplate.sumConstructorIsLabel
     (Util.textName typeName)
     (TH.sumConstructorName typeName label)
     (Util.textTyLit label)
@@ -242,7 +243,7 @@ sumAccessorIsLabelInstanceDec typeName label memberTypes =
 
 productAccessorIsLabelInstanceDec :: Text -> [Text] -> Text -> Mo.Type -> Dec
 productAccessorIsLabelInstanceDec typeName allFields field type_ =
-  Util.productAccessorIsLabelInstanceDec
+  InstanceDecTemplate.productAccessorIsLabel
     (Util.textName typeName)
     (Util.textTyLit field)
     (productAccessorByName typeName allFields field)

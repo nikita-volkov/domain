@@ -10,12 +10,12 @@ import qualified Language.Haskell.TH as TH
 import qualified Data.Text as Text
 import qualified Domain.ModelTH as ModelTH
 import qualified Domain.ModelText as Text
-import qualified Domain.Util.TH as Templates
+import qualified Domain.Util.InstanceDecTemplate as Template
 
 
 enumHasField :: Text -> Text -> TH.Dec
 enumHasField typeName variantName =
-  Templates.boolEnumHasFieldInstanceDec fieldLabel ownerType constructorName
+  Template.boolEnumHasField fieldLabel ownerType constructorName
   where
     fieldLabel =
       TH.StrTyLit (Text.unpack variantName)
@@ -26,7 +26,7 @@ enumHasField typeName variantName =
 
 sumHasField :: Text -> Text -> [Type] -> TH.Dec
 sumHasField typeName variantName memberTypes =
-  Templates.sumHasFieldInstanceDec thFieldLabel thOwnerType thConstructorName thMemberTypes
+  Template.sumHasField thFieldLabel thOwnerType thConstructorName thMemberTypes
   where
     thFieldLabel =
       TH.StrTyLit (Text.unpack variantName)
@@ -39,7 +39,7 @@ sumHasField typeName variantName memberTypes =
 
 productHasField :: Text -> Text -> Type -> Int -> Int -> TH.Dec
 productHasField typeName fieldName projectionType numMemberTypes offset =
-  Templates.productHasFieldInstanceDec thFieldLabel thOwnerType thProjectionType
+  Template.productHasField thFieldLabel thOwnerType thProjectionType
     thConstructorName numMemberTypes offset
   where
     thFieldLabel =
