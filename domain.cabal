@@ -53,6 +53,8 @@ library internals
     Domain.Attoparsec
     Domain.Components.Resolver
     Domain.Deriver.TH
+    Domain.InstanceDecs
+    Domain.InstanceDecTemplate
     Domain.Model
     Domain.ModelTH
     Domain.ModelText

@@ -10,4 +10,4 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load (Just (True, False)) Deriver.isLabel "samples/1.yaml"
+load (Just (True, False)) Deriver.hasField "samples/1.yaml"

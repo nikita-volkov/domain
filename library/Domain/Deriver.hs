@@ -20,6 +20,8 @@ module Domain.Deriver
   -- ** Common
   hashable,
   lift,
+  -- ** HasField
+  hasField,
   -- ** IsLabel
   -- |
   -- Custom instances of 'IsLabel'.
@@ -36,6 +38,7 @@ import Domain.Prelude hiding (show, ord, all, lift)
 import Domain.Model
 import qualified Language.Haskell.TH as TH
 import qualified Domain.Deriver.TH as TH
+import qualified Domain.InstanceDecs as InstanceDecs
 
 
 {-|
@@ -62,7 +65,8 @@ all =
     base,
     isLabel,
     hashable,
-    lift
+    lift,
+    hasField
     ]
 
 
@@ -161,6 +165,27 @@ Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions e
 -}
 lift =
   effectless TH.liftInstanceDecs
+
+
+-- * HasField
+-------------------------
+
+{-|
+Derives 'HasField' with unprefixed field names.
+
+For each field of product generates instances mapping to their values.
+
+For each constructor of a sum maps to a 'Maybe' tuple of members of that constructor.
+
+For each variant of an enum maps to 'Bool' signaling whether the value equals to it.
+
+For wrapper maps the symbol \"value\" to the contents of the wrapper.
+
+_Please notice that if you choose to generate unprefixed record field accessors,
+it will conflict with this deriver, since it\'s gonna generate duplicate instances._
+-}
+hasField =
+  effectless InstanceDecs.hasField
 
 
 -- * IsLabel

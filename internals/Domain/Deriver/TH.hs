@@ -255,3 +255,4 @@ productAccessorByName typeName allFieldNames fieldName =
       Util.productAccessor (Util.textName typeName) (length allFieldNames) index
     Nothing ->
       VarE 'id
+
