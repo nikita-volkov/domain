@@ -1,1 +1,4 @@
 resolver: https://raw.githubusercontent.com/nikita-volkov/stack-snapshot/79de0f7ead9ca0c6228135972c864dfcd0c94afe/snapshot.yaml
+nix:
+  packages: 
+  - zlib
