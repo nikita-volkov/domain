@@ -180,8 +180,7 @@ For each variant of an enum maps to 'Bool' signaling whether the value equals to
 
 For wrapper maps the symbol \"value\" to the contents of the wrapper.
 
-_Please notice that if you choose to generate unprefixed record field accessors,
-it will conflict with this deriver, since it\'s gonna generate duplicate instances._
+/Please notice that if you choose to generate unprefixed record field accessors, it will conflict with this deriver, since it\'s gonna generate duplicate instances./
 -}
 hasField =
   effectless InstanceDecs.hasField
