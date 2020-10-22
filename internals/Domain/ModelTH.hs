@@ -24,12 +24,20 @@ typeDec fieldNaming (TypeDec a b) =
       TH.enumDec (TH.textName a) (sumConstructorName a <$> b)
     SumTypeDef b ->
       TH.sumAdtDec (TH.textName a) (fmap (bimap (sumConstructorName a) (fmap typeType)) b)
-    ProductTypeDef b ->
+    ProductTypeDef fields ->
       case fieldNaming of
         Just fieldNaming ->
-          TH.recordAdtDec (TH.textName a) (fmap (bimap (recordFieldName fieldNaming a) typeType) b)
+          case fields of
+            [(memberName, memberType)] ->
+              TH.recordNewtypeDec (TH.textName a) (recordFieldName fieldNaming a memberName) (typeType memberType)
+            _ ->
+              TH.recordAdtDec (TH.textName a) (fmap (bimap (recordFieldName fieldNaming a) typeType) fields)
         Nothing ->
-          TH.productAdtDec (TH.textName a) (fmap (typeType . snd) b)
+          case fields of
+            [(_, memberType)] ->
+              TH.normalNewtypeDec (TH.textName a) (typeType memberType)
+            _ ->
+              TH.productAdtDec (TH.textName a) (fmap (typeType . snd) fields)
 
 typeType =
   \ case
