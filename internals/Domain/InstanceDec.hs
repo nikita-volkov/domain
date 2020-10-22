@@ -30,7 +30,11 @@ enumHasField typeName label =
 
 sumHasField :: Text -> Text -> [Type] -> TH.Dec
 sumHasField typeName label memberTypes =
-  Instances.sumHasField thFieldLabel thOwnerType thConstructorName thMemberTypes
+  if null memberTypes
+    then 
+      Instances.enumHasField thFieldLabel thOwnerType thConstructorName
+    else
+      Instances.sumHasField thFieldLabel thOwnerType thConstructorName thMemberTypes
   where
     thFieldLabel =
       TH.StrTyLit (Text.unpack label)
@@ -79,8 +83,13 @@ productAccessorIsLabel typeName fieldName projectionType numMemberTypes offset =
 
 sumAccessorIsLabel :: Text -> Text -> [Type] -> TH.Dec
 sumAccessorIsLabel typeName label memberTypes =
-  Instances.sumAccessorIsLabel
-    thFieldLabel thOwnerType thConstructorName thMemberTypes
+  if null memberTypes
+    then
+      Instances.enumAccessorIsLabel
+        thFieldLabel thOwnerType thConstructorName
+    else
+      Instances.sumAccessorIsLabel
+        thFieldLabel thOwnerType thConstructorName thMemberTypes
   where
     thFieldLabel =
       TH.StrTyLit (Text.unpack label)
