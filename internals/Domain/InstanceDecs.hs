@@ -67,7 +67,8 @@ constructorIsLabel (TypeDec typeName typeDef) =
       []
     SumTypeDef variants ->
       variants &
-      foldMap (variantConstructorIsLabel typeName)
+      fmap (\ (variantName, memberTypes) ->
+        InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes)
 
 variantConstructorIsLabel :: Text -> (Text, [Type]) -> [TH.Dec]
 variantConstructorIsLabel typeName (variantName, memberTypes) =
