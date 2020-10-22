@@ -71,19 +71,18 @@ constructorIsLabel (TypeDec typeName typeDef) =
 
 variantConstructorIsLabel :: Text -> (Text, [Type]) -> [TH.Dec]
 variantConstructorIsLabel typeName (variantName, memberTypes) =
-  mconcat [
-    pure $
-    InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
-    ,
-    case memberTypes of
+  let
+    curried =
+      InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
+    uncurried =
+      InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
+    in case memberTypes of
       [] ->
-        []
+        [curried]
       [_] ->
-        []
+        [curried]
       _ ->
-        pure $
-        InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
-    ]
+        [curried, uncurried]
 
 
 -- * Deriving
