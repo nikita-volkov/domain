@@ -169,6 +169,52 @@ wrapperConstructorIsLabel typeName memberType =
     thMemberType =
       ModelTH.typeType memberType
 
+-- ** Mapper
+-------------------------
+
+wrapperMapperIsLabel :: Text -> Type -> TH.Dec
+wrapperMapperIsLabel typeName memberType =
+  Instances.productMapperIsLabel
+    thFieldLabel thOwnerType thMemberType thConstructorName 1 0
+  where
+    thFieldLabel =
+      TH.StrTyLit "value"
+    thOwnerType =
+      TH.ConT (TH.mkName (Text.unpack typeName))
+    thConstructorName =
+      TH.mkName (Text.unpack typeName)
+    thMemberType =
+      ModelTH.typeType memberType
+
+productMapperIsLabel :: Text -> Text -> Type -> Int -> Int -> TH.Dec
+productMapperIsLabel typeName fieldName projectionType numMemberTypes offset =
+  Instances.productMapperIsLabel
+    thFieldLabel thOwnerType thProjectionType thConstructorName
+    numMemberTypes offset
+  where
+    thFieldLabel =
+      TH.StrTyLit (Text.unpack fieldName)
+    thOwnerType =
+      TH.ConT (TH.mkName (Text.unpack typeName))
+    thProjectionType =
+      ModelTH.typeType projectionType
+    thConstructorName =
+      TH.mkName (Text.unpack typeName)
+
+sumMapperIsLabel :: Text -> Text -> [Type] -> TH.Dec
+sumMapperIsLabel typeName label memberTypes =
+  Instances.sumMapperIsLabel
+    thFieldLabel thOwnerType thConstructorName thMemberTypes
+  where
+    thFieldLabel =
+      TH.StrTyLit (Text.unpack label)
+    thOwnerType =
+      TH.ConT (TH.mkName (Text.unpack typeName))
+    thConstructorName =
+      TH.mkName (Text.unpack (Text.sumConstructor typeName label))
+    thMemberTypes =
+      fmap ModelTH.typeType memberTypes
+
 
 -- *
 -------------------------

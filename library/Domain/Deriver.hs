@@ -238,11 +238,10 @@ The following spec:
 
 Will generate the following instances:
 
->instance IsLabel "host" (Config -> Text) where
->  fromLabel = configHost
->
->instance IsLabel "port" (Config -> Int) where
->  fromLabel = configPort
+>instance a ~ Text => IsLabel "host" (Config -> a) where
+>  fromLabel = \ (Config a _) -> a
+>instance a ~ Word16 => IsLabel "port" (Config -> a) where
+>  fromLabel = \ (Config _ b) -> b
 
 Which you can use to access individual fields as follows:
 
@@ -254,9 +253,13 @@ To make use of that ensure to have the @OverloadedLabels@ compiler extension ena
 accessorIsLabel =
   effectless InstanceDecs.accessorIsLabel
 
+mapperIsLabel =
+  effectless InstanceDecs.mapperIsLabel
+
 {-|
-Combination of 'constructorIsLabel' and 'accessorIsLabel'.
+Combination of 'constructorIsLabel', 'mapperIsLabel' and 'accessorIsLabel'.
 -}
 isLabel =
   constructorIsLabel <>
+  mapperIsLabel <>
   accessorIsLabel

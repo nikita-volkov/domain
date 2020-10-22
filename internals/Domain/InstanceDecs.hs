@@ -85,6 +85,28 @@ variantConstructorIsLabel typeName (variantName, memberTypes) =
       _ ->
         [curried, uncurried]
 
+mapperIsLabel :: TypeDec -> [TH.Dec]
+mapperIsLabel (TypeDec typeName typeDef) =
+  case typeDef of
+    AliasTypeDef _ -> []
+    WrapperTypeDef wrappedType ->
+      pure (InstanceDec.wrapperMapperIsLabel typeName wrappedType)
+    EnumTypeDef variants ->
+      []
+    ProductTypeDef members ->
+      zipWith zipper (enumFrom 0) members
+      where
+        numMembers =
+          length members
+        zipper offset (fieldName, fieldType) =
+          InstanceDec.productMapperIsLabel typeName fieldName fieldType numMembers offset
+    SumTypeDef variants ->
+      do
+        (variantName, memberTypes) <- variants
+        if null memberTypes
+          then empty
+          else pure (InstanceDec.sumMapperIsLabel typeName variantName memberTypes)
+
 
 -- * Deriving
 -------------------------
