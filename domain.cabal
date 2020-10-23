@@ -52,11 +52,13 @@ library internals
   exposed-modules:
     Domain.Attoparsec.CategoryCentricDoc
     Domain.Attoparsec.General
+    Domain.Attoparsec.TypeString
     Domain.Components.Resolver
     Domain.InstanceDec
     Domain.InstanceDecs
     Domain.Model
     Domain.Models.CategoryCentricDoc
+    Domain.Models.TypeString
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
