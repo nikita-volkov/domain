@@ -53,7 +53,7 @@ library internals
     Domain.Attoparsec.CategoryCentricDoc
     Domain.Attoparsec.General
     Domain.Attoparsec.TypeString
-    Domain.Components.Resolver
+    Domain.Resolvers.CategoryCentricDoc
     Domain.InstanceDec
     Domain.InstanceDecs
     Domain.Model

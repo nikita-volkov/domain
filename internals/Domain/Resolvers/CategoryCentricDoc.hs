@@ -1,4 +1,4 @@
-module Domain.Components.Resolver
+module Domain.Resolvers.CategoryCentricDoc
 where
 
 import Domain.Prelude hiding (lookup)

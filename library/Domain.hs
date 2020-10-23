@@ -15,7 +15,7 @@ import qualified Domain.Model as Model
 import qualified Domain.ModelTH as ModelTH
 import qualified Domain.YamlUnscrambler.CategoryCentricDoc as YamlUnscrambler
 import qualified Domain.Deriver as Deriver
-import qualified Domain.Components.Resolver as Resolver
+import qualified Domain.Resolvers.CategoryCentricDoc as Resolver
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
 import qualified YamlUnscrambler
