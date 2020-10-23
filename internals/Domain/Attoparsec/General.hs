@@ -10,7 +10,10 @@ complete parser =
   skipSpace *> parser <* skipSpace <* endOfInput
 
 commaSeparated parser =
-  sepBy parser (skipSpace *> char ',' <* skipSpace)
+  sepBy parser comma
+
+comma =
+  skipSpace *> char ',' <* skipSpace
 
 inParens parser =
   do
