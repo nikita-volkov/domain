@@ -8,11 +8,13 @@ import qualified Domain.Attoparsec.TypeString as TypeStringAttoparsec
 import qualified Control.Foldl as Fold
 
 
-appTypeString =
-  value [
-    stringScalar $ attoparsedString "Type signature" $
-    TypeStringAttoparsec.only TypeStringAttoparsec.appSeq
-    ] Nothing Nothing
+doc =
+  value onScalar (Just onMapping) Nothing
+  where
+    onScalar =
+      [nullScalar []]
+    onMapping =
+      foldMapping (,) Fold.list textString structure
 
 structure =
   value [] (Just onMapping) Nothing
@@ -33,11 +35,11 @@ byFieldName onElement =
     onMapping =
       foldMapping (,) Fold.list textString onElement
 
-enumVariants =
-  sequenceValue (foldSequence Fold.list variant)
-  where
-    variant =
-      scalarsValue [stringScalar textString]
+appTypeString =
+  value [
+    stringScalar $ attoparsedString "Type signature" $
+    TypeStringAttoparsec.only TypeStringAttoparsec.appSeq
+    ] Nothing Nothing
 
 sumTypeExpression =
   value onScalar Nothing (Just onSequence)
@@ -52,3 +54,9 @@ sumTypeExpression =
         ]
     onSequence =
       SequenceSumTypeExpression <$> foldSequence Fold.list appTypeString
+
+enumVariants =
+  sequenceValue (foldSequence Fold.list variant)
+  where
+    variant =
+      scalarsValue [stringScalar textString]
