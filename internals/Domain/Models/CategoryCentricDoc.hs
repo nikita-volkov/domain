@@ -1,4 +1,4 @@
-module Domain.V1DocModel
+module Domain.Models.CategoryCentricDoc
 where
 
 import Domain.Prelude hiding (Product, Sum, Enum)

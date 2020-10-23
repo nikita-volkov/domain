@@ -50,17 +50,18 @@ library internals
   default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveLift, DerivingVia, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedLabels, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators
   default-language: Haskell2010
   exposed-modules:
-    Domain.Attoparsec
+    Domain.Attoparsec.CategoryCentricDoc
+    Domain.Attoparsec.General
     Domain.Components.Resolver
     Domain.InstanceDec
     Domain.InstanceDecs
     Domain.Model
+    Domain.Models.CategoryCentricDoc
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
     Domain.Util.List
-    Domain.V1DocModel
-    Domain.YamlUnscrambler
+    Domain.YamlUnscrambler.CategoryCentricDoc
   build-depends:
     attoparsec >=0.13 && <0.14,
     base >=4.9 && <5,

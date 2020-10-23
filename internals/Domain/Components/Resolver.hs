@@ -3,7 +3,7 @@ where
 
 import Domain.Prelude hiding (lookup)
 import Domain.Model
-import qualified Domain.V1DocModel as Doc
+import qualified Domain.Models.CategoryCentricDoc as Doc
 import qualified Domain.Util.List as List
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
