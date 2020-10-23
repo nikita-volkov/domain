@@ -2,7 +2,7 @@ module Domain.Resolvers.TypeCentricDoc
 where
 
 import Domain.Prelude hiding (lookup)
-import Domain.ModelV2
+import Domain.Model
 import qualified Domain.Models.TypeCentricDoc as Doc
 import qualified Domain.Models.TypeString as TypeString
 import qualified Domain.Util.List as List

@@ -63,7 +63,6 @@ library internals
     Domain.Models.TypeCentricDoc
     Domain.ModelTH
     Domain.ModelText
-    Domain.ModelV2
     Domain.Prelude
     Domain.Util.List
     Domain.YamlUnscrambler.CategoryCentricDoc
