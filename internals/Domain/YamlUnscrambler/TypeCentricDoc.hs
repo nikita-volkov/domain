@@ -5,7 +5,9 @@ import Domain.Prelude
 import Domain.Models.TypeCentricDoc
 import YamlUnscrambler
 import qualified Domain.Attoparsec.TypeString as TypeStringAttoparsec
+import qualified Domain.Attoparsec.General as GeneralAttoparsec
 import qualified Control.Foldl as Fold
+import qualified Data.Text as Text
 
 
 doc =
@@ -14,7 +16,23 @@ doc =
     onScalar =
       [nullScalar []]
     onMapping =
-      foldMapping (,) Fold.list textString structure
+      foldMapping (,) Fold.list typeNameString structure
+      where
+        typeNameString =
+          formattedString "type name" $ \ input ->
+            case Text.uncons input of
+              Just (h, t) ->
+                if isUpper h
+                  then
+                    if Text.all (\ a -> isAlphaNum a || a == '\'' || a == '_') t
+                      then
+                        Right input
+                      else
+                        Left "Contains invalid chars"
+                  else
+                    Left "First char is not upper-case"
+              Nothing ->
+                Left "Empty string"
 
 structure =
   value [] (Just onMapping) Nothing
@@ -38,7 +56,7 @@ byFieldName onElement =
 appTypeString =
   value [
     stringScalar $ attoparsedString "Type signature" $
-    TypeStringAttoparsec.only TypeStringAttoparsec.appSeq
+    GeneralAttoparsec.only TypeStringAttoparsec.appSeq
     ] Nothing Nothing
 
 sumTypeExpression =
@@ -50,7 +68,7 @@ sumTypeExpression =
         ,
         fmap StringSumTypeExpression $
         stringScalar $ attoparsedString "Type signature" $
-        TypeStringAttoparsec.only TypeStringAttoparsec.commaSeq
+        GeneralAttoparsec.only TypeStringAttoparsec.commaSeq
         ]
     onSequence =
       SequenceSumTypeExpression <$> foldSequence Fold.list appTypeString

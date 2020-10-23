@@ -8,13 +8,13 @@ import Domain.Attoparsec.General
 
 
 typeRefOnly =
-  complete typeRef
+  only typeRef
 
 typeRef =
   fmap TypeRef $ sepBy1 ucName (char '.')
 
 typeOnly =
-  complete type_ <|> complete typeListType
+  only type_ <|> only typeListType
 
 type_ =
   do

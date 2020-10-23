@@ -6,7 +6,7 @@ import Data.Attoparsec.Text
 import qualified Data.Text as Text
 
 
-complete parser =
+only parser =
   skipSpace *> parser <* skipSpace <* endOfInput
 
 commaSeparated parser =

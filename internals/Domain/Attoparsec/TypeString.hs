@@ -8,9 +8,6 @@ import Domain.Attoparsec.General
 import Control.Applicative.Combinators.NonEmpty
 
 
-only =
-  complete
-
 commaSeq =
   commaSeparated appSeq
 

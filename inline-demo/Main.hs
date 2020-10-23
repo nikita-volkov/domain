@@ -11,32 +11,39 @@ main =
 
 declare (Just (False, True)) Deriver.all [schema|
 
-  sums:
-    ProcessAddress:
+  ProcessAddress:
+    sum:
       internet: InternetAddress
       local: DomainSocketPath
-    Host:
-      ip: Ip
-      name: Text
-    Ip:
-      v4: Word32
-      v6: Word128
 
-  products:
-    DomainSocketPath:
-      path: FilePath
-    InternetAddress:
+  InternetAddress:
+    product:
       protocol: TransportProtocol
       host: Host
       port: Word16
-    Word128:
-      part1: Word64
-      part2: Word64
 
-  enums:
-    TransportProtocol:
+  DomainSocketPath:
+    wrapper: Text
+
+  TransportProtocol:
+    enum:
       - tcp
       - udp
+
+  Host:
+    sum:
+      ip: Ip
+      name: Text
+
+  Ip:
+    sum:
+      v4: Word32
+      v6: Word128
+
+  Word128:
+    product:
+      part1: Word64
+      part2: Word64
 
   |]
 
