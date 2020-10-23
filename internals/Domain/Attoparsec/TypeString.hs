@@ -3,23 +3,27 @@ where
 
 import Domain.Prelude hiding (takeWhile)
 import Domain.Models.TypeString
-import Data.Attoparsec.Text
+import Data.Attoparsec.Text hiding (sepBy1)
 import Domain.Attoparsec.General
+import Control.Applicative.Combinators.NonEmpty
 
 
-typeStringOnly =
-  complete typeString
+only =
+  complete
 
-typeString =
-  commaSeparated (sepBy typeStringUnit skipSpace1)
+commaSeq =
+  commaSeparated appSeq
 
-typeStringUnit =
+appSeq =
+  sepBy1 unit skipSpace1
+
+unit =
   asum [
-    InSquareBracketsTypeStringUnit <$> inSquareBrackets typeString
+    InSquareBracketsUnit <$> inSquareBrackets appSeq
     ,
-    InParensTypeStringUnit <$> inParens typeString
+    InParensUnit <$> inParens commaSeq
     ,
-    RefTypeStringUnit <$> typeRef
+    RefUnit <$> typeRef
     ]
 
 typeRef =

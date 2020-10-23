@@ -4,12 +4,14 @@ where
 import Domain.Prelude
 
 
-{-| Type application sequences nested in comma-sequences. -}
-type TypeString =
-  [[TypeStringUnit]]
+type CommaSeq =
+  [AppSeq]
 
-data TypeStringUnit =
-  InSquareBracketsTypeStringUnit TypeString |
-  InParensTypeStringUnit TypeString |
-  RefTypeStringUnit [Text]
+type AppSeq =
+  NonEmpty Unit
+
+data Unit =
+  InSquareBracketsUnit AppSeq |
+  InParensUnit CommaSeq |
+  RefUnit (NonEmpty Text)
   deriving (Show)

@@ -54,6 +54,7 @@ library internals
     Domain.Attoparsec.General
     Domain.Attoparsec.TypeString
     Domain.Resolvers.CategoryCentricDoc
+    Domain.Resolvers.TypeCentricDoc
     Domain.InstanceDec
     Domain.InstanceDecs
     Domain.Model
@@ -62,6 +63,7 @@ library internals
     Domain.Models.TypeCentricDoc
     Domain.ModelTH
     Domain.ModelText
+    Domain.ModelV2
     Domain.Prelude
     Domain.Util.List
     Domain.YamlUnscrambler.CategoryCentricDoc
@@ -73,6 +75,7 @@ library internals
     foldl >=1.4.9 && <2,
     hashable >=1 && <2,
     mtl >=2.2 && <3,
+    parser-combinators >=1.2.1 && <1.3,
     text >=1.2.4 && <2,
     template-haskell >=2.15 && <3,
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
