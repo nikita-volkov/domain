@@ -7,6 +7,9 @@ import Data.Attoparsec.Text
 import Domain.Attoparsec.General
 
 
+typeStringOnly =
+  complete typeString
+
 typeString =
   commaSeparated (sepBy typeStringUnit skipSpace1)
 

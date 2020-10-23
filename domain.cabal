@@ -59,11 +59,13 @@ library internals
     Domain.Model
     Domain.Models.CategoryCentricDoc
     Domain.Models.TypeString
+    Domain.Models.TypeCentricDoc
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
     Domain.Util.List
     Domain.YamlUnscrambler.CategoryCentricDoc
+    Domain.YamlUnscrambler.TypeCentricDoc
   build-depends:
     attoparsec >=0.13 && <0.14,
     base >=4.9 && <5,
