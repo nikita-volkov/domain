@@ -1,4 +1,4 @@
-module Domain.YamlUnscrambler
+module Domain.YamlUnscrambler.CategoryCentricDoc
 (
   parseText,
   parseByteString,
@@ -7,9 +7,9 @@ module Domain.YamlUnscrambler
 where
 
 import Domain.Prelude
-import Domain.V1DocModel
+import Domain.Models.CategoryCentricDoc
 import YamlUnscrambler
-import qualified Domain.Attoparsec as Attoparsec
+import qualified Domain.Attoparsec.CategoryCentricDoc as Attoparsec
 import qualified Control.Foldl as Fold
 
 
@@ -30,7 +30,7 @@ typeRef :: Value TypeRef
 typeRef =
   scalarsValue [
     stringScalar $ attoparsedString "Type reference" $
-    Attoparsec.complete Attoparsec.typeRef
+    Attoparsec.typeRefOnly
     ]
 
 type_ :: Value (Maybe Type)
@@ -40,7 +40,7 @@ type_ =
       nullScalar Nothing
       ,
       fmap Just $ stringScalar $ attoparsedString "Type signature" $
-      Attoparsec.complete Attoparsec.typeOnly
+      Attoparsec.typeOnly
       ]
     Nothing
     (Just (Just . SequenceType <$> foldSequence Fold.list type_))

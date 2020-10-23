@@ -6,7 +6,7 @@ import Test.Tasty
 import Test.Tasty.Runners
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
-import qualified Domain.YamlUnscrambler as YamlUnscrambler
+import qualified Domain.YamlUnscrambler.CategoryCentricDoc as YamlUnscrambler
 import qualified Domain.Model as Model
 import qualified Test.QuickCheck as QuickCheck
 import qualified Control.Foldl as Fold

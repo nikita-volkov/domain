@@ -1,76 +1,34 @@
 
-wrappers:
-  ApiKey: Either Text Int
-  ApiSecret: Text
-  ContractId: UUID
-  Price: Scientific
-  SpotPrice: Scientific
-  SecondsSinceEpoch: Int64
-  ContractSymbol: Text
-  OrderId: UUID
-  Size:
+ProcessAddress:
+  sum:
+    internet: InternetAddress
+    local: DomainSocketPath
 
-sums:
-  ApiError:
-    invalidData:
-    unauthorized:
-    rejected: Maybe Text
-    apiKeyNotFound:
-    signatureMismatch:
+InternetAddress:
+  product:
+    protocol: TransportProtocol
+    host: Host
+    port: Word16
 
-products:
-  Pagination:
-    currentPage: Int
-    pageSize: Int
-    totalCount: Int
-  Order:
-    id: OrderId
-    type: OrderType
-    side: Side
-    status: OrderStatus
-    limitPrice: Price
-    stopPrice: Price
-    size: Size
-    filledPrice: Price
-    cancelledSize: Size
-    timeInForce: TimeInForce
-    symbol: ContractSymbol
-  Contract:
-    symbol: ContractSymbol
-    description: Text
-    type: ContractType
-    tickSize: Scientific
-    impactSize: Scientific
-    status: ContractStatus
-    initialMargin: Scientific
-    maintenanceMargin: Scientific
-    positionSizeLimit: Scientific
-    settlementTime: UTCTime
-    underlyingAsset: Asset
-  Asset:
+DomainSocketPath:
+  wrapper: Text
 
-enums:
-  ContractStatus:
-    - operational
-    - disrupted
-    - disruptedPostOnly
-    - expired
-  ContractType:
-    - future
-    - perpetual
-  OrderType:
-    - limit
-    - market
-  OrderStatus:
-    - open
-    - filled
-    - inactive
-    - rejected
-    - cancelled
-  Side:
-    - buy
-    - sell
-  TimeInForce:
-    - goodTillCancelled
-    - fillOrKill
-    - immediateOrCancel
+TransportProtocol:
+  enum:
+    - tcp
+    - udp
+
+Host:
+  sum:
+    ip: Ip
+    name: Text
+
+Ip:
+  sum:
+    v4: Word32
+    v6: Word128
+
+Word128:
+  product:
+    part1: Word64
+    part2: Word64

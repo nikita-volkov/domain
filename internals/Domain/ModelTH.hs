@@ -41,17 +41,20 @@ typeDec fieldNaming (TypeDec a b) =
 
 typeType =
   \ case
-    AppType a b ->
-      TH.AppT (typeType a) (typeType b)
+    AppType a ->
+      foldl1 TH.AppT (fmap typeType a)
     RefType a ->
       TH.ConT (TH.textName a)
-    ListType ->
-      TH.ListT
+    ListType a ->
+      TH.AppT TH.ListT (typeType a)
     TupleType a ->
-      TH.TupleT a
+      TH.multiAppT (TH.TupleT (length a)) (fmap typeType a)
 
 recordFieldName fieldNaming a b =
   TH.textName (Text.recordField fieldNaming a b)
 
 sumConstructorName a b =
   TH.textName (Text.sumConstructor a b)
+
+nelAppT (h :| t) =
+  foldr TH.AppT h t

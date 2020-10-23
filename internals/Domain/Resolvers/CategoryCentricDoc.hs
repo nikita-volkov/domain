@@ -1,9 +1,9 @@
-module Domain.Components.Resolver
+module Domain.Resolvers.CategoryCentricDoc
 where
 
 import Domain.Prelude hiding (lookup)
 import Domain.Model
-import qualified Domain.V1DocModel as Doc
+import qualified Domain.Models.CategoryCentricDoc as Doc
 import qualified Domain.Util.List as List
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
@@ -21,7 +21,7 @@ possibleType =
     Just a ->
       type_ a
     Nothing ->
-      return (TupleType 0)
+      return (TupleType [])
 
 type_ :: Doc.Type -> Eff Type
 type_ =
@@ -29,18 +29,25 @@ type_ =
     Doc.RefType a ->
       RefType <$> typeRef a
     Doc.AppType a b ->
-      AppType <$> type_ a <*> type_ b
+      AppType <$> ((:|) <$> type_ a <*> appTypeList b)
     Doc.InSquareBracketsType a ->
-      AppType ListType <$> type_ a
+      ListType <$> type_ a
     Doc.InParensType a ->
       inParensType a
     Doc.SequenceType a ->
       sequenceType a
 
+appTypeList =
+  \ case
+    Doc.AppType a b ->
+      (:) <$> type_ a <*> appTypeList b
+    a ->
+      pure <$> type_ a
+
 sequenceType :: [Maybe Doc.Type] -> Eff Type
 sequenceType list =
   traverse possibleType list &
-  fmap (foldl' AppType (TupleType (length list)))
+  fmap (TupleType)
 
 inParensType :: [Doc.Type] -> Eff Type
 inParensType =
@@ -48,7 +55,7 @@ inParensType =
     a : [] ->
       type_ a
     a ->
-      fmap (foldl' AppType (TupleType (length a))) (traverse type_ a)
+      TupleType <$> traverse type_ a
 
 typeRef :: Doc.TypeRef -> Eff Text
 typeRef (Doc.TypeRef a) =

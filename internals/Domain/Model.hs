@@ -1,6 +1,3 @@
-{-|
-High level model.
--}
 module Domain.Model
 where
 
@@ -56,12 +53,8 @@ data TypeDef =
 Type.
 -}
 data Type =
-  {-| Unapplied list type. -}
-  ListType |
-  {-| Unapplied tuple type. -}
-  TupleType Int |
-  {-| Reference to a type. -}
-  RefType Text |
-  {-| Type application. -}
-  AppType Type Type
+  TupleType [Type] |
+  AppType (NonEmpty Type) |
+  ListType Type |
+  RefType Text
   deriving (Generic, Show, Eq, Ord, Lift)

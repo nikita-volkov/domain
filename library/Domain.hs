@@ -13,9 +13,11 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Domain.Model as Model
 import qualified Domain.ModelTH as ModelTH
-import qualified Domain.YamlUnscrambler as YamlUnscrambler
+import qualified Domain.YamlUnscrambler.CategoryCentricDoc as CategoryCentricYaml
+import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
+import qualified Domain.Resolvers.CategoryCentricDoc as CategoryCentricResolver
+import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
 import qualified Domain.Deriver as Deriver
-import qualified Domain.Components.Resolver as Resolver
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
 import qualified YamlUnscrambler
@@ -118,8 +120,8 @@ parseText =
 parseByteString :: ByteString -> Q [Model.TypeDec]
 parseByteString input =
   liftEither $ do
-    doc <- YamlUnscrambler.parseByteString YamlUnscrambler.doc input
-    Resolver.doc doc
+    doc <- YamlUnscrambler.parseByteString TypeCentricYaml.doc input
+    TypeCentricResolver.eliminateDoc doc
 
 liftEither :: Either Text a -> Q a
 liftEither =

@@ -50,17 +50,23 @@ library internals
   default-extensions: BangPatterns, BlockArguments, ConstraintKinds, DataKinds, DefaultSignatures, DeriveDataTypeable, DeriveFoldable, DeriveFunctor, DeriveGeneric, DeriveLift, DerivingVia, DeriveTraversable, EmptyDataDecls, FlexibleContexts, FlexibleInstances, FunctionalDependencies, GADTs, GeneralizedNewtypeDeriving, InstanceSigs, LambdaCase, LiberalTypeSynonyms, MagicHash, MultiParamTypeClasses, MultiWayIf, NoImplicitPrelude, NoMonomorphismRestriction, OverloadedLabels, OverloadedStrings, PatternGuards, ParallelListComp, QuasiQuotes, RankNTypes, RecordWildCards, ScopedTypeVariables, StandaloneDeriving, StrictData, TemplateHaskell, TupleSections, TypeApplications, TypeFamilies, TypeOperators
   default-language: Haskell2010
   exposed-modules:
-    Domain.Attoparsec
-    Domain.Components.Resolver
+    Domain.Attoparsec.CategoryCentricDoc
+    Domain.Attoparsec.General
+    Domain.Attoparsec.TypeString
+    Domain.Resolvers.CategoryCentricDoc
+    Domain.Resolvers.TypeCentricDoc
     Domain.InstanceDec
     Domain.InstanceDecs
     Domain.Model
+    Domain.Models.CategoryCentricDoc
+    Domain.Models.TypeString
+    Domain.Models.TypeCentricDoc
     Domain.ModelTH
     Domain.ModelText
     Domain.Prelude
     Domain.Util.List
-    Domain.V1DocModel
-    Domain.YamlUnscrambler
+    Domain.YamlUnscrambler.CategoryCentricDoc
+    Domain.YamlUnscrambler.TypeCentricDoc
   build-depends:
     attoparsec >=0.13 && <0.14,
     base >=4.9 && <5,
@@ -68,6 +74,7 @@ library internals
     foldl >=1.4.9 && <2,
     hashable >=1 && <2,
     mtl >=2.2 && <3,
+    parser-combinators >=1.2.1 && <1.3,
     text >=1.2.4 && <2,
     template-haskell >=2.15 && <3,
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
