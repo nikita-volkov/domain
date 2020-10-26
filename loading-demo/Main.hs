@@ -10,7 +10,7 @@ import qualified Domain.Deriver as Deriver
 main =
   return ()
 
-load
+declare
   (Just (True, False))
   (mconcat [
     Deriver.base,
@@ -18,4 +18,4 @@ load
     Deriver.hashable,
     Deriver.hasField
     ])
-  "samples/1.yaml"
+  =<< loadSchema "samples/1.yaml"
