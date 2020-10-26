@@ -4,7 +4,6 @@ module Domain
   declare,
   -- * Schema
   Schema,
-  -- ** Schema construction
   schema,
   loadSchema,
 )
@@ -31,7 +30,7 @@ from a schema definition according to the provided settings.
 
 Use this function in combination with the 'schema' quasi-quoter or
 the 'loadSchema' function.
-Refer to their documentation for examples.
+__For examples__ refer to their documentation.
 
 Call it on the top-level (where you declare your module members).
 -}
@@ -71,7 +70,8 @@ declare fieldNaming (Deriver.Deriver derive) (Schema schema) =
 Parsed and validated schema.
 
 You can only produce it using the 'schema' quasi-quoter or
-the 'loadSchema' function.
+the 'loadSchema' function
+and generate the code from it using 'declare'.
 -}
 newtype Schema =
   Schema [Model.TypeDec]
@@ -81,6 +81,46 @@ newtype Schema =
 Quasi-quoter, which parses a YAML schema into a 'Schema' expression.
 
 Use 'declare' to generate the code from it.
+
+=== __Example__
+
+@
+{\-# LANGUAGE
+  QuasiQuotes, TemplateHaskell,
+  StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
+  FlexibleInstances, MultiParamTypeClasses,
+  DataKinds, TypeFamilies
+  #-\}
+module Model where
+
+import Data.Text (Text)
+import Data.Word (Word16, Word32, Word64)
+import Domain
+import qualified Domain.Deriver as Deriver
+
+'declare'
+  (Just (False, True))
+  Deriver.'Deriver.all'
+  ['schema'|
+
+    Host:
+      sum:
+        ip: Ip
+        name: Text
+
+    Ip:
+      sum:
+        v4: Word32
+        v6: Word128
+
+    Word128:
+      product:
+        part1: Word64
+        part2: Word64
+
+    |]
+@
+
 -}
 schema :: QuasiQuoter
 schema =
@@ -101,8 +141,43 @@ schema =
 Load and parse a YAML file into a schema definition.
 
 Use 'declare' to generate the code from it.
+
+=== __Example__
+
+@
+{\-# LANGUAGE
+  QuasiQuotes, TemplateHaskell,
+  StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
+  FlexibleInstances, MultiParamTypeClasses,
+  DataKinds, TypeFamilies
+  #-\}
+module Model where
+
+import Data.Text (Text)
+import Data.Word (Word16, Word32, Word64)
+import Domain
+import qualified Domain.Deriver as Deriver
+
+'declare'
+  (Just (True, False))
+  (mconcat [
+    Deriver.'Deriver.base',
+    Deriver.'Deriver.isLabel',
+    Deriver.'Deriver.hashable',
+    Deriver.'Deriver.hasField'
+    ])
+  =<< 'loadSchema' "domain.yaml"
+@
 -}
-loadSchema :: FilePath -> Q Schema
+loadSchema ::
+  {-|
+  Path to the schema file relative to the root of the project.
+  -}
+  FilePath ->
+  {-|
+  Template Haskell action producing a valid schema.
+  -}
+  Q Schema
 loadSchema path =
   readFile path >>= parseByteString
 
