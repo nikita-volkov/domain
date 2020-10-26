@@ -1,7 +1,14 @@
-module Main
-where
+{-# LANGUAGE
+  QuasiQuotes, TemplateHaskell,
+  StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
+  FlexibleInstances, MultiParamTypeClasses,
+  DataKinds, TypeFamilies,
+  OverloadedStrings, OverloadedLabels, TypeApplications
+  #-}
+module Main where
 
-import Prelude
+import Data.Text (Text)
+import Data.Word (Word16, Word32, Word64)
 import Domain
 import qualified Domain.Deriver as Deriver
 
