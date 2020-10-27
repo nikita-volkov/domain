@@ -16,11 +16,6 @@ main =
   return ()
 
 declare
-  (Just (True, False))
-  (mconcat [
-    Deriver.base,
-    Deriver.isLabel,
-    Deriver.hashable,
-    Deriver.hasField
-    ])
+  (Just (False, True))
+  (Deriver.all)
   =<< loadSchema "samples/1.yaml"
