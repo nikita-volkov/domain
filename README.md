@@ -27,7 +27,7 @@ Schemas can be loaded at compile time and transformed into Haskell declarations 
 
 Schema gets analysed allowing to generate all kinds of instances automatically using a set of prepackaged derivers. An API is provided for creation of custom derivers of uncovered typeclasses.
 
-# How it works by example
+# Case in point
 
 We'll show you how this whole thing works on an example of a schema for a model of a service address.
 
@@ -88,6 +88,10 @@ Word128:
 _For more details about "product", "sum", "enumeration" and
 other methods of defining types refer to the [Schema spec](docs/Schema.md)._
 
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus.
+
+### Codegen
+
 Now, having that schema defined in a file at path `schemas/model.yaml`,
 we can load it in a Haskell module as follows:
 
@@ -141,6 +145,14 @@ data Word128 =
   }
 ```
 
+As you can see in the generated code the field names from schema get translated to record fields or names of constructors depending on the type composition method.
+
+In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function you can remove the type name prefix or prepend with underscore, you can also avoid generating record fields whatsoever (e.g., to keep the value-level namespace clean).
+
+The constructor names are also disambiguated by appending the type name to the label from schema. Thus we are introducing a consistent naming convention, while avoiding the boilerplate in the declaration of the model.
+
+### Instances
+
 If we introduce the following change to our code:
 
 ```diff
@@ -148,11 +160,10 @@ If we introduce the following change to our code:
 +declare (Just (False, True)) deriveBase
 ```
 
-We'll also get a ton of instances generated including
-very useful ones, which you couldn't otherwise derive.
+We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you couldn't otherwise derive.
 
 <details>
-  <summary>Listing of generated instances (we've collapsed it intentionally).</summary>
+  <summary><strong>Listing of generated instances</strong> (it's big)</summary>
 
 ```haskell
 deriving instance Show ServiceAddress
@@ -410,4 +421,98 @@ instance GHC.Records.HasField "part2" Word128 Word64 where
   GHC.Records.getField (Word128 _ a) = a
 ```
 </details>
+<p/>
 
+
+### Labels
+
+Among the generated instances you'll find instances for the `IsLabel` class. It is a class powering Haskell's `OverloadedLabels` extension. The instances we define for it let us reduce the boilerplate in the way we address our model. Here's how.
+
+#### We can access the members of records:
+
+```haskell
+getNetworkAddressPort :: NetworkAddress -> Word16
+getNetworkAddressPort = #port
+```
+
+Yep. Finally. Address your fields without crazy prefixes or dealing with disambiguation otherwise.
+
+_Labels will be unprefixed regardless of what you choose to do about record fields. You can also name them whatever you like. Literally, even `type` and `data` make up valid labels, and unless you choose to generate unprefixed record fields, you can freely use them._
+
+#### We get accessors to the members of sums as well:
+
+```haskell
+getHostIp :: Host -> Maybe Ip
+getHostIp = #ip
+```
+
+Yep. Sum types can have accessors if you look at them from a certain perspective.
+
+#### Accessors to enums - why not?
+
+```haskell
+isTransportProtocolTcp :: TransportProtocol -> Bool
+isTransportProtocolTcp = #tcp
+```
+
+#### We get shortcuts to enums:
+
+```haskell
+tcpTransportProtocol :: TransportProtocol
+tcpTransportProtocol = #tcp
+```
+
+#### We can instantiate sums:
+
+```haskell
+ipHost :: Ip -> Host
+ipHost = #ip
+```
+
+#### We can map over both record fields and sum variants:
+
+```haskell
+mapNetworkAddressHost :: (Host -> Host) -> NetworkAddress -> NetworkAddress
+mapNetworkAddressHost = #host
+```
+
+```haskell
+mapHostIp :: (Ip -> Ip) -> Host -> Host
+mapHostIp = #ip
+```
+
+There's a few things worth noticing here. Unfortunately the type inferencer will be unable to automatically detect the type of the mapping lambda parameter, so it needs to have an unambiguous type. This means that often times you'll have to provide an explicit type for it. But there's a solution.
+
+There is a "domain-optics" library which provides an integration with the "optics" library. By including the derivers from it in the parameters to the `declare` macro, you'll be able to map as follows without type inference issues:
+
+```haskell
+mapNetworkAddressHost :: (Host -> Host) -> NetworkAddress -> NetworkAddress
+mapNetworkAddressHost = over #host
+```
+
+You can read more about the "optics" library integration in [the Optics section](#optics).
+
+#### If we can map, then we can also set:
+
+```haskell
+setNetworkAddressHost :: Host -> NetworkAddress -> NetworkAddress
+setNetworkAddressHost host = #host (const host)
+```
+
+## Optics
+
+["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
+
+Coming back to our example here are some of the optics that become available to us:
+
+```haskell
+networkAddressHostOptic :: Lens' NetworkAddress Host
+networkAddressHostOptic = #host
+```
+
+```haskell
+hostIpOptic :: Prism' Host Ip
+hostIpOptic = #ip
+```
+
+_As you may have noticed, we avoid that "underscore-uppercase" naming convention for prisms, because with labels there's no longer any need for it._
