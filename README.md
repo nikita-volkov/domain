@@ -4,27 +4,17 @@ Domain model codegen solving multiple problems of the standard Haskell approach.
 
 # Problems
 
-Data model declaration in Haskell can get cumbersome.
-While it is much better than in most popular languages
-it still suffers from boilerplate,
-it distracts the developer by forcing to solve unrelated problems in the same place and
-the code is not terribly readable.
-On top of that we have the notorious records problem and
-other naming issues to solve causing inconsistent naming conventions, absense thereof or workarounds causing more distraction and noise.
-Declaring instances for typeclasses other than the basic ones
-can require multiple approaches depending on the class,
-becoming a non-trivial task for non-experts and producing even more boilerplate.
+Declaring a data model in Haskell can get cumbersome. While it is much better than in most popular languages it still suffers from boilerplate, it distracts the developer by forcing to solve unrelated problems in the same place and the code is not terribly readable. On top of that we have the notorious records problem and other naming issues to solve causing inconsistent naming conventions or absense thereof, or workarounds causing more distraction and noise. Declaring instances for typeclasses other than the basic ones requires multiple approaches depending on the class, becoming a non-trivial task for non-experts and producing even more boilerplate.
 
-# Goals
+# Features
 
-This project has the following goals:
+In its approach to those problems this projects offers the following features:
 
-- Let the domain model definition be focused on domain model only.
-- Let it be readable and comfortly editable, avoiding syntactic noise.
-- Separate its declaration from the problems of declaration of instances,
-accessor functions, optics and etc.
-- Have the notorious records problem solved.
-- Similarly have the less notorious problem of conflicting constructor names of sum-types solved.
+- Let the domain model definition be focused. Think about data and nothing else.
+- Let it be readable and comfortably editable, avoiding syntactic noise.
+- Separate its declaration from the problems of declaration of instances, accessor functions, optics and etc.
+- Have the records problem solved.
+- Have the problem of conflicting constructor names solved.
 - Avoid boilerplate while doing all the above.
 - Avoid complications of the build process while doing all the above.
 
