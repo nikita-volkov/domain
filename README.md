@@ -44,15 +44,20 @@ We'll show you how this whole thing works on an example of a schema for a model 
 ```yaml
 # Service can be either located on the network or
 # by a socket file.
-# Here we specify that choice using a "sum" type.
+#
+# Choice between two or more types can be encoded using
+# "sum" type composition, which you may also know as
+# "union" or "variant". That's what we use here.
 ServiceAddress:
   sum:
     network: NetworkAddress
     local: FilePath
 
-# Network address is a combination of transport protocol, host and port.
-# All those three things at once.
-# We use a "product" type to encode that.
+# Network address is a combination of transport protocol,
+# host and port. All those three things at once.
+#
+# "product" type composition lets us encode that.
+# You may also know it as "record" or "tuple".
 NetworkAddress:
   product:
     protocol: TransportProtocol
@@ -60,7 +65,7 @@ NetworkAddress:
     port: Word16
 
 # Transport protocol is either TCP or UDP.
-# We encode that with an enumeration.
+# We encode that using enumeration.
 TransportProtocol:
   enum:
     - tcp
@@ -90,11 +95,11 @@ Word128:
     part2: Word64
 ```
 
-_If you're concerned about what "product" and "sum" mean
-refer to the [Schema spec](TODO)._
+_For more details about "product", "sum", "enumeration" and
+other methods of defining types refer to the [Schema spec](docs/Schema.md)._
 
-Now, having that schema defined in a file named "domain.yaml",
-we can load it in Haskell module as follows:
+Now, having that schema defined in a file at path `models/domain.yaml`,
+we can load it in a Haskell module as follows:
 
 ```haskell
 {-# LANGUAGE
@@ -110,7 +115,7 @@ import Data.Word (Word16, Word32, Word64)
 import Domain
 
 declare (Just (False, True)) mempty
-  =<< loadSchema "samples/1.yaml"
+  =<< loadSchema "models/domain.yaml"
 ```
 
 And that will cause the compiler to generate the following declarations:
