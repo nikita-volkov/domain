@@ -27,9 +27,9 @@ data NetworkAddress =
 ```haskell
 data NetworkAddress =
   NetworkAddress {
-    internetAddressProtocol :: !TransportProtocol,
-    internetAddressHost :: !Host,
-    internetAddressPort :: !Word16
+    networkAddressProtocol :: !TransportProtocol,
+    networkAddressHost :: !Host,
+    networkAddressPort :: !Word16
   }
 ```
 
