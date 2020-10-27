@@ -30,8 +30,8 @@ accessor functions, optics and etc.
 
 # Solution
 
-This project introduces a clear boundary between a data model declaration and the rest of the code base.
-It introduces a low-noise YAML format designed specifically for the problem of defining types and relations between them and that only. We call it Schema.
+This project introduces a clear boundary between the data model declaration and the rest of the code base.
+It introduces a low-noise YAML format designed specifically for the problem of defining types and relations between them and that only. We call it Domain Schema.
 
 Schemas can be loaded at compile time and transformed into Haskell declarations using Template Haskell. Since it's just Template Haskell, no extra build software is needed for you to use this library. It is a simple Haskell package.
 
