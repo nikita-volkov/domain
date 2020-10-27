@@ -98,7 +98,7 @@ Word128:
 _For more details about "product", "sum", "enumeration" and
 other methods of defining types refer to the [Schema spec](docs/Schema.md)._
 
-Now, having that schema defined in a file at path `models/domain.yaml`,
+Now, having that schema defined in a file at path `schemas/model.yaml`,
 we can load it in a Haskell module as follows:
 
 ```haskell
@@ -115,7 +115,7 @@ import Data.Word (Word16, Word32, Word64)
 import Domain
 
 declare (Just (False, True)) mempty
-  =<< loadSchema "models/domain.yaml"
+  =<< loadSchema "schemas/model.yaml"
 ```
 
 And that will cause the compiler to generate the following declarations:
@@ -133,7 +133,8 @@ data NetworkAddress =
   }
 
 data TransportProtocol =
-  TcpTransportProtocol | UdpTransportProtocol
+  TcpTransportProtocol |
+  UdpTransportProtocol
 
 data Host =
   IpHost !Ip |
