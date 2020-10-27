@@ -1,6 +1,6 @@
 # About
 
-Domain model codegen solving multiple problems of the standard Haskell approach.
+Data model codegen solving multiple problems of the standard Haskell approach to defining models.
 
 # Problems
 
