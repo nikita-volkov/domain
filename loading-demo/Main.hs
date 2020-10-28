@@ -14,5 +14,5 @@ import Domain
 main =
   return ()
 
-declare (Just (True, False)) deriveStd
+declare (Just (True, False)) stdDeriver
   =<< loadSchema "samples/1.yaml"

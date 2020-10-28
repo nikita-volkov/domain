@@ -8,26 +8,26 @@ module Domain
   loadSchema,
   -- * Deriver
   Deriver.Deriver,
-  deriveStd,
+  stdDeriver,
   -- ** Common
-  deriveEnum,
-  deriveBounded,
-  deriveShow,
-  deriveEq,
-  deriveOrd,
-  deriveGeneric,
-  deriveData,
-  deriveTypeable,
-  deriveHashable,
-  deriveLift,
+  enumDeriver,
+  boundedDeriver,
+  showDeriver,
+  eqDeriver,
+  ordDeriver,
+  genericDeriver,
+  dataDeriver,
+  typeableDeriver,
+  hashableDeriver,
+  liftDeriver,
   -- ** HasField
-  deriveHasField,
+  hasFieldDeriver,
   -- ** IsLabel
   -- |
   -- Special instances of 'IsLabel'.
-  deriveAccessorIsLabel,
-  deriveConstructorIsLabel,
-  deriveMapperIsLabel,
+  accessorIsLabelDeriver,
+  constructorIsLabelDeriver,
+  mapperIsLabelDeriver,
 )
 where
 
@@ -120,7 +120,7 @@ import Domain
 
 'declare'
   (Just (False, True))
-  'deriveStd'
+  'stdDeriver'
   ['schema'|
 
     Host:
@@ -182,8 +182,8 @@ import Domain
   (mconcat [
     'deriveBase',
     'deriveIsLabel',
-    'deriveHashable',
-    'deriveHasField'
+    'hashableDeriver',
+    'hasFieldDeriver'
     ])
   =<< 'loadSchema' "domain.yaml"
 @
@@ -239,22 +239,22 @@ liftEither =
 {-|
 Combination of all derivers exported by this module.
 -}
-deriveStd =
+stdDeriver =
   mconcat [
-    deriveEnum,
-    deriveBounded,
-    deriveShow,
-    deriveEq,
-    deriveOrd,
-    deriveGeneric,
-    deriveData,
-    deriveTypeable,
-    deriveHashable,
-    deriveLift,
-    deriveHasField,
-    deriveConstructorIsLabel,
-    deriveMapperIsLabel,
-    deriveAccessorIsLabel
+    enumDeriver,
+    boundedDeriver,
+    showDeriver,
+    eqDeriver,
+    ordDeriver,
+    genericDeriver,
+    dataDeriver,
+    typeableDeriver,
+    hashableDeriver,
+    liftDeriver,
+    hasFieldDeriver,
+    constructorIsLabelDeriver,
+    mapperIsLabelDeriver,
+    accessorIsLabelDeriver
     ]
 
 {-|
@@ -262,7 +262,7 @@ Derives 'Enum' for enums or sums having no members in all variants.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
-deriveEnum =
+enumDeriver =
   Deriver.effectless InstanceDecs.enum
 
 {-|
@@ -270,7 +270,7 @@ Derives 'Bounded' for enums.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
-deriveBounded =
+boundedDeriver =
   Deriver.effectless InstanceDecs.bounded
 
 {-|
@@ -278,7 +278,7 @@ Derives 'Show'.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
-deriveShow =
+showDeriver =
   Deriver.effectless InstanceDecs.show
 
 {-|
@@ -286,7 +286,7 @@ Derives 'Eq'.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
-deriveEq =
+eqDeriver =
   Deriver.effectless InstanceDecs.eq
 
 {-|
@@ -294,7 +294,7 @@ Derives 'Ord'.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
-deriveOrd =
+ordDeriver =
   Deriver.effectless InstanceDecs.ord
 
 {-|
@@ -302,7 +302,7 @@ Derives 'Generic'.
 
 Requires to have the @StandaloneDeriving@ and @DeriveGeneric@ compiler extensions enabled.
 -}
-deriveGeneric =
+genericDeriver =
   Deriver.effectless InstanceDecs.generic
 
 {-|
@@ -310,7 +310,7 @@ Derives 'Data'.
 
 Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
-deriveData =
+dataDeriver =
   Deriver.effectless InstanceDecs.data_
 
 {-|
@@ -318,13 +318,13 @@ Derives 'Typeable'.
 
 Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
 -}
-deriveTypeable =
+typeableDeriver =
   Deriver.effectless InstanceDecs.typeable
 
 {-|
 Generates 'Generic'-based instances of 'Hashable'.
 -}
-deriveHashable =
+hashableDeriver =
   Deriver.effectless InstanceDecs.hashable
 
 {-|
@@ -332,7 +332,7 @@ Derives 'Lift'.
 
 Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions enabled.
 -}
-deriveLift =
+liftDeriver =
   Deriver.effectless InstanceDecs.lift
 
 -- ** HasField
@@ -350,7 +350,7 @@ For each variant of an enum maps to 'Bool' signaling whether the value equals to
 
 /Please notice that if you choose to generate unprefixed record field accessors, it will conflict with this deriver, since it\'s gonna generate duplicate instances./
 -}
-deriveHasField =
+hasFieldDeriver =
   Deriver.effectless InstanceDecs.hasField
 
 
@@ -388,7 +388,7 @@ Allowing you to construct the value by simply addressing the label:
 
 To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
 -}
-deriveConstructorIsLabel =
+constructorIsLabelDeriver =
   Deriver.effectless InstanceDecs.constructorIsLabel
 
 {-|
@@ -418,12 +418,12 @@ Which you can use to access individual fields as follows:
 
 To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
 -}
-deriveAccessorIsLabel =
+accessorIsLabelDeriver =
   Deriver.effectless InstanceDecs.accessorIsLabel
 
 {-|
 Generates instances of 'IsLabel' for sums and products,
 providing mappers over their components.
 -}
-deriveMapperIsLabel =
+mapperIsLabelDeriver =
   Deriver.effectless InstanceDecs.mapperIsLabel

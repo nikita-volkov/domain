@@ -15,7 +15,7 @@ import Domain
 main =
   return ()
 
-declare (Just (False, True)) deriveStd [schema|
+declare (Just (False, True)) stdDeriver [schema|
 
   ProcessAddress:
     sum:
