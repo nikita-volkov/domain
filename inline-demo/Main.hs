@@ -10,13 +10,12 @@ module Main where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 
 main =
   return ()
 
-declare (Just (False, True)) Deriver.all [schema|
+declare (Just (False, True)) deriveAll [schema|
 
   ProcessAddress:
     sum:

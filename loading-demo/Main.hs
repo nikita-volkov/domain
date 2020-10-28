@@ -9,7 +9,6 @@ module Main where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 
 main =
@@ -18,9 +17,9 @@ main =
 declare
   (Just (True, False))
   (mconcat [
-    Deriver.base,
-    Deriver.isLabel,
-    Deriver.hashable,
-    Deriver.hasField
+    deriveBase,
+    deriveHashable,
+    deriveIsLabel,
+    deriveHasField
     ])
   =<< loadSchema "samples/1.yaml"

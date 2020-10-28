@@ -6,6 +6,33 @@ module Domain
   Schema,
   schema,
   loadSchema,
+  -- * Deriver
+  Deriver.Deriver,
+  deriveAll,
+  -- ** Base
+  deriveBase,
+  -- *** Specific
+  deriveEnum,
+  deriveBounded,
+  deriveShow,
+  deriveEq,
+  deriveOrd,
+  deriveGeneric,
+  deriveData,
+  deriveTypeable,
+  -- ** Common
+  deriveHashable,
+  deriveLift,
+  -- ** HasField
+  deriveHasField,
+  -- ** IsLabel
+  -- |
+  -- Custom instances of 'IsLabel'.
+  deriveIsLabel,
+  -- *** Specific
+  deriveAccessorIsLabel,
+  deriveConstructorIsLabel,
+  deriveMapperIsLabel,
 )
 where
 
@@ -16,6 +43,7 @@ import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
 import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
 import qualified Domain.TH.TypeDec as TypeDec
+import qualified Domain.TH.InstanceDecs as InstanceDecs
 import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
 import qualified DomainCore.Deriver as Deriver
 import qualified DomainCore.Model as Model
@@ -94,11 +122,10 @@ module Model where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 'declare'
   (Just (False, True))
-  Deriver.'Domain.Deriver.all'
+  'deriveAll'
   ['schema'|
 
     Host:
@@ -154,15 +181,14 @@ module Model where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 'declare'
   (Just (True, False))
   (mconcat [
-    Deriver.'Domain.Deriver.base',
-    Deriver.'Domain.Deriver.isLabel',
-    Deriver.'Domain.Deriver.hashable',
-    Deriver.'Domain.Deriver.hasField'
+    'deriveBase',
+    'deriveIsLabel',
+    'deriveHashable',
+    'deriveHasField'
     ])
   =<< 'loadSchema' "domain.yaml"
 @
@@ -210,3 +236,215 @@ liftEither =
   \ case
     Left err -> fail (toList err)
     Right a -> return a 
+
+
+-- * Deriver
+-------------------------
+
+{-|
+Combination of all derivers exported by this module.
+-}
+deriveAll =
+  mconcat [
+    deriveBase,
+    deriveIsLabel,
+    deriveHashable,
+    deriveLift,
+    deriveHasField
+    ]
+
+
+-- * Base
+-------------------------
+
+{-|
+Combination of all derivers for classes from the \"base\" package.
+-}
+deriveBase =
+  mconcat [
+    deriveEnum,
+    deriveBounded,
+    deriveShow,
+    deriveEq,
+    deriveOrd,
+    deriveGeneric,
+    deriveData,
+    deriveTypeable
+    ]
+
+{-|
+Derives 'Enum' for types from the \"enum\" section of spec.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+deriveEnum =
+  Deriver.effectless InstanceDecs.enum
+
+{-|
+Derives 'Bounded' for types from the \"enum\" section of spec.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+deriveBounded =
+  Deriver.effectless InstanceDecs.bounded
+
+{-|
+Derives 'Show'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+deriveShow =
+  Deriver.effectless InstanceDecs.show
+
+{-|
+Derives 'Eq'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+deriveEq =
+  Deriver.effectless InstanceDecs.eq
+
+{-|
+Derives 'Ord'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+deriveOrd =
+  Deriver.effectless InstanceDecs.ord
+
+{-|
+Derives 'Generic'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveGeneric@ compiler extensions enabled.
+-}
+deriveGeneric =
+  Deriver.effectless InstanceDecs.generic
+
+{-|
+Derives 'Data'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
+-}
+deriveData =
+  Deriver.effectless InstanceDecs.data_
+
+{-|
+Derives 'Typeable'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
+-}
+deriveTypeable =
+  Deriver.effectless InstanceDecs.typeable
+
+{-|
+Generates 'Generic'-based instances of 'Hashable'.
+-}
+deriveHashable =
+  Deriver.effectless InstanceDecs.hashable
+
+{-|
+Derives 'Lift'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions enabled.
+-}
+deriveLift =
+  Deriver.effectless InstanceDecs.lift
+
+
+-- * HasField
+-------------------------
+
+{-|
+Derives 'HasField' with unprefixed field names.
+
+For each field of product generates instances mapping to their values.
+
+For each constructor of a sum maps to a 'Maybe' tuple of members of that constructor.
+
+For each variant of an enum maps to 'Bool' signaling whether the value equals to it.
+
+For wrapper maps the symbol \"value\" to the contents of the wrapper.
+
+/Please notice that if you choose to generate unprefixed record field accessors, it will conflict with this deriver, since it\'s gonna generate duplicate instances./
+-}
+deriveHasField =
+  Deriver.effectless InstanceDecs.hasField
+
+
+-- * IsLabel
+-------------------------
+
+{-|
+Generates instances of 'IsLabel' for wrappers, enums and sums,
+providing mappings from labels to constructors.
+
+=== __Example__
+
+For the following spec:
+
+>sums:
+>  ApiError:
+>    unauthorized:
+>    rejected: Maybe Text
+
+It'll generate the following instances:
+
+>instance IsLabel "unauthorized" ApiError where
+>  fromLabel = UnauthorizedApiError
+>
+>instance IsLabel "rejected" (Maybe Text -> ApiError) where
+>  fromLabel = RejectedApiError
+
+Allowing you to construct the value by simply addressing the label:
+
+>unauthorizedApiError :: ApiError
+>unauthorizedApiError = #unauthorized
+>
+>rejectedApiError :: Maybe Text -> ApiError
+>rejectedApiError reason = #rejected reason
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
+deriveConstructorIsLabel =
+  Deriver.effectless InstanceDecs.constructorIsLabel
+
+{-|
+Generates instances of 'IsLabel' for wrappers, enums, sums and products,
+providing mappings from labels to component accessors.
+
+=== __Product example__
+
+The following spec:
+
+>products:
+>  Config:
+>    host: Text
+>    port: Int
+
+Will generate the following instances:
+
+>instance a ~ Text => IsLabel "host" (Config -> a) where
+>  fromLabel = \ (Config a _) -> a
+>instance a ~ Word16 => IsLabel "port" (Config -> a) where
+>  fromLabel = \ (Config _ b) -> b
+
+Which you can use to access individual fields as follows:
+
+>getConfigHost :: Config -> Text
+>getConfigHost = #host
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
+deriveAccessorIsLabel =
+  Deriver.effectless InstanceDecs.accessorIsLabel
+
+deriveMapperIsLabel =
+  Deriver.effectless InstanceDecs.mapperIsLabel
+
+{-|
+Combination of 'deriveConstructorIsLabel', 'deriveMapperIsLabel' and 'deriveAccessorIsLabel'.
+-}
+deriveIsLabel =
+  deriveConstructorIsLabel <>
+  deriveMapperIsLabel <>
+  deriveAccessorIsLabel

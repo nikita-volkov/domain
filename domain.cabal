@@ -29,7 +29,6 @@ library
   default-language: Haskell2010
   exposed-modules:
     Domain
-    Domain.Deriver
   other-modules:
     Domain.Attoparsec.General
     Domain.Attoparsec.TypeString
@@ -90,6 +89,7 @@ test-suite test
     Util.TH
   build-depends:
     domain,
+    domain-core,
     neat-interpolation >=0.5.1.2 && <0.6,
     QuickCheck >=2.8.1 && <3,
     quickcheck-instances >=0.3.11 && <0.4,
