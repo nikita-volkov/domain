@@ -23,10 +23,8 @@ module Domain
   -- ** HasField
   hasFieldDeriver,
   -- ** IsLabel
-  -- |
-  -- Special instances of 'IsLabel'.
-  accessorIsLabelDeriver,
   constructorIsLabelDeriver,
+  accessorIsLabelDeriver,
   mapperIsLabelDeriver,
 )
 where
