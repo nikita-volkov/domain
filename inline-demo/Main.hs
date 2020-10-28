@@ -30,7 +30,8 @@ declare (Just (False, True)) Deriver.all [schema|
       port: Word16
 
   DomainSocketPath:
-    wrapper: Text
+    product:
+      path: FilePath
 
   TransportProtocol:
     enum:

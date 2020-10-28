@@ -12,15 +12,13 @@ where
 import Domain.Prelude hiding (liftEither, readFile, lift)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
-import qualified Domain.Model as Model
-import qualified Domain.ModelTH as ModelTH
-import qualified Domain.YamlUnscrambler.CategoryCentricDoc as CategoryCentricYaml
-import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
-import qualified Domain.Resolvers.CategoryCentricDoc as CategoryCentricResolver
-import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
-import qualified Domain.Deriver as Deriver
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
+import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
+import qualified Domain.TH.TypeDec as TypeDec
+import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
+import qualified DomainCore.Deriver as Deriver
+import qualified DomainCore.Model as Model
 import qualified YamlUnscrambler
 
 
@@ -60,7 +58,7 @@ declare ::
 declare fieldNaming (Deriver.Deriver derive) (Schema schema) =
   do
     instanceDecs <- fmap (nub . concat) (traverse derive schema)
-    return (fmap (ModelTH.typeDec fieldNaming) schema <> instanceDecs)
+    return (fmap (TypeDec.typeDec fieldNaming) schema <> instanceDecs)
 
 
 -- * Schema
@@ -100,7 +98,7 @@ import qualified Domain.Deriver as Deriver
 
 'declare'
   (Just (False, True))
-  Deriver.'Deriver.all'
+  Deriver.'Domain.Deriver.all'
   ['schema'|
 
     Host:
@@ -161,10 +159,10 @@ import qualified Domain.Deriver as Deriver
 'declare'
   (Just (True, False))
   (mconcat [
-    Deriver.'Deriver.base',
-    Deriver.'Deriver.isLabel',
-    Deriver.'Deriver.hashable',
-    Deriver.'Deriver.hasField'
+    Deriver.'Domain.Deriver.base',
+    Deriver.'Domain.Deriver.isLabel',
+    Deriver.'Domain.Deriver.hashable',
+    Deriver.'Domain.Deriver.hasField'
     ])
   =<< 'loadSchema' "domain.yaml"
 @

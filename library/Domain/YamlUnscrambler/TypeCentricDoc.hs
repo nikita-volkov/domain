@@ -41,9 +41,7 @@ structure =
       byKeyMapping (CaseSensitive True) $
         atByKey "product" (ProductStructure <$> byFieldName appTypeString) <|>
         atByKey "sum" (SumStructure <$> byFieldName sumTypeExpression) <|>
-        atByKey "enum" (EnumStructure <$> enumVariants) <|>
-        atByKey "wrapper" (WrapperStructure <$> appTypeString) <|>
-        atByKey "alias" (AliasStructure <$> appTypeString)
+        atByKey "enum" (EnumStructure <$> enumVariants)
 
 byFieldName onElement =
   value onScalar (Just onMapping) Nothing

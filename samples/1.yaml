@@ -11,7 +11,8 @@ InternetAddress:
     port: Word16
 
 DomainSocketPath:
-  wrapper: Text
+  product:
+    path: FilePath
 
 TransportProtocol:
   enum:

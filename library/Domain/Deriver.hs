@@ -4,7 +4,7 @@ Toolkit for construction and definition of instance derivers for Domain specs.
 module Domain.Deriver
 (
   -- * Deriver definitions
-  Deriver(..),
+  Deriver,
   all,
   -- ** Base
   base,
@@ -30,31 +30,16 @@ module Domain.Deriver
   constructorIsLabel,
   accessorIsLabel,
   -- * Schema model
-  module Domain.Model,
+  module DomainCore.Model,
 )
 where
 
 import Domain.Prelude hiding (show, ord, all, lift)
-import Domain.Model
+import DomainCore.Model
+import DomainCore.Deriver
 import qualified Language.Haskell.TH as TH (Q, Dec)
-import qualified Domain.InstanceDecs as InstanceDecs
+import qualified Domain.TH.InstanceDecs as InstanceDecs
 
-
-{-|
-Abstraction which allows to define automatic derivation of any class.
-
-It is implemented as a function from the type declaration in this package\'s own AST
-to a list of Template Haskell declarations in its quotation monad.
-
-Its Monoid instance allows you to combine derivers.
--}
-newtype Deriver =
-  Deriver (TypeDec -> TH.Q [TH.Dec])
-  deriving (Semigroup, Monoid)
-    via ((->) TypeDec (Ap TH.Q [TH.Dec]))
-
-effectless f =
-  Deriver (pure . f)
 
 {-|
 Combination of all derivers exported by this module.
