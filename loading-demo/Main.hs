@@ -14,12 +14,5 @@ import Domain
 main =
   return ()
 
-declare
-  (Just (True, False))
-  (mconcat [
-    deriveBase,
-    deriveHashable,
-    deriveIsLabel,
-    deriveHasField
-    ])
+declare (Just (True, False)) deriveStd
   =<< loadSchema "samples/1.yaml"

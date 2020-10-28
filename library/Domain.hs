@@ -8,10 +8,8 @@ module Domain
   loadSchema,
   -- * Deriver
   Deriver.Deriver,
-  deriveAll,
-  -- ** Base
-  deriveBase,
-  -- *** Specific
+  deriveStd,
+  -- ** Common
   deriveEnum,
   deriveBounded,
   deriveShow,
@@ -20,16 +18,13 @@ module Domain
   deriveGeneric,
   deriveData,
   deriveTypeable,
-  -- ** Common
   deriveHashable,
   deriveLift,
   -- ** HasField
   deriveHasField,
   -- ** IsLabel
   -- |
-  -- Custom instances of 'IsLabel'.
-  deriveIsLabel,
-  -- *** Specific
+  -- Special instances of 'IsLabel'.
   deriveAccessorIsLabel,
   deriveConstructorIsLabel,
   deriveMapperIsLabel,
@@ -125,7 +120,7 @@ import Domain
 
 'declare'
   (Just (False, True))
-  'deriveAll'
+  'deriveStd'
   ['schema'|
 
     Host:
@@ -244,23 +239,7 @@ liftEither =
 {-|
 Combination of all derivers exported by this module.
 -}
-deriveAll =
-  mconcat [
-    deriveBase,
-    deriveIsLabel,
-    deriveHashable,
-    deriveLift,
-    deriveHasField
-    ]
-
-
--- * Base
--------------------------
-
-{-|
-Combination of all derivers for classes from the \"base\" package.
--}
-deriveBase =
+deriveStd =
   mconcat [
     deriveEnum,
     deriveBounded,
@@ -269,11 +248,17 @@ deriveBase =
     deriveOrd,
     deriveGeneric,
     deriveData,
-    deriveTypeable
+    deriveTypeable,
+    deriveHashable,
+    deriveLift,
+    deriveHasField,
+    deriveConstructorIsLabel,
+    deriveMapperIsLabel,
+    deriveAccessorIsLabel
     ]
 
 {-|
-Derives 'Enum' for types from the \"enum\" section of spec.
+Derives 'Enum' for enums or sums having no members in all variants.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
@@ -281,7 +266,7 @@ deriveEnum =
   Deriver.effectless InstanceDecs.enum
 
 {-|
-Derives 'Bounded' for types from the \"enum\" section of spec.
+Derives 'Bounded' for enums.
 
 Requires to have the @StandaloneDeriving@ compiler extension enabled.
 -}
@@ -350,20 +335,18 @@ Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions e
 deriveLift =
   Deriver.effectless InstanceDecs.lift
 
-
--- * HasField
+-- ** HasField
 -------------------------
 
 {-|
 Derives 'HasField' with unprefixed field names.
 
-For each field of product generates instances mapping to their values.
+For each field of a product generates instances mapping to their values.
 
-For each constructor of a sum maps to a 'Maybe' tuple of members of that constructor.
+For each constructor of a sum maps to a 'Maybe' tuple of members of that constructor,
+unless there\'s no members, in which case it maps to 'Bool'.
 
 For each variant of an enum maps to 'Bool' signaling whether the value equals to it.
-
-For wrapper maps the symbol \"value\" to the contents of the wrapper.
 
 /Please notice that if you choose to generate unprefixed record field accessors, it will conflict with this deriver, since it\'s gonna generate duplicate instances./
 -}
@@ -382,8 +365,8 @@ providing mappings from labels to constructors.
 
 For the following spec:
 
->sums:
->  ApiError:
+>ApiError:
+>  sum:
 >    unauthorized:
 >    rejected: Maybe Text
 
@@ -409,15 +392,15 @@ deriveConstructorIsLabel =
   Deriver.effectless InstanceDecs.constructorIsLabel
 
 {-|
-Generates instances of 'IsLabel' for wrappers, enums, sums and products,
-providing mappings from labels to component accessors.
+Generates instances of 'IsLabel' for enums, sums and products,
+providing accessors to their components.
 
 === __Product example__
 
 The following spec:
 
->products:
->  Config:
+>Config:
+>  product:
 >    host: Text
 >    port: Int
 
@@ -438,13 +421,9 @@ To make use of that ensure to have the @OverloadedLabels@ compiler extension ena
 deriveAccessorIsLabel =
   Deriver.effectless InstanceDecs.accessorIsLabel
 
+{-|
+Generates instances of 'IsLabel' for sums and products,
+providing mappers over their components.
+-}
 deriveMapperIsLabel =
   Deriver.effectless InstanceDecs.mapperIsLabel
-
-{-|
-Combination of 'deriveConstructorIsLabel', 'deriveMapperIsLabel' and 'deriveAccessorIsLabel'.
--}
-deriveIsLabel =
-  deriveConstructorIsLabel <>
-  deriveMapperIsLabel <>
-  deriveAccessorIsLabel
