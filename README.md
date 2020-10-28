@@ -1,6 +1,6 @@
 # About
 
-Data model codegen solving multiple problems of the standard Haskell approach to defining models.
+Codegen solving multiple problems of the standard Haskell approach to defining models.
 
 # Problems
 
@@ -29,7 +29,9 @@ Schema gets analysed allowing to generate all kinds of instances automatically u
 
 # Case in point
 
-We'll show you how this whole thing works on an example of a schema for a model of a service address.
+We'll show you how this whole thing works on an example of a model of a service address.
+
+## Schema
 
 ```yaml
 # Service can be either located on the network or
@@ -88,7 +90,7 @@ Word128:
 _For more details about "product", "sum", "enumeration" and
 other methods of defining types refer to the [Schema spec](docs/Schema.md)._
 
-As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus.
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and maintenance easier.
 
 ### Codegen
 
