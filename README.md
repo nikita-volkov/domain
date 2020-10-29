@@ -90,7 +90,7 @@ Word128:
 _For more details about "product", "sum", "enumeration" and
 other methods of defining types refer to the [Schema spec](docs/Schema.md)._
 
-As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and maintenance easier.
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and the maintenance easier.
 
 ### Codegen
 
@@ -147,9 +147,9 @@ data Word128 =
   }
 ```
 
-As you can see in the generated code the field names from schema get translated to record fields or names of constructors depending on the type composition method.
+As you can see in the generated code the field names from the schema get translated to record fields or constructors depending on the type composition method.
 
-In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function you can remove the type name prefix or prepend with underscore, you can also avoid generating record fields whatsoever (e.g., to keep the value-level namespace clean).
+In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function it is possible remove the type name prefix or prepend with underscore, you can also avoid generating record fields altogether (to keep the value-level namespace clean).
 
 The constructor names are also disambiguated by appending the type name to the label from schema. Thus we are introducing a consistent naming convention, while avoiding the boilerplate in the declaration of the model.
 
@@ -162,7 +162,7 @@ If we introduce the following change to our code:
 +declare (Just (False, True)) stdDeriver
 ```
 
-We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you couldn't otherwise derive.
+We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you wouldn't derive otherwise.
 
 <details>
   <summary><strong>Listing of generated instances</strong> (it's big)</summary>
@@ -517,4 +517,6 @@ hostIpOptic :: Prism' Host Ip
 hostIpOptic = #ip
 ```
 
-_As you may have noticed, we avoid that "underscore-uppercase" naming convention for prisms, because with labels there's no longer any need for it._
+_As you may have noticed, we avoid the "underscore-uppercase" naming convention for prisms. With labels there's no longer any need for it._
+
+We recommend using "optics" instead of direct `IsLabel` instances, because functions like `view`, `over`, `set`, `review` make your intent clearer to the reader in many cases and in some cases provide better type inference.
