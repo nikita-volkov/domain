@@ -51,7 +51,12 @@ eliminateTypeStringUnit =
         fmap (ListType . AppType)
     TypeString.InParensUnit commaSeq ->
       eliminateTypeStringCommaSeq commaSeq &
-        fmap (TupleType . fmap AppType)
+        fmap (tupleIfNotOne . fmap AppType)
+      where
+        tupleIfNotOne =
+          \ case
+            [a] -> a
+            a -> TupleType a
     TypeString.RefUnit typeRef ->
       eliminateTypeRef typeRef &
         fmap RefType
