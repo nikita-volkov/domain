@@ -29,6 +29,7 @@ library
   default-language: Haskell2010
   exposed-modules:
     Domain
+    Domain.Docs
   other-modules:
     Domain.Attoparsec.General
     Domain.Attoparsec.TypeString
