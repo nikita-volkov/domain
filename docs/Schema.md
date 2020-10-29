@@ -1,11 +1,11 @@
 # Schema syntax reference
 
-Schema definition is a YAML document listing declarations of your domain types.
-There is 5 types of type declarations: [Product](#product), [Sum](#sum), [Enum](#enum), [Wrapper](#wrapper), [Alias](#alias).
+Schema definition is a YAML document listing declarations of your domain types. The listing is represented as a mapping from type names to their definitions.
+There is 3 types of definitions: [Product](#product), [Sum](#sum), [Enum](#enum).
 
 ## Product
 
-Defines a compounded type comprised of other types using [Product type composition](https://en.wikipedia.org/wiki/Product_type), associating a unique textual label with each member type. You may know it as "record".
+Defines a type comprised of other types using [Product type composition](https://en.wikipedia.org/wiki/Product_type), associating a unique textual label with each member. You may know it as "record".
 
 Here's an example of a product type declaration in schema:
 
@@ -70,11 +70,9 @@ mapNetworkAddressHost :: (Host -> Host) -> NetworkAddress -> NetworkAddress
 mapNetworkAddressHost = over #host -- Using "domain-optics" and "optics"
 ```
 
-For more details on instance generation refer to the [Instance Derivation](#instance-derivation) section.
-
 ## Sum
 
-Defines a compounded type comprised of other types using [Sum type composition](https://en.wikipedia.org/wiki/Tagged_union), associating a unique textual label with each member type. You may know it as tagged union, variant.
+Defines a type comprised of other types using [Sum type composition](https://en.wikipedia.org/wiki/Tagged_union), associating a unique textual label with each member. You may know it as tagged union, variant.
 
 Here's an example of a schema declaration of a sum type:
 
@@ -176,74 +174,19 @@ getTransportProtocolTcp :: TransportProtocol -> Bool
 getTransportProtocolTcp = #tcp
 ```
 
-## Wrapper
-
-Type which provides a new identity to the existing type. Maps to Haskell `newtype` declaration.
-
-Here's an example of a schema declaration:
-
-```yaml
-HostName:
-  wrapper: Text
-```
-
-It'll generate one of the following Haskell type declaration depending on your settings:
-
-```haskell
-newtype HostName = HostName Text
-```
-
-```haskell
-newtype HostName = HostName { hostNameValue :: Text }
-```
-
-```haskell
-newtype HostName = HostName { _value :: Text }
-```
-
-```haskell
-newtype HostName = HostName { value :: Text }
-```
-
-The accessors will be the same as for [Product](#product).
-
-## Alias
-
-Alias to an existing type.
-
-Schema declaration example:
-
-```yaml
-Port:
-  alias: Word16
-```
-
-On the Haskell end it'll generate the following:
-
-```haskell
-type Port = Word16
-```
-
-# Instance derivation
-
-The library provides a mechanism to automatically derive all kinds of typeclass instances.
-
-## Extending
-
-The instance derivation mechanism is extensible.
-You can define your own derivers.
-
-# Special cases
+# Notes
 
 ## List data-type
 
-Since square brackets get interpreted as YAML array, you have to explicitly state that the value is a YAML string. To achieve that prefix the value with the vertical line (`|`) character.
+Since square brackets get interpreted in YAML as YAML array, you have to explicitly state that the value is a YAML string. To achieve that prefix the value with the vertical line (`|`) character. E.g.,
 
+```yaml
+Artist:
+  product:
+    name: Text
+    genres: | [Genre]
+```
 
+## Haskell reserved names are available
 
-# Niceties
-
-## Reserved names are available
-
-You can use those previously banned field names like "data", "type", "class".
-
+You can use the previously banned field names like "data", "type", "class".
