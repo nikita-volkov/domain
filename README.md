@@ -159,7 +159,7 @@ If we introduce the following change to our code:
 
 ```diff
 -declare (Just (False, True)) mempty
-+declare (Just (False, True)) deriveBase
++declare (Just (False, True)) stdDeriver
 ```
 
 We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you couldn't otherwise derive.
