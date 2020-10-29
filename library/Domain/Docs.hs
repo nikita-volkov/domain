@@ -161,6 +161,62 @@ module Domain.Docs
   > getTransportProtocolTcp = #tcp
 
   -}
+  -- ** Example
+  {-|
+  Here\'s an example of a complete schema.
+  
+  > # Service can be either located on the network or
+  > # by a socket file.
+  > #
+  > # Choice between two or more types can be encoded using
+  > # "sum" type composition, which you may also know as
+  > # "union" or "variant". That's what we use here.
+  > ServiceAddress:
+  >   sum:
+  >     network: NetworkAddress
+  >     local: FilePath
+  > 
+  > # Network address is a combination of transport protocol,
+  > # host and port. All those three things at once.
+  > #
+  > # "product" type composition lets us encode that.
+  > # You may also know it as "record" or "tuple".
+  > NetworkAddress:
+  >   product:
+  >     protocol: TransportProtocol
+  >     host: Host
+  >     port: Word16
+  > 
+  > # Transport protocol is either TCP or UDP.
+  > # We encode that using enumeration.
+  > TransportProtocol:
+  >   enum:
+  >     - tcp
+  >     - udp
+  > 
+  > # Host can be adressed by either an IP or its name,
+  > # so "sum" again.
+  > Host:
+  >   sum:
+  >     ip: Ip
+  >     name: Text
+  > 
+  > # IP can be either of version 4 or version 6.
+  > # We encode it as a sum over words of the accordingly required
+  > # amount of bits.
+  > Ip:
+  >   sum:
+  >     v4: Word32
+  >     v6: Word128
+  > 
+  > # Since the standard lib lacks a definition
+  > # of a 128-bit word, we define a custom one
+  > # as a product of two 64-bit words.
+  > Word128:
+  >   product:
+  >     part1: Word64
+  >     part2: Word64
+  -}
   -- ** Notes #notes#
   -- *** List Data-type #list-data-type#
   {-|
