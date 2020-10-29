@@ -9,7 +9,6 @@ import Test.Tasty.QuickCheck
 import qualified Domain
 import qualified DomainCore.Model as Model
 import qualified Test.QuickCheck as QuickCheck
-import qualified NeatInterpolation as NeatInterpolation
 import qualified Data.Text as Text
 import qualified Util.TH as TH
 
@@ -19,16 +18,14 @@ main =
   testGroup "All tests" [
     testCase "Should fail when wrong member of sum-type is supplied" $ let
       res :: Maybe [Model.TypeDec]
-      res = $(
-        TH.tryRunExpQ Domain.schema
-          [NeatInterpolation.text|
-            A:
-              sum:
-                a:
-                  c: Int
-                b: Char, Double
-            |]
-        )
+      res =
+        [TH.maybeDecsQQ|
+          A:
+            sum:
+              a:
+                c: Int
+              b: Char, Double
+          |]
       in case res of
         Just res ->
           assertFailure (show res)
