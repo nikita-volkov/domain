@@ -1,34 +1,45 @@
-
-ProcessAddress:
+# Service can be either located on the network or
+# by a socket file.
+# Here we specify that choice using a "sum" type.
+ServiceAddress:
   sum:
-    internet: InternetAddress
-    local: DomainSocketPath
+    network: NetworkAddress
+    local: FilePath
 
-InternetAddress:
+# Network address is a combination of transport protocol, host and port.
+# All those three things at once.
+# We use a "product" type to encode that.
+NetworkAddress:
   product:
     protocol: TransportProtocol
     host: Host
     port: Word16
 
-DomainSocketPath:
-  product:
-    path: FilePath
-
+# Transport protocol is either TCP or UDP.
+# We encode that with an enumeration.
 TransportProtocol:
   enum:
     - tcp
     - udp
 
+# Host can be adressed by either an IP or its name,
+# so "sum" again.
 Host:
   sum:
     ip: Ip
     name: Text
 
+# IP can be either of version 4 or version 6.
+# We encode it as a sum over words of the accordingly required
+# amount of bits.
 Ip:
   sum:
     v4: Word32
     v6: Word128
 
+# Since the standard lib lacks a definition
+# of a 128-bit word, we define a custom one
+# as a product of two 64-bit words.
 Word128:
   product:
     part1: Word64
