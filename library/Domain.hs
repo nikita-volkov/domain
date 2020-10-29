@@ -1,3 +1,9 @@
+{-|
+This module contains the whole API of \"domain\".
+
+Many functions come with a collapsed example sections,
+do check them out for further explanations.
+-}
 module Domain
 (
   -- * Declaration
