@@ -1,3 +1,9 @@
+{-|
+This module contains the whole API of \"domain\".
+
+Many functions come with a collapsed example sections,
+do check them out for further explanations.
+-}
 module Domain
 (
   -- * Declaration
@@ -26,6 +32,30 @@ module Domain
   constructorIsLabelDeriver,
   accessorIsLabelDeriver,
   mapperIsLabelDeriver,
+  -- * Clarifications
+  -- ** Type Equality Constraint #type-equality-constraint#
+  -- |
+  -- You may have noticed that some instances (in particular of 'IsLabel')
+  -- have some unusual tilde (@~@) constraint:
+  -- 
+  -- @
+  -- instance a ~ TransportProtocol => IsLabel "protocol" (NetworkAddress -> a)
+  -- @
+  -- 
+  -- This constraint states that types are equal.
+  -- You might be wondering why do that instead of just
+  -- 
+  -- @
+  -- instance IsLabel "protocol" (NetworkAddress -> TransportProtocol)
+  -- @
+  -- 
+  -- The reason is that it helps the compiler pick up this instance having
+  -- only the non-variable parts of the type signature,
+  -- since type equality is verified after the instance match.
+  -- This provides for better type inference and better error messages.
+  -- 
+  -- In case of our example we're ensuring that the compiler will pick
+  -- up the instance for any function parameterised by @NetworkAddress@.
 )
 where
 
@@ -101,7 +131,7 @@ Quasi-quoter, which parses a YAML schema into a 'Schema' expression.
 
 Use 'declare' to generate the code from it.
 
-=== __Example__
+==== __Example__
 
 @
 {\-# LANGUAGE
@@ -160,7 +190,7 @@ Load and parse a YAML file into a schema definition.
 
 Use 'declare' to generate the code from it.
 
-=== __Example__
+==== __Example__
 
 @
 {\-# LANGUAGE
@@ -177,12 +207,7 @@ import Domain
 
 'declare'
   (Just (True, False))
-  (mconcat [
-    'deriveBase',
-    'deriveIsLabel',
-    'hashableDeriver',
-    'hasFieldDeriver'
-    ])
+  'stdDeriver'
   =<< 'loadSchema' "domain.yaml"
 @
 -}
@@ -359,32 +384,53 @@ hasFieldDeriver =
 Generates instances of 'IsLabel' for wrappers, enums and sums,
 providing mappings from labels to constructors.
 
-=== __Example__
+==== __Sum Example__
 
-For the following spec:
+Having the following schema:
 
->ApiError:
->  sum:
->    unauthorized:
->    rejected: Maybe Text
+@
+Host:
+  sum:
+    ip: Ip
+    name: Text
+@
 
-It'll generate the following instances:
+The following instances will be generated:
 
->instance IsLabel "unauthorized" ApiError where
->  fromLabel = UnauthorizedApiError
->
->instance IsLabel "rejected" (Maybe Text -> ApiError) where
->  fromLabel = RejectedApiError
+@
+instance a ~ Ip => IsLabel "ip" (a -> Host) where
+  fromLabel = IpHost
 
-Allowing you to construct the value by simply addressing the label:
+instance a ~ Text => IsLabel "name" (a -> Host) where
+  fromLabel = NameHost
+@
 
->unauthorizedApiError :: ApiError
->unauthorizedApiError = #unauthorized
->
->rejectedApiError :: Maybe Text -> ApiError
->rejectedApiError reason = #rejected reason
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
 
-To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+==== __Enum Example__
+
+Having the following schema:
+
+@
+TransportProtocol:
+  enum:
+    - tcp
+    - udp
+@
+
+The following instances will be generated:
+
+@
+instance IsLabel "tcp" TransportProtocol where
+  fromLabel = TcpTransportProtocol
+
+instance IsLabel "udp" TransportProtocol where
+  fromLabel = UdpTransportProtocol
+@
+
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
 -}
 constructorIsLabelDeriver =
   Deriver.effectless InstanceDecs.constructorIsLabel
@@ -393,28 +439,85 @@ constructorIsLabelDeriver =
 Generates instances of 'IsLabel' for enums, sums and products,
 providing accessors to their components.
 
-=== __Product example__
+==== __Product Example__
 
-The following spec:
+Having the following schema:
 
->Config:
->  product:
->    host: Text
->    port: Int
+@
+NetworkAddress:
+  product:
+    protocol: TransportProtocol
+    host: Host
+    port: Word16
+@
 
-Will generate the following instances:
+The following instances will be generated:
 
->instance a ~ Text => IsLabel "host" (Config -> a) where
->  fromLabel = \ (Config a _) -> a
->instance a ~ Word16 => IsLabel "port" (Config -> a) where
->  fromLabel = \ (Config _ b) -> b
+@
+instance a ~ TransportProtocol => IsLabel "protocol" (NetworkAddress -> a) where
+  fromLabel (NetworkAddress a _ _) = a
 
-Which you can use to access individual fields as follows:
+instance a ~ Host => IsLabel "host" (NetworkAddress -> a) where
+  fromLabel (NetworkAddress _ b _) = b
 
->getConfigHost :: Config -> Text
->getConfigHost = #host
+instance a ~ Word16 => IsLabel "port" (NetworkAddress -> a) where
+  fromLabel (NetworkAddress _ _ c) = c
+@
 
-To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
+
+==== __Sum Example__
+
+Having the following schema:
+
+@
+Host:
+  sum:
+    ip: Ip
+    name: Text
+@
+
+The following instances will be generated:
+
+@
+instance a ~ Maybe Ip => IsLabel "ip" (Host -> a) where
+  fromLabel (IpHost a) = Just a
+  fromLabel _ = Nothing
+
+instance a ~ Maybe Text => IsLabel "name" (Host -> a) where
+  fromLabel (NameHost a) = Just a
+  fromLabel _ = Nothing
+@
+
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
+
+==== __Enum Example__
+
+Having the following schema:
+
+@
+TransportProtocol:
+  enum:
+    - tcp
+    - udp
+@
+
+The following instances will be generated:
+
+@
+instance a ~ Bool => IsLabel "tcp" (TransportProtocol -> a) where
+  fromLabel TcpTransportProtocol = True
+  fromLabel _ = False
+
+instance a ~ Bool => IsLabel "udp" (TransportProtocol -> a) where
+  fromLabel UdpTransportProtocol = True
+  fromLabel _ = False
+@
+
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
 -}
 accessorIsLabelDeriver =
   Deriver.effectless InstanceDecs.accessorIsLabel
@@ -422,6 +525,78 @@ accessorIsLabelDeriver =
 {-|
 Generates instances of 'IsLabel' for sums and products,
 providing mappers over their components.
+
+==== __Product Example__
+
+Having the following schema:
+
+@
+NetworkAddress:
+  product:
+    protocol: TransportProtocol
+    host: Host
+    port: Word16
+@
+
+The following instances will be generated:
+
+@
+instance
+  mapper ~ (TransportProtocol -> TransportProtocol) =>
+  IsLabel "protocol" (mapper -> NetworkAddress -> NetworkAddress)
+  where
+    fromLabel mapper (NetworkAddress a b c) =
+      NetworkAddress (mapper a) b c
+
+instance
+  mapper ~ (Host -> Host) =>
+  IsLabel "host" (mapper -> NetworkAddress -> NetworkAddress)
+  where
+    fromLabel mapper (NetworkAddress a b c) = 
+      NetworkAddress a (mapper b) c
+
+instance
+  mapper ~ (Word16 -> Word16) =>
+  IsLabel "port" (mapper -> NetworkAddress -> NetworkAddress)
+  where
+    fromLabel mapper (NetworkAddress a b c) =
+      NetworkAddress a b (mapper c)
+@
+
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
+
+==== __Sum Example__
+
+Having the following schema:
+
+@
+Host:
+  sum:
+    ip: Ip
+    name: Text
+@
+
+The following instances will be generated:
+
+@
+instance
+  mapper ~ (Ip -> Ip) =>
+  IsLabel "ip" (mapper -> Host -> Host)
+  where
+    fromLabel fn (IpHost a) = IpHost (fn a)
+    fromLabel _ a = a
+
+instance
+  mapper ~ (Text -> Text) =>
+  IsLabel "name" (mapper -> Host -> Host)
+  where
+    fromLabel fn (NameHost a) = NameHost (fn a)
+    fromLabel _ a = a
+@
+
+In case you\'re wondering what this tilde (@~@) constraint business is about,
+refer to the [Type Equality Constraint](#type-equality-constraint) section.
 -}
 mapperIsLabelDeriver =
   Deriver.effectless InstanceDecs.mapperIsLabel
