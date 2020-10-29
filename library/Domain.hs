@@ -201,12 +201,7 @@ import Domain
 
 'declare'
   (Just (True, False))
-  (mconcat [
-    'deriveBase',
-    'deriveIsLabel',
-    'hashableDeriver',
-    'hasFieldDeriver'
-    ])
+  'stdDeriver'
   =<< 'loadSchema' "domain.yaml"
 @
 -}
