@@ -2,11 +2,9 @@ module Domain.Resolvers.TypeCentricDoc
 where
 
 import Domain.Prelude hiding (lookup)
-import Domain.Model
+import DomainCore.Model
 import qualified Domain.Models.TypeCentricDoc as Doc
 import qualified Domain.Models.TypeString as TypeString
-import qualified Domain.Util.List as List
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 
@@ -25,11 +23,7 @@ eliminateStructure =
       SumTypeDef <$>
       traverse eliminateSumStructureUnit structure
     Doc.EnumStructure variants ->
-      pure (EnumTypeDef variants)
-    Doc.WrapperStructure appSeq ->
-      WrapperTypeDef . AppType <$> eliminateTypeStringAppSeq appSeq
-    Doc.AliasStructure appSeq ->
-      AliasTypeDef . AppType <$> eliminateTypeStringAppSeq appSeq
+      pure (SumTypeDef (fmap (,[]) variants))
 
 eliminateProductStructureUnit (name, appSeq) =
   (,) name . AppType <$> eliminateTypeStringAppSeq appSeq

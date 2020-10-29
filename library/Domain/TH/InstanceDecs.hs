@@ -1,18 +1,15 @@
-module Domain.InstanceDecs
+module Domain.TH.InstanceDecs
 where
 
 import Domain.Prelude
-import Domain.Model
-import qualified Domain.InstanceDec as InstanceDec
+import DomainCore.Model
+import qualified Domain.TH.InstanceDec as InstanceDec
 import qualified Language.Haskell.TH as TH (Dec, Name)
 
 
 hasField :: TypeDec -> [TH.Dec]
 hasField (TypeDec typeName typeDef) =
   case typeDef of
-    EnumTypeDef variants ->
-      variants &
-      fmap (InstanceDec.enumHasField typeName)
     ProductTypeDef members ->
       zipWith zipper (enumFrom 0) members
       where
@@ -25,21 +22,10 @@ hasField (TypeDec typeName typeDef) =
       where
         mapper (variantName, memberTypes) =
           InstanceDec.sumHasField typeName variantName memberTypes
-    WrapperTypeDef t ->
-      pure $ InstanceDec.productHasField typeName "value" t 1 0
-    AliasTypeDef _ ->
-      empty
 
 accessorIsLabel :: TypeDec -> [TH.Dec]
 accessorIsLabel (TypeDec typeName typeDef) =
   case typeDef of
-    AliasTypeDef _ -> []
-    WrapperTypeDef wrappedType ->
-      pure $
-      InstanceDec.productAccessorIsLabel typeName "value" wrappedType 1 0
-    EnumTypeDef variants ->
-      variants &
-      fmap (InstanceDec.enumAccessorIsLabel typeName)
     ProductTypeDef members ->
       zipWith zipper (enumFrom 0) members
       where
@@ -56,13 +42,6 @@ accessorIsLabel (TypeDec typeName typeDef) =
 constructorIsLabel :: TypeDec -> [TH.Dec]
 constructorIsLabel (TypeDec typeName typeDef) =
   case typeDef of
-    AliasTypeDef _ -> []
-    WrapperTypeDef wrappedType ->
-      pure $
-      InstanceDec.wrapperConstructorIsLabel typeName wrappedType
-    EnumTypeDef variants ->
-      variants &
-      fmap (InstanceDec.enumConstructorIsLabel typeName)
     ProductTypeDef members ->
       []
     SumTypeDef variants ->
@@ -88,11 +67,6 @@ variantConstructorIsLabel typeName (variantName, memberTypes) =
 mapperIsLabel :: TypeDec -> [TH.Dec]
 mapperIsLabel (TypeDec typeName typeDef) =
   case typeDef of
-    AliasTypeDef _ -> []
-    WrapperTypeDef wrappedType ->
-      pure (InstanceDec.wrapperMapperIsLabel typeName wrappedType)
-    EnumTypeDef variants ->
-      []
     ProductTypeDef members ->
       zipWith zipper (enumFrom 0) members
       where
@@ -113,17 +87,13 @@ mapperIsLabel (TypeDec typeName typeDef) =
 
 byNonAliasName :: (Text -> TH.Dec) -> TypeDec -> [TH.Dec]
 byNonAliasName cont (TypeDec a b) =
-  case b of
-    AliasTypeDef _ ->
-      []
-    _ ->
-      [cont a]
+  [cont a]
 
 byEnumName :: (Text -> TH.Dec) -> TypeDec -> [TH.Dec]
-byEnumName cont (TypeDec a b) =
-  case b of
-    EnumTypeDef _ ->
-      [cont a]
+byEnumName cont (TypeDec name def) =
+  case def of
+    SumTypeDef variants | all (null . snd) variants ->
+      [cont name]
     _ ->
       []
 

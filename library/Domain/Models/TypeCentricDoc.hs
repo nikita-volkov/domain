@@ -11,9 +11,7 @@ type Doc =
 data Structure =
   ProductStructure [(Text, TypeString.AppSeq)] |
   SumStructure [(Text, SumTypeExpression)] |
-  EnumStructure [Text] |
-  WrapperStructure TypeString.AppSeq |
-  AliasStructure TypeString.AppSeq
+  EnumStructure [Text]
   deriving (Show)
 
 data SumTypeExpression =

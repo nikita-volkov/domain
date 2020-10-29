@@ -6,21 +6,40 @@ module Domain
   Schema,
   schema,
   loadSchema,
+  -- * Deriver
+  Deriver.Deriver,
+  stdDeriver,
+  -- ** Common
+  enumDeriver,
+  boundedDeriver,
+  showDeriver,
+  eqDeriver,
+  ordDeriver,
+  genericDeriver,
+  dataDeriver,
+  typeableDeriver,
+  hashableDeriver,
+  liftDeriver,
+  -- ** HasField
+  hasFieldDeriver,
+  -- ** IsLabel
+  constructorIsLabelDeriver,
+  accessorIsLabelDeriver,
+  mapperIsLabelDeriver,
 )
 where
 
 import Domain.Prelude hiding (liftEither, readFile, lift)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
-import qualified Domain.Model as Model
-import qualified Domain.ModelTH as ModelTH
-import qualified Domain.YamlUnscrambler.CategoryCentricDoc as CategoryCentricYaml
-import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
-import qualified Domain.Resolvers.CategoryCentricDoc as CategoryCentricResolver
-import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
-import qualified Domain.Deriver as Deriver
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Text
+import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
+import qualified Domain.TH.TypeDec as TypeDec
+import qualified Domain.TH.InstanceDecs as InstanceDecs
+import qualified Domain.YamlUnscrambler.TypeCentricDoc as TypeCentricYaml
+import qualified DomainCore.Deriver as Deriver
+import qualified DomainCore.Model as Model
 import qualified YamlUnscrambler
 
 
@@ -60,7 +79,7 @@ declare ::
 declare fieldNaming (Deriver.Deriver derive) (Schema schema) =
   do
     instanceDecs <- fmap (nub . concat) (traverse derive schema)
-    return (fmap (ModelTH.typeDec fieldNaming) schema <> instanceDecs)
+    return (fmap (TypeDec.typeDec fieldNaming) schema <> instanceDecs)
 
 
 -- * Schema
@@ -96,11 +115,10 @@ module Model where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 'declare'
   (Just (False, True))
-  Deriver.'Deriver.all'
+  'stdDeriver'
   ['schema'|
 
     Host:
@@ -156,15 +174,14 @@ module Model where
 import Data.Text (Text)
 import Data.Word (Word16, Word32, Word64)
 import Domain
-import qualified Domain.Deriver as Deriver
 
 'declare'
   (Just (True, False))
   (mconcat [
-    Deriver.'Deriver.base',
-    Deriver.'Deriver.isLabel',
-    Deriver.'Deriver.hashable',
-    Deriver.'Deriver.hasField'
+    'deriveBase',
+    'deriveIsLabel',
+    'hashableDeriver',
+    'hasFieldDeriver'
     ])
   =<< 'loadSchema' "domain.yaml"
 @
@@ -212,3 +229,199 @@ liftEither =
   \ case
     Left err -> fail (toList err)
     Right a -> return a 
+
+
+-- * Deriver
+-------------------------
+
+{-|
+Combination of all derivers exported by this module.
+-}
+stdDeriver =
+  mconcat [
+    enumDeriver,
+    boundedDeriver,
+    showDeriver,
+    eqDeriver,
+    ordDeriver,
+    genericDeriver,
+    dataDeriver,
+    typeableDeriver,
+    hashableDeriver,
+    liftDeriver,
+    hasFieldDeriver,
+    constructorIsLabelDeriver,
+    mapperIsLabelDeriver,
+    accessorIsLabelDeriver
+    ]
+
+{-|
+Derives 'Enum' for enums or sums having no members in all variants.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+enumDeriver =
+  Deriver.effectless InstanceDecs.enum
+
+{-|
+Derives 'Bounded' for enums.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+boundedDeriver =
+  Deriver.effectless InstanceDecs.bounded
+
+{-|
+Derives 'Show'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+showDeriver =
+  Deriver.effectless InstanceDecs.show
+
+{-|
+Derives 'Eq'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+eqDeriver =
+  Deriver.effectless InstanceDecs.eq
+
+{-|
+Derives 'Ord'.
+
+Requires to have the @StandaloneDeriving@ compiler extension enabled.
+-}
+ordDeriver =
+  Deriver.effectless InstanceDecs.ord
+
+{-|
+Derives 'Generic'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveGeneric@ compiler extensions enabled.
+-}
+genericDeriver =
+  Deriver.effectless InstanceDecs.generic
+
+{-|
+Derives 'Data'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
+-}
+dataDeriver =
+  Deriver.effectless InstanceDecs.data_
+
+{-|
+Derives 'Typeable'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveDataTypeable@ compiler extensions enabled.
+-}
+typeableDeriver =
+  Deriver.effectless InstanceDecs.typeable
+
+{-|
+Generates 'Generic'-based instances of 'Hashable'.
+-}
+hashableDeriver =
+  Deriver.effectless InstanceDecs.hashable
+
+{-|
+Derives 'Lift'.
+
+Requires to have the @StandaloneDeriving@ and @DeriveLift@ compiler extensions enabled.
+-}
+liftDeriver =
+  Deriver.effectless InstanceDecs.lift
+
+-- ** HasField
+-------------------------
+
+{-|
+Derives 'HasField' with unprefixed field names.
+
+For each field of a product generates instances mapping to their values.
+
+For each constructor of a sum maps to a 'Maybe' tuple of members of that constructor,
+unless there\'s no members, in which case it maps to 'Bool'.
+
+For each variant of an enum maps to 'Bool' signaling whether the value equals to it.
+
+/Please notice that if you choose to generate unprefixed record field accessors, it will conflict with this deriver, since it\'s gonna generate duplicate instances./
+-}
+hasFieldDeriver =
+  Deriver.effectless InstanceDecs.hasField
+
+
+-- * IsLabel
+-------------------------
+
+{-|
+Generates instances of 'IsLabel' for wrappers, enums and sums,
+providing mappings from labels to constructors.
+
+=== __Example__
+
+For the following spec:
+
+>ApiError:
+>  sum:
+>    unauthorized:
+>    rejected: Maybe Text
+
+It'll generate the following instances:
+
+>instance IsLabel "unauthorized" ApiError where
+>  fromLabel = UnauthorizedApiError
+>
+>instance IsLabel "rejected" (Maybe Text -> ApiError) where
+>  fromLabel = RejectedApiError
+
+Allowing you to construct the value by simply addressing the label:
+
+>unauthorizedApiError :: ApiError
+>unauthorizedApiError = #unauthorized
+>
+>rejectedApiError :: Maybe Text -> ApiError
+>rejectedApiError reason = #rejected reason
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
+constructorIsLabelDeriver =
+  Deriver.effectless InstanceDecs.constructorIsLabel
+
+{-|
+Generates instances of 'IsLabel' for enums, sums and products,
+providing accessors to their components.
+
+=== __Product example__
+
+The following spec:
+
+>Config:
+>  product:
+>    host: Text
+>    port: Int
+
+Will generate the following instances:
+
+>instance a ~ Text => IsLabel "host" (Config -> a) where
+>  fromLabel = \ (Config a _) -> a
+>instance a ~ Word16 => IsLabel "port" (Config -> a) where
+>  fromLabel = \ (Config _ b) -> b
+
+Which you can use to access individual fields as follows:
+
+>getConfigHost :: Config -> Text
+>getConfigHost = #host
+
+To make use of that ensure to have the @OverloadedLabels@ compiler extension enabled.
+-}
+accessorIsLabelDeriver =
+  Deriver.effectless InstanceDecs.accessorIsLabel
+
+{-|
+Generates instances of 'IsLabel' for sums and products,
+providing mappers over their components.
+-}
+mapperIsLabelDeriver =
+  Deriver.effectless InstanceDecs.mapperIsLabel
