@@ -501,7 +501,7 @@ setNetworkAddressHost host = #host (const host)
 
 ## Optics
 
-["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
+Extensional ["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
 
 Coming back to our example here's all we'll have to do to enable our model with optics:
 
