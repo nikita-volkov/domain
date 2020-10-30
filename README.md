@@ -87,9 +87,6 @@ Word128:
     part2: Word64
 ```
 
-_For more details about "product", "sum", "enumeration" and
-other methods of defining types refer to the [Schema spec](docs/Schema.md)._
-
 As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and the maintenance easier.
 
 ### Codegen
