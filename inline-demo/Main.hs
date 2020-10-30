@@ -20,17 +20,13 @@ declare (Just (False, True)) stdDeriver [schema|
   ServiceAddress:
     sum:
       network: NetworkAddress
-      local: DomainSocketPath
+      local: FilePath
 
   NetworkAddress:
     product:
       protocol: TransportProtocol
       host: Host
       port: Word16
-
-  DomainSocketPath:
-    product:
-      path: FilePath
 
   TransportProtocol:
     enum:
