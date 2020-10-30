@@ -148,7 +148,7 @@ data Word128 =
 
 As you can see in the generated code the field names from the schema get translated to record fields or constructors depending on the type composition method.
 
-In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function it is possible remove the type name prefix or prepend with underscore, you can also avoid generating record fields altogether (to keep the value-level namespace clean).
+In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function it is possible to remove the type name prefix or prepend with underscore, you can also avoid generating record fields altogether (to keep the value-level namespace clean).
 
 The constructor names are also disambiguated by appending the type name to the label from schema. Thus we are introducing a consistent naming convention, while avoiding the boilerplate in the declaration of the model.
 
