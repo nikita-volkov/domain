@@ -89,6 +89,8 @@ Word128:
 
 As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and the maintenance easier.
 
+Those three methods of defining types (product, sum, enum) are all that you need to define a model of any complexity. If you understand them, there's nothing new to learn.
+
 ### Codegen
 
 Now, having that schema defined in a file at path `schemas/model.yaml`,
@@ -96,7 +98,7 @@ we can load it in a Haskell module as follows:
 
 ```haskell
 {-# LANGUAGE
-  QuasiQuotes, TemplateHaskell,
+  TemplateHaskell,
   StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
   FlexibleInstances, MultiParamTypeClasses,
   DataKinds, TypeFamilies
