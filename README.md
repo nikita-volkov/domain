@@ -483,7 +483,7 @@ mapHostIp = #ip
 
 There's a few things worth noticing here. Unfortunately the type inferencer will be unable to automatically detect the type of the mapping lambda parameter, so it needs to have an unambiguous type. This means that often times you'll have to provide an explicit type for it. But there's a solution.
 
-There is a "domain-optics" library which provides an integration with the "optics" library. By including the derivers from it in the parameters to the `declare` macro, you'll be able to map as follows without type inference issues:
+There is a ["domain-optics"](https://github.com/nikita-volkov/domain-optics) library which provides an integration with the "optics" library. By including the derivers from it in the parameters to the `declare` macro, you'll be able to map as follows without type inference issues:
 
 ```haskell
 mapNetworkAddressHost :: (Host -> Host) -> NetworkAddress -> NetworkAddress
