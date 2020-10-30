@@ -1,14 +1,19 @@
 # Service can be either located on the network or
 # by a socket file.
-# Here we specify that choice using a "sum" type.
+#
+# Choice between two or more types can be encoded using
+# "sum" type composition, which you may also know as
+# "union" or "variant". That's what we use here.
 ServiceAddress:
   sum:
     network: NetworkAddress
     local: FilePath
 
-# Network address is a combination of transport protocol, host and port.
-# All those three things at once.
-# We use a "product" type to encode that.
+# Network address is a combination of transport protocol,
+# host and port. All those three things at once.
+#
+# "product" type composition lets us encode that.
+# You may also know it as "record" or "tuple".
 NetworkAddress:
   product:
     protocol: TransportProtocol
@@ -16,7 +21,7 @@ NetworkAddress:
     port: Word16
 
 # Transport protocol is either TCP or UDP.
-# We encode that with an enumeration.
+# We encode that using enumeration.
 TransportProtocol:
   enum:
     - tcp
