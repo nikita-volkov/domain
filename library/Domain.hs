@@ -2,7 +2,7 @@
 This module contains the whole API of \"domain\".
 
 Many functions come with collapsed example sections.
-Do check them out for further explanations.
+Do check them out for better understanding.
 -}
 module Domain
 (
