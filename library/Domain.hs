@@ -194,7 +194,7 @@ Use 'declare' to generate the code from it.
 
 @
 {\-# LANGUAGE
-  QuasiQuotes, TemplateHaskell,
+  TemplateHaskell,
   StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
   FlexibleInstances, MultiParamTypeClasses,
   DataKinds, TypeFamilies
@@ -428,9 +428,6 @@ instance IsLabel "tcp" TransportProtocol where
 instance IsLabel "udp" TransportProtocol where
   fromLabel = UdpTransportProtocol
 @
-
-In case you\'re wondering what this tilde (@~@) constraint business is about,
-refer to the [Type Equality Constraint](#type-equality-constraint) section.
 -}
 constructorIsLabelDeriver =
   Deriver.effectless InstanceDecs.constructorIsLabel
