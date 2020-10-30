@@ -503,7 +503,28 @@ setNetworkAddressHost host = #host (const host)
 
 ["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
 
-Coming back to our example here are some of the optics that become available to us:
+Coming back to our example here's all we'll have to do to enable our model with optics:
+
+```haskell
+{-# LANGUAGE
+  TemplateHaskell,
+  StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
+  FlexibleInstances, MultiParamTypeClasses,
+  DataKinds, TypeFamilies,
+  UndecidableInstances
+  #-}
+module Model where
+
+import Data.Text (Text)
+import Data.Word (Word16, Word32, Word64)
+import Domain
+import DomainOptics
+
+declare (Just (False, True)) (stdDeriver <> labelOpticDeriver)
+  =<< loadSchema "schemas/model.yaml"
+```
+
+Here are some of the optics that will become available to us:
 
 ```haskell
 networkAddressHostOptic :: Lens' NetworkAddress Host
@@ -513,6 +534,11 @@ networkAddressHostOptic = #host
 ```haskell
 hostIpOptic :: Prism' Host Ip
 hostIpOptic = #ip
+```
+
+```haskell
+tcpTransportProtocolOptic :: Prism' TransportProtocol ()
+tcpTransportProtocolOptic = #tcp
 ```
 
 _As you may have noticed, we avoid the "underscore-uppercase" naming convention for prisms. With labels there's no longer any need for it._
