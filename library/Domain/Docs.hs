@@ -161,6 +161,23 @@ module Domain.Docs
   > getTransportProtocolTcp = #tcp
 
   -}
+  -- ** Notes #notes#
+  -- *** List Data-type #list-data-type#
+  {-|
+  Since square brackets get interpreted in YAML as array literal, you have to
+  explicitly state that the value is a string literal. To achieve that prefix
+  the value with the vertical line character (@|@). E.g.,
+
+  > Artist:
+  >   product:
+  >     name: Text
+  >     genres: | [Genre]
+  -}
+  -- *** Reserved Names
+  {-|
+  You can use the otherwise banned field names like \"data\", \"type\",
+  \"class\".
+  -}
   -- ** Example
   {-|
   Here\'s an example of a complete schema.
@@ -216,23 +233,6 @@ module Domain.Docs
   >   product:
   >     part1: Word64
   >     part2: Word64
-  -}
-  -- ** Notes #notes#
-  -- *** List Data-type #list-data-type#
-  {-|
-  Since square brackets get interpreted in YAML as array literal, you have to
-  explicitly state that the value is a string literal. To achieve that prefix
-  the value with the vertical line character (@|@). E.g.,
-
-  > Artist:
-  >   product:
-  >     name: Text
-  >     genres: | [Genre]
-  -}
-  -- *** Reserved Names
-  {-|
-  You can use the otherwise banned field names like \"data\", \"type\",
-  \"class\".
   -}
 )
 where
