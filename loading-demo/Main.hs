@@ -1,5 +1,5 @@
 {-# LANGUAGE
-  QuasiQuotes, TemplateHaskell,
+  TemplateHaskell,
   StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
   FlexibleInstances, MultiParamTypeClasses,
   DataKinds, TypeFamilies

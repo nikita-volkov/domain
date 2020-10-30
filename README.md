@@ -87,10 +87,9 @@ Word128:
     part2: Word64
 ```
 
-_For more details about "product", "sum", "enumeration" and
-other methods of defining types refer to the [Schema spec](docs/Schema.md)._
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and the maintenance easier.
 
-As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and maintenance easier.
+Those three methods of defining types (product, sum, enum) are all that you need to define a model of any complexity. If you understand them, there's nothing new to learn.
 
 ### Codegen
 
@@ -99,7 +98,7 @@ we can load it in a Haskell module as follows:
 
 ```haskell
 {-# LANGUAGE
-  QuasiQuotes, TemplateHaskell,
+  TemplateHaskell,
   StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
   FlexibleInstances, MultiParamTypeClasses,
   DataKinds, TypeFamilies
@@ -147,9 +146,9 @@ data Word128 =
   }
 ```
 
-As you can see in the generated code the field names from schema get translated to record fields or names of constructors depending on the type composition method.
+As you can see in the generated code the field names from the schema get translated to record fields or constructors depending on the type composition method.
 
-In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function you can remove the type name prefix or prepend with underscore, you can also avoid generating record fields whatsoever (e.g., to keep the value-level namespace clean).
+In this example the record fields are prefixed with type names for disambiguation, but by modifying the options passed to the `declare` function it is possible to remove the type name prefix or prepend with underscore, you can also avoid generating record fields altogether (to keep the value-level namespace clean).
 
 The constructor names are also disambiguated by appending the type name to the label from schema. Thus we are introducing a consistent naming convention, while avoiding the boilerplate in the declaration of the model.
 
@@ -162,7 +161,7 @@ If we introduce the following change to our code:
 +declare (Just (False, True)) stdDeriver
 ```
 
-We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you couldn't otherwise derive.
+We'll get a ton of instances generated including the obvious `Show`, `Eq` and even `Hashable` for all the declared types. We'll also get some useful ones, which you wouldn't derive otherwise.
 
 <details>
   <summary><strong>Listing of generated instances</strong> (it's big)</summary>
@@ -173,92 +172,91 @@ deriving instance Eq ServiceAddress
 deriving instance Ord ServiceAddress
 deriving instance GHC.Generics.Generic ServiceAddress
 deriving instance Data.Data.Data ServiceAddress
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable ServiceAddress
-instance a ~ NetworkAddress =>
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable ServiceAddress
+instance hashable-1.3.0.0:Data.Hashable.Class.Hashable ServiceAddress
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift ServiceAddress
+instance GHC.Records.HasField "network" ServiceAddress (Maybe NetworkAddress) where
+  GHC.Records.getField (NetworkServiceAddress a) = Just a
+  GHC.Records.getField _ = Nothing
+instance GHC.Records.HasField "local" ServiceAddress (Maybe FilePath) where
+  GHC.Records.getField (LocalServiceAddress a) = Just a
+  GHC.Records.getField _ = Nothing
+instance (a ~ NetworkAddress) =>
          GHC.OverloadedLabels.IsLabel "network" (a -> ServiceAddress) where
   GHC.OverloadedLabels.fromLabel = NetworkServiceAddress
-instance a ~ FilePath =>
+instance (a ~ FilePath) =>
          GHC.OverloadedLabels.IsLabel "local" (a -> ServiceAddress) where
   GHC.OverloadedLabels.fromLabel = LocalServiceAddress
-instance mapper ~ (NetworkAddress -> NetworkAddress) =>
+instance (mapper ~ (NetworkAddress -> NetworkAddress)) =>
          GHC.OverloadedLabels.IsLabel "network" (mapper
                                                  -> ServiceAddress -> ServiceAddress) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  NetworkServiceAddress a
-                    -> (\ (a) -> NetworkServiceAddress a) (fn a)
+                  NetworkServiceAddress a -> NetworkServiceAddress (fn a)
                   a -> a
-instance mapper ~ (FilePath -> FilePath) =>
+instance (mapper ~ (FilePath -> FilePath)) =>
          GHC.OverloadedLabels.IsLabel "local" (mapper
                                                -> ServiceAddress -> ServiceAddress) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  LocalServiceAddress a -> (\ (a) -> LocalServiceAddress a) (fn a)
+                  LocalServiceAddress a -> LocalServiceAddress (fn a)
                   a -> a
-instance a ~ Maybe NetworkAddress =>
+instance (a ~ Maybe NetworkAddress) =>
          GHC.OverloadedLabels.IsLabel "network" (ServiceAddress -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             NetworkServiceAddress a -> Just (a)
+             NetworkServiceAddress a -> Just a
              _ -> Nothing
-instance a ~ Maybe FilePath =>
+instance (a ~ Maybe FilePath) =>
          GHC.OverloadedLabels.IsLabel "local" (ServiceAddress -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             LocalServiceAddress a -> Just (a)
+             LocalServiceAddress a -> Just a
              _ -> Nothing
-instance hashable-1.3.0.0:Data.Hashable.Class.Hashable ServiceAddress
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift ServiceAddress
-instance GHC.Records.HasField "network" ServiceAddress (Maybe NetworkAddress) where
-  GHC.Records.getField (NetworkServiceAddress a) = Just (a)
-  GHC.Records.getField _ = Nothing
-instance GHC.Records.HasField "local" ServiceAddress (Maybe FilePath) where
-  GHC.Records.getField (LocalServiceAddress a) = Just (a)
-  GHC.Records.getField _ = Nothing
 deriving instance Show NetworkAddress
 deriving instance Eq NetworkAddress
 deriving instance Ord NetworkAddress
 deriving instance GHC.Generics.Generic NetworkAddress
 deriving instance Data.Data.Data NetworkAddress
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable NetworkAddress
-instance mapper ~ (TransportProtocol -> TransportProtocol) =>
-         GHC.OverloadedLabels.IsLabel "protocol" (mapper
-                                                  -> NetworkAddress -> NetworkAddress) where
-  GHC.OverloadedLabels.fromLabel
-    = \ fn (NetworkAddress a b c) -> ((NetworkAddress (fn a)) b) c
-instance mapper ~ (Host -> Host) =>
-         GHC.OverloadedLabels.IsLabel "host" (mapper
-                                              -> NetworkAddress -> NetworkAddress) where
-  GHC.OverloadedLabels.fromLabel
-    = \ fn (NetworkAddress a b c) -> ((NetworkAddress a) (fn b)) c
-instance mapper ~ (Word16 -> Word16) =>
-         GHC.OverloadedLabels.IsLabel "port" (mapper
-                                              -> NetworkAddress -> NetworkAddress) where
-  GHC.OverloadedLabels.fromLabel
-    = \ fn (NetworkAddress a b c) -> ((NetworkAddress a) b) (fn c)
-instance a ~ TransportProtocol =>
-         GHC.OverloadedLabels.IsLabel "protocol" (NetworkAddress -> a) where
-  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress a _ _) -> a
-instance a ~ Host =>
-         GHC.OverloadedLabels.IsLabel "host" (NetworkAddress -> a) where
-  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress _ b _) -> b
-instance a ~ Word16 =>
-         GHC.OverloadedLabels.IsLabel "port" (NetworkAddress -> a) where
-  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress _ _ c) -> c
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable NetworkAddress
 instance hashable-1.3.0.0:Data.Hashable.Class.Hashable NetworkAddress
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift NetworkAddress
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift NetworkAddress
 instance GHC.Records.HasField "protocol" NetworkAddress TransportProtocol where
   GHC.Records.getField (NetworkAddress a _ _) = a
 instance GHC.Records.HasField "host" NetworkAddress Host where
   GHC.Records.getField (NetworkAddress _ a _) = a
 instance GHC.Records.HasField "port" NetworkAddress Word16 where
   GHC.Records.getField (NetworkAddress _ _ a) = a
+instance (mapper ~ (TransportProtocol -> TransportProtocol)) =>
+         GHC.OverloadedLabels.IsLabel "protocol" (mapper
+                                                  -> NetworkAddress -> NetworkAddress) where
+  GHC.OverloadedLabels.fromLabel
+    = \ fn (NetworkAddress a b c) -> ((NetworkAddress (fn a)) b) c
+instance (mapper ~ (Host -> Host)) =>
+         GHC.OverloadedLabels.IsLabel "host" (mapper
+                                              -> NetworkAddress -> NetworkAddress) where
+  GHC.OverloadedLabels.fromLabel
+    = \ fn (NetworkAddress a b c) -> ((NetworkAddress a) (fn b)) c
+instance (mapper ~ (Word16 -> Word16)) =>
+         GHC.OverloadedLabels.IsLabel "port" (mapper
+                                              -> NetworkAddress -> NetworkAddress) where
+  GHC.OverloadedLabels.fromLabel
+    = \ fn (NetworkAddress a b c) -> ((NetworkAddress a) b) (fn c)
+instance (a ~ TransportProtocol) =>
+         GHC.OverloadedLabels.IsLabel "protocol" (NetworkAddress -> a) where
+  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress a _ _) -> a
+instance (a ~ Host) =>
+         GHC.OverloadedLabels.IsLabel "host" (NetworkAddress -> a) where
+  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress _ b _) -> b
+instance (a ~ Word16) =>
+         GHC.OverloadedLabels.IsLabel "port" (NetworkAddress -> a) where
+  GHC.OverloadedLabels.fromLabel = \ (NetworkAddress _ _ c) -> c
 deriving instance Enum TransportProtocol
 deriving instance Bounded TransportProtocol
 deriving instance Show TransportProtocol
@@ -266,161 +264,161 @@ deriving instance Eq TransportProtocol
 deriving instance Ord TransportProtocol
 deriving instance GHC.Generics.Generic TransportProtocol
 deriving instance Data.Data.Data TransportProtocol
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable TransportProtocol
-instance GHC.OverloadedLabels.IsLabel "tcp" TransportProtocol where
-  GHC.OverloadedLabels.fromLabel = TcpTransportProtocol
-instance GHC.OverloadedLabels.IsLabel "udp" TransportProtocol where
-  GHC.OverloadedLabels.fromLabel = UdpTransportProtocol
-instance a ~ Bool =>
-         GHC.OverloadedLabels.IsLabel "tcp" (TransportProtocol -> a) where
-  GHC.OverloadedLabels.fromLabel
-    = \ a
-        -> case a of
-             TcpTransportProtocol -> True
-             _ -> False
-instance a ~ Bool =>
-         GHC.OverloadedLabels.IsLabel "udp" (TransportProtocol -> a) where
-  GHC.OverloadedLabels.fromLabel
-    = \ a
-        -> case a of
-             UdpTransportProtocol -> True
-             _ -> False
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable TransportProtocol
 instance hashable-1.3.0.0:Data.Hashable.Class.Hashable TransportProtocol
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift TransportProtocol
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift TransportProtocol
 instance GHC.Records.HasField "tcp" TransportProtocol Bool where
   GHC.Records.getField TcpTransportProtocol = True
   GHC.Records.getField _ = False
 instance GHC.Records.HasField "udp" TransportProtocol Bool where
   GHC.Records.getField UdpTransportProtocol = True
   GHC.Records.getField _ = False
+instance GHC.OverloadedLabels.IsLabel "tcp" TransportProtocol where
+  GHC.OverloadedLabels.fromLabel = TcpTransportProtocol
+instance GHC.OverloadedLabels.IsLabel "udp" TransportProtocol where
+  GHC.OverloadedLabels.fromLabel = UdpTransportProtocol
+instance (a ~ Bool) =>
+         GHC.OverloadedLabels.IsLabel "tcp" (TransportProtocol -> a) where
+  GHC.OverloadedLabels.fromLabel
+    = \ a
+        -> case a of
+             TcpTransportProtocol -> True
+             _ -> False
+instance (a ~ Bool) =>
+         GHC.OverloadedLabels.IsLabel "udp" (TransportProtocol -> a) where
+  GHC.OverloadedLabels.fromLabel
+    = \ a
+        -> case a of
+             UdpTransportProtocol -> True
+             _ -> False
 deriving instance Show Host
 deriving instance Eq Host
 deriving instance Ord Host
 deriving instance GHC.Generics.Generic Host
 deriving instance Data.Data.Data Host
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable Host
-instance a ~ Ip =>
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable Host
+instance hashable-1.3.0.0:Data.Hashable.Class.Hashable Host
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift Host
+instance GHC.Records.HasField "ip" Host (Maybe Ip) where
+  GHC.Records.getField (IpHost a) = Just a
+  GHC.Records.getField _ = Nothing
+instance GHC.Records.HasField "name" Host (Maybe Text) where
+  GHC.Records.getField (NameHost a) = Just a
+  GHC.Records.getField _ = Nothing
+instance (a ~ Ip) =>
          GHC.OverloadedLabels.IsLabel "ip" (a -> Host) where
   GHC.OverloadedLabels.fromLabel = IpHost
-instance a ~ Text =>
+instance (a ~ Text) =>
          GHC.OverloadedLabels.IsLabel "name" (a -> Host) where
   GHC.OverloadedLabels.fromLabel = NameHost
-instance mapper ~ (Ip -> Ip) =>
+instance (mapper ~ (Ip -> Ip)) =>
          GHC.OverloadedLabels.IsLabel "ip" (mapper -> Host -> Host) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  IpHost a -> (\ (a) -> IpHost a) (fn a)
+                  IpHost a -> IpHost (fn a)
                   a -> a
-instance mapper ~ (Text -> Text) =>
+instance (mapper ~ (Text -> Text)) =>
          GHC.OverloadedLabels.IsLabel "name" (mapper -> Host -> Host) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  NameHost a -> (\ (a) -> NameHost a) (fn a)
+                  NameHost a -> NameHost (fn a)
                   a -> a
-instance a ~ Maybe Ip =>
+instance (a ~ Maybe Ip) =>
          GHC.OverloadedLabels.IsLabel "ip" (Host -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             IpHost a -> Just (a)
+             IpHost a -> Just a
              _ -> Nothing
-instance a ~ Maybe Text =>
+instance (a ~ Maybe Text) =>
          GHC.OverloadedLabels.IsLabel "name" (Host -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             NameHost a -> Just (a)
+             NameHost a -> Just a
              _ -> Nothing
-instance hashable-1.3.0.0:Data.Hashable.Class.Hashable Host
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift Host
-instance GHC.Records.HasField "ip" Host (Maybe Ip) where
-  GHC.Records.getField (IpHost a) = Just (a)
-  GHC.Records.getField _ = Nothing
-instance GHC.Records.HasField "name" Host (Maybe Text) where
-  GHC.Records.getField (NameHost a) = Just (a)
-  GHC.Records.getField _ = Nothing
 deriving instance Show Ip
 deriving instance Eq Ip
 deriving instance Ord Ip
 deriving instance GHC.Generics.Generic Ip
 deriving instance Data.Data.Data Ip
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable Ip
-instance a ~ Word32 =>
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable Ip
+instance hashable-1.3.0.0:Data.Hashable.Class.Hashable Ip
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift Ip
+instance GHC.Records.HasField "v4" Ip (Maybe Word32) where
+  GHC.Records.getField (V4Ip a) = Just a
+  GHC.Records.getField _ = Nothing
+instance GHC.Records.HasField "v6" Ip (Maybe Word128) where
+  GHC.Records.getField (V6Ip a) = Just a
+  GHC.Records.getField _ = Nothing
+instance (a ~ Word32) =>
          GHC.OverloadedLabels.IsLabel "v4" (a -> Ip) where
   GHC.OverloadedLabels.fromLabel = V4Ip
-instance a ~ Word128 =>
+instance (a ~ Word128) =>
          GHC.OverloadedLabels.IsLabel "v6" (a -> Ip) where
   GHC.OverloadedLabels.fromLabel = V6Ip
-instance mapper ~ (Word32 -> Word32) =>
+instance (mapper ~ (Word32 -> Word32)) =>
          GHC.OverloadedLabels.IsLabel "v4" (mapper -> Ip -> Ip) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  V4Ip a -> (\ (a) -> V4Ip a) (fn a)
+                  V4Ip a -> V4Ip (fn a)
                   a -> a
-instance mapper ~ (Word128 -> Word128) =>
+instance (mapper ~ (Word128 -> Word128)) =>
          GHC.OverloadedLabels.IsLabel "v6" (mapper -> Ip -> Ip) where
   GHC.OverloadedLabels.fromLabel
     = \ fn
         -> \ a
              -> case a of
-                  V6Ip a -> (\ (a) -> V6Ip a) (fn a)
+                  V6Ip a -> V6Ip (fn a)
                   a -> a
-instance a ~ Maybe Word32 =>
+instance (a ~ Maybe Word32) =>
          GHC.OverloadedLabels.IsLabel "v4" (Ip -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             V4Ip a -> Just (a)
+             V4Ip a -> Just a
              _ -> Nothing
-instance a ~ Maybe Word128 =>
+instance (a ~ Maybe Word128) =>
          GHC.OverloadedLabels.IsLabel "v6" (Ip -> a) where
   GHC.OverloadedLabels.fromLabel
     = \ a
         -> case a of
-             V6Ip a -> Just (a)
+             V6Ip a -> Just a
              _ -> Nothing
-instance hashable-1.3.0.0:Data.Hashable.Class.Hashable Ip
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift Ip
-instance GHC.Records.HasField "v4" Ip (Maybe Word32) where
-  GHC.Records.getField (V4Ip a) = Just (a)
-  GHC.Records.getField _ = Nothing
-instance GHC.Records.HasField "v6" Ip (Maybe Word128) where
-  GHC.Records.getField (V6Ip a) = Just (a)
-  GHC.Records.getField _ = Nothing
 deriving instance Show Word128
 deriving instance Eq Word128
 deriving instance Ord Word128
 deriving instance GHC.Generics.Generic Word128
 deriving instance Data.Data.Data Word128
-deriving instance base-4.13.0.0:Data.Typeable.Internal.Typeable Word128
-instance mapper ~ (Word64 -> Word64) =>
-         GHC.OverloadedLabels.IsLabel "part1" (mapper
-                                               -> Word128 -> Word128) where
-  GHC.OverloadedLabels.fromLabel
-    = \ fn (Word128 a b) -> (Word128 (fn a)) b
-instance mapper ~ (Word64 -> Word64) =>
-         GHC.OverloadedLabels.IsLabel "part2" (mapper
-                                               -> Word128 -> Word128) where
-  GHC.OverloadedLabels.fromLabel
-    = \ fn (Word128 a b) -> (Word128 a) (fn b)
-instance a ~ Word64 =>
-         GHC.OverloadedLabels.IsLabel "part1" (Word128 -> a) where
-  GHC.OverloadedLabels.fromLabel = \ (Word128 a _) -> a
-instance a ~ Word64 =>
-         GHC.OverloadedLabels.IsLabel "part2" (Word128 -> a) where
-  GHC.OverloadedLabels.fromLabel = \ (Word128 _ b) -> b
+deriving instance base-4.14.1.0:Data.Typeable.Internal.Typeable Word128
 instance hashable-1.3.0.0:Data.Hashable.Class.Hashable Word128
-deriving instance template-haskell-2.15.0.0:Language.Haskell.TH.Syntax.Lift Word128
+deriving instance template-haskell-2.16.0.0:Language.Haskell.TH.Syntax.Lift Word128
 instance GHC.Records.HasField "part1" Word128 Word64 where
   GHC.Records.getField (Word128 a _) = a
 instance GHC.Records.HasField "part2" Word128 Word64 where
   GHC.Records.getField (Word128 _ a) = a
+instance (mapper ~ (Word64 -> Word64)) =>
+         GHC.OverloadedLabels.IsLabel "part1" (mapper
+                                               -> Word128 -> Word128) where
+  GHC.OverloadedLabels.fromLabel
+    = \ fn (Word128 a b) -> (Word128 (fn a)) b
+instance (mapper ~ (Word64 -> Word64)) =>
+         GHC.OverloadedLabels.IsLabel "part2" (mapper
+                                               -> Word128 -> Word128) where
+  GHC.OverloadedLabels.fromLabel
+    = \ fn (Word128 a b) -> (Word128 a) (fn b)
+instance (a ~ Word64) =>
+         GHC.OverloadedLabels.IsLabel "part1" (Word128 -> a) where
+  GHC.OverloadedLabels.fromLabel = \ (Word128 a _) -> a
+instance (a ~ Word64) =>
+         GHC.OverloadedLabels.IsLabel "part2" (Word128 -> a) where
+  GHC.OverloadedLabels.fromLabel = \ (Word128 _ b) -> b
 ```
 </details>
 <p/>
@@ -485,7 +483,7 @@ mapHostIp = #ip
 
 There's a few things worth noticing here. Unfortunately the type inferencer will be unable to automatically detect the type of the mapping lambda parameter, so it needs to have an unambiguous type. This means that often times you'll have to provide an explicit type for it. But there's a solution.
 
-There is a "domain-optics" library which provides an integration with the "optics" library. By including the derivers from it in the parameters to the `declare` macro, you'll be able to map as follows without type inference issues:
+There is a ["domain-optics"](https://github.com/nikita-volkov/domain-optics) library which provides an integration with the ["optics"](https://github.com/well-typed/optics) library. By including the derivers from it in the parameters to the `declare` macro, you'll be able to map as follows without type inference issues:
 
 ```haskell
 mapNetworkAddressHost :: (Host -> Host) -> NetworkAddress -> NetworkAddress
@@ -503,9 +501,30 @@ setNetworkAddressHost host = #host (const host)
 
 ## Optics
 
-["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
+Extensional ["domain-optics"](https://github.com/nikita-volkov/domain-optics) library provides integration with ["optics"](https://github.com/well-typed/optics). By using the derivers from it we can get optics using labels as well.
 
-Coming back to our example here are some of the optics that become available to us:
+Coming back to our example here's all we'll have to do to enable our model with optics:
+
+```haskell
+{-# LANGUAGE
+  TemplateHaskell,
+  StandaloneDeriving, DeriveGeneric, DeriveDataTypeable, DeriveLift,
+  FlexibleInstances, MultiParamTypeClasses,
+  DataKinds, TypeFamilies,
+  UndecidableInstances
+  #-}
+module Model where
+
+import Data.Text (Text)
+import Data.Word (Word16, Word32, Word64)
+import Domain
+import DomainOptics
+
+declare (Just (False, True)) (stdDeriver <> labelOpticDeriver)
+  =<< loadSchema "schemas/model.yaml"
+```
+
+Here are some of the optics that will become available to us:
 
 ```haskell
 networkAddressHostOptic :: Lens' NetworkAddress Host
@@ -517,4 +536,11 @@ hostIpOptic :: Prism' Host Ip
 hostIpOptic = #ip
 ```
 
-_As you may have noticed, we avoid that "underscore-uppercase" naming convention for prisms, because with labels there's no longer any need for it._
+```haskell
+tcpTransportProtocolOptic :: Prism' TransportProtocol ()
+tcpTransportProtocolOptic = #tcp
+```
+
+_As you may have noticed, we avoid the "underscore-uppercase" naming convention for prisms. With labels there's no longer any need for it._
+
+We recommend using "optics" instead of direct `IsLabel` instances, because functions like `view`, `over`, `set`, `review` make your intent clearer to the reader in many cases and in some cases provide better type inference.
