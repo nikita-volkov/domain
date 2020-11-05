@@ -88,7 +88,7 @@ test-suite test
     domain-core,
     QuickCheck >=2.8.1 && <3,
     quickcheck-instances >=0.3.11 && <0.4,
-    rerebase >=1.9 && <2,
+    rerebase >=1.10.0.1 && <2,
     tasty >=0.12 && <2,
     tasty-hunit >=0.9 && <0.11,
     tasty-quickcheck >=0.9 && <0.11,
