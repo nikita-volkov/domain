@@ -8,7 +8,7 @@ Declaring a data model in Haskell can get cumbersome. While it is much better th
 
 # Mission
 
-In its approach to those problems this projects sets the following goals for itself:
+In its approach to those problems this projects sets the following goals:
 
 - Let the domain model definition be focused on data and nothing else.
 - Let it be readable and comfortably editable, avoiding syntactic noise.
