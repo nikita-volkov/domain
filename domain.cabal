@@ -46,7 +46,7 @@ library
     foldl >=1.4.9 && <2,
     hashable >=1 && <2,
     parser-combinators >=1.2.1 && <1.3,
-    template-haskell >=2.15 && <3,
+    template-haskell >=2.13 && <3,
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
     text >=1.2.3 && <2,
     th-lego >=0.2.3 && <0.3,
