@@ -1,14 +1,11 @@
 name: domain
 version: 0.1
-synopsis: Handy domain model declaration toolkit
+synopsis: Codegen helping you define domain models
 description:
-  - Let your domain model definition be focused on domain model only.
-  - Let it be readable and comfortly editable, avoiding syntactic noise.
-  - Separate its declaration from the problems of declaration of instances,
-  accessor functions, optics and etc.
-  - Have the notorious records problem solved.
-  - Similarly have the less notorious problem of conflicting constructor names of sum-types solved.
-  - Avoid boilerplate while doing all the above.
+  - For introduction and demo skip on to [Readme](#readme).
+  - For documentation and syntax reference see the "Domain.Docs" module.
+  - For API documentation refer to the "Domain" module,
+    which exports the whole API of this package.
 homepage: https://github.com/nikita-volkov/domain
 bug-reports: https://github.com/nikita-volkov/domain/issues
 author: Nikita Volkov <nikita.y.volkov@mail.ru>
