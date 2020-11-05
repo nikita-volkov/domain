@@ -2,7 +2,7 @@ name: domain
 version: 0.1
 synopsis: Codegen helping you define domain models
 description:
-  - For introduction and demo skip on to [Readme](#readme).
+  - For introduction and demo skip to [Readme](#readme).
   - For documentation and syntax reference see the "Domain.Docs" module.
   - For API documentation refer to the "Domain" module,
     which exports the whole API of this package.
