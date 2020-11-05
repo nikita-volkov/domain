@@ -1,6 +1,16 @@
 module Domain.Docs
 (
-  -- * Schema Syntax Reference #schema-syntax-reference#
+  -- * How it works
+  {-|
+  \"domain\" operates around Schema AST which describes the structure of your model.
+  This AST gets constructed by either parsing a file or a quasi-quote
+  conforming to a <#g:schemaSyntaxReference further described> format.
+  Then it is used to generate Haskell type declarations and
+  typeclass instances according to your configuration.
+  All that is done at compile time, so you're incurring zero run time cost
+  for using \"domain\".
+  -}
+  -- * Schema Syntax Reference #schemaSyntaxReference#
   {-|
   Schema definition is a YAML document listing declarations of your domain
   types. The listing is represented as a dictionary from type names to their
@@ -178,61 +188,68 @@ module Domain.Docs
   You can use the otherwise banned field names like \"data\", \"type\",
   \"class\".
   -}
-  -- ** Example
+  -- *** Newtypes
   {-|
-  Here\'s an example of a complete schema.
-  
-  > # Service can be either located on the network or
-  > # by a socket file.
-  > #
-  > # Choice between two or more types can be encoded using
-  > # "sum" type composition, which you may also know as
-  > # "union" or "variant". That's what we use here.
-  > ServiceAddress:
-  >   sum:
-  >     network: NetworkAddress
-  >     local: FilePath
-  > 
-  > # Network address is a combination of transport protocol,
-  > # host and port. All those three things at once.
-  > #
-  > # "product" type composition lets us encode that.
-  > # You may also know it as "record" or "tuple".
-  > NetworkAddress:
-  >   product:
-  >     protocol: TransportProtocol
-  >     host: Host
-  >     port: Word16
-  > 
-  > # Transport protocol is either TCP or UDP.
-  > # We encode that using enumeration.
-  > TransportProtocol:
-  >   enum:
-  >     - tcp
-  >     - udp
-  > 
-  > # Host can be adressed by either an IP or its name,
-  > # so "sum" again.
-  > Host:
-  >   sum:
-  >     ip: Ip
-  >     name: Text
-  > 
-  > # IP can be either of version 4 or version 6.
-  > # We encode it as a sum over words of the accordingly required
-  > # amount of bits.
-  > Ip:
-  >   sum:
-  >     v4: Word32
-  >     v6: Word128
-  > 
-  > # Since the standard lib lacks a definition
-  > # of a 128-bit word, we define a custom one
-  > # as a product of two 64-bit words.
-  > Word128:
-  >   product:
-  >     part1: Word64
-  >     part2: Word64
+  Single-field products get represented as newtypes,
+  so use them whenever you need to generate a newtype declaration.
+  -}
+  -- *** Type Aliases
+  {-|
+  Schemas intentionally lack support for type aliases,
+  since they haven't yet proven to be very useful in practice.
+
+  However we\'re open for discussion on the subject.
+  So do provide your arguments on the project\'s issue tracker
+  if you feel like they should be added as a feature.
+  -}
+  -- *** Polymorphic Types
+  {-|
+  Polymorphic types are not supported.
+  Domain model is expected to consist of specific data structures,
+  not abstractions.
+  -}
+  -- * Instance Derivation
+  {-|
+  Instance derivation is intentionally isolated from the schema definition
+  to let both tasks be focused.
+  Instances get derived for all the types in your schema that they are suitable for.
+  We treat schema as a group entity over multiple types
+  having them share settings including the instance generation rules.
+
+  Whenever you find yourself in a situation where you need different instances
+  for parts of your model it should serve as a signal that you\'re likely
+  dealing with multiple models merged into one.
+  The solution to such situation is to extract smaller models.
+  When dealing with Domain Schema that is what will also let you
+  generate different instances.
+  -}
+  -- ** Custom Derivers
+  {-|
+  The \"domain\" package does not expose any means to create custom derivers,
+  since its API focuses on their usage as part of the problems of
+  the general audience.
+  To create custom derivers you\'ll have to use the
+  ["domain-core"](http://hackage.haskell.org/package/domain-core) package,
+  which exposes the internal definition of the 'DomainCore.Deriver.Deriver' abstraction and
+  everything you need to define custom derivers.
+
+  Such isolation of libraries lets us have a stable API for the general audience,
+  serving for better backward compatibility, and keep it isolated from
+  the distractions of lower level details.
+  -}
+  -- ** Deriver Extensions
+  {-|
+  We expect the community to publish their general custom derivers as extensional
+  packages.
+
+  So far there is one package known (which we\'ve published ourselves):
+
+  - ["domain-optics"](http://hackage.haskell.org/package/domain-optics) - provides
+    integration with the ["optics"](http://hackage.haskell.org/package/optics) package.
+
+  If you\'re looking to contribute,
+  some likely needed candidates for extensions are \"QuickCheck\", \"aeson\", \"binary\",
+  \"cereal\".
   -}
 )
 where
