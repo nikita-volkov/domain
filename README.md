@@ -2,15 +2,15 @@
 
 Codegen solving multiple problems of the standard Haskell approach to defining models.
 
-# Problems
+# Problem
 
 Declaring a data model in Haskell can get cumbersome. While it is much better than in most popular languages it still suffers from boilerplate, it distracts the developer by forcing to solve unrelated problems in the same place and the code is not terribly readable. On top of that we have the notorious records problem and other naming issues to solve causing inconsistent naming conventions or absense thereof, or workarounds causing more distraction and noise. Declaring instances for typeclasses other than the basic ones requires multiple approaches depending on the class, becoming a non-trivial task for non-experts and producing even more boilerplate.
 
-# Features
+# Mission
 
-In its approach to those problems this projects offers the following features:
+In its approach to those problems this projects sets the following goals for itself:
 
-- Let the domain model definition be focused. Think about data and nothing else.
+- Let the domain model definition be focused on data and nothing else.
 - Let it be readable and comfortably editable, avoiding syntactic noise.
 - Separate its declaration from the problems of declaration of instances, accessor functions, optics and etc.
 - Have the records problem solved.
