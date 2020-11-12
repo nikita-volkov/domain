@@ -1,37 +1,39 @@
 # About
 
-Codegen solving multiple problems of the standard Haskell approach to defining models.
+Template Haskell codegen removing noise and boilerplate from domain models.
 
 # Problem
 
-Declaring a data model in Haskell can get cumbersome. While it is much better than in most popular languages it still suffers from boilerplate, it distracts the developer by forcing to solve unrelated problems in the same place and the code is not terribly readable. On top of that we have the notorious records problem and other naming issues to solve causing inconsistent naming conventions or absense thereof, or workarounds causing more distraction and noise. Declaring instances for typeclasses other than the basic ones requires multiple approaches depending on the class, becoming a non-trivial task for non-experts and producing even more boilerplate.
+Imagine a real-life project, where you have to define the types for your problem domain: your **domain model**. How many types do you think there'll be? [A poll among Haskellers](https://twitter.com/NikitaYVolkov/status/1324360237827108870) shows that highly likely more than 30. That is 30 places for you to derive or define instances, work around the records problem and the problem of conflicting constructor names. That is a lot of boilerplate and noise, distracting you from your actual goal of modeling the data structures or learning an existing model during maintenance. Also don't forget about the boilerplate required to generate optics for your model to actually make it accessible.
 
 # Mission
 
-In its approach to those problems this projects sets the following goals:
+In its approach to those problems this project sets the following goals:
 
 - Let the domain model definition be focused on data and nothing else.
 - Let it be readable and comfortably editable, avoiding syntactic noise.
 - Separate its declaration from the problems of declaration of instances, accessor functions, optics and etc.
 - Have the records problem solved.
 - Have the problem of conflicting constructor names solved.
-- Avoid boilerplate while doing all the above.
-- Avoid complications of the build process while doing all the above.
+- Avoid boilerplate in all the above.
+- Avoid complications of the build process.
 
 # Solution
 
 This project introduces a clear boundary between the data model declaration and the rest of the code base.
-It introduces a low-noise YAML format designed specifically for the problem of defining types and relations between them and that only. We call it Domain Schema.
+It introduces a YAML format designed specifically for the problem of defining types and relations between them and that only. We call it Domain Schema.
 
-Schemas can be loaded at compile time and transformed into Haskell declarations using Template Haskell. Since it's just Template Haskell, no extra build software is needed for you to use this library. It is a simple Haskell package.
+Schemas can be loaded at compile time and transformed into Haskell declarations using Template Haskell. Since it's just Template Haskell, no extra build software is needed to use this library. It is a normal Haskell package.
 
-Schema gets analysed allowing to generate all kinds of instances automatically using a set of prepackaged derivers. An API is provided for creation of custom derivers of uncovered typeclasses.
+Schema gets analysed allowing to generate all kinds of instances automatically using a set of prepackaged derivers. An API is provided for creation of custom derivers for extending the library or handling special cases.
 
-# Case in point
+# Tutorial and Case in Point
 
 We'll show you how this whole thing works on an example of a model of a service address.
 
 ## Schema
+
+First we need to define a schema. For that we create the following YAML document:
 
 ```yaml
 # Service can be either located on the network or
@@ -87,7 +89,7 @@ Word128:
     part2: Word64
 ```
 
-As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing a model way smoother and the maintenance easier.
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing and maintaining a model way smoother.
 
 Those three methods of defining types (product, sum, enum) are all that you need to define a model of any complexity. If you understand them, there's nothing new to learn.
 
