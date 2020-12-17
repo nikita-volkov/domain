@@ -8,39 +8,71 @@ import qualified Domain.Models.TypeString as TypeString
 import qualified Data.Text as Text
 
 
+eliminateDoc :: Applicative f => Doc.Doc -> f [TypeDec]
 eliminateDoc =
-  traverse eliminateNameAndStructure
+  traverse (uncurry (structureTypeDecs [])) >>> fmap join
 
-eliminateNameAndStructure (name, structure) =
-  TypeDec name <$> eliminateStructure structure
+structureTypeDecs :: Applicative f => [Text] -> Text -> Doc.Structure -> f [TypeDec]
+structureTypeDecs namespace name structure =
+  (:) <$> primary <*> structureGeneratedTypeDecs nextNamespace structure
+  where
+    primary =
+      TypeDec renderedName <$> structureTypeDef nextNamespace structure
+      where
+        renderedName =
+          Text.concat (reverse nextNamespace)
+    nextNamespace =
+      name : namespace
 
-eliminateStructure =
+structureGeneratedTypeDecs :: Applicative f => [Text] -> Doc.Structure -> f [TypeDec]
+structureGeneratedTypeDecs namespace =
   \ case
     Doc.ProductStructure structure ->
-      ProductTypeDef <$>
-      traverse eliminateProductStructureUnit structure
+      traverse (uncurry (nestedTypeExpressionTypeDecs namespace . Text.toTitle)) structure
+        & fmap join
     Doc.SumStructure structure ->
-      SumTypeDef <$>
-      traverse eliminateSumStructureUnit structure
+      traverse (\(a, b) -> traverse (nestedTypeExpressionTypeDecs namespace (Text.toTitle a)) b) structure
+        & fmap (join . join)
+    _ ->
+      pure []
+
+nestedTypeExpressionTypeDecs namespace name =
+  \ case
+    Doc.StructureNestedTypeExpression a ->
+      structureTypeDecs namespace name a
+    _ ->
+      pure []
+
+structureTypeDef :: Applicative f => [Text] -> Doc.Structure -> f TypeDef
+structureTypeDef namespace =
+  \ case
+    Doc.ProductStructure structure ->
+      ProductTypeDef <$> traverse (uncurry (eliminateProductStructureUnit namespace)) structure
+    Doc.SumStructure structure ->
+      SumTypeDef <$> traverse (uncurry (eliminateSumStructureUnit namespace)) structure
     Doc.EnumStructure variants ->
       pure (SumTypeDef (fmap (,[]) variants))
 
-eliminateProductStructureUnit (name, appSeq) =
-  (,) name . AppType <$> eliminateTypeStringAppSeq appSeq
+eliminateProductStructureUnit :: Applicative f => [Text] -> Text -> Doc.NestedTypeExpression -> f (Text, Type)
+eliminateProductStructureUnit namespace name productTypeExpression =
+  (,) name <$> nestedTypeExpressionType namespace name productTypeExpression
 
-eliminateSumStructureUnit (name, sumTypeExpression) =
-  (,) name <$> eliminateSumTypeExpression sumTypeExpression
+eliminateSumStructureUnit :: Applicative f => [Text] -> Text -> [Doc.NestedTypeExpression] -> f (Text, [Type])
+eliminateSumStructureUnit namespace name sumTypeExpression =
+  (,) name <$> traverse (nestedTypeExpressionType namespace name) sumTypeExpression
 
-eliminateSumTypeExpression =
+nestedTypeExpressionType :: Applicative f => [Text] -> Text -> Doc.NestedTypeExpression -> f Type
+nestedTypeExpressionType namespace name =
   \ case
-    Doc.SequenceSumTypeExpression a ->
-      traverse (fmap AppType . eliminateTypeStringAppSeq) a
-    Doc.StringSumTypeExpression a ->
-      traverse (fmap AppType . eliminateTypeStringAppSeq) a
+    Doc.AppSeqNestedTypeExpression a ->
+      AppType <$> eliminateTypeStringAppSeq a
+    Doc.StructureNestedTypeExpression _ ->
+      pure (RefType (Text.concat (reverse (Text.toTitle name : namespace))))
 
 eliminateTypeStringCommaSeq =
   traverse eliminateTypeStringAppSeq
 
+eliminateTypeStringAppSeq :: Applicative f => NonEmpty TypeString.Unit -> f (NonEmpty Type)
 eliminateTypeStringAppSeq =
   traverse eliminateTypeStringUnit
 

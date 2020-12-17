@@ -40,12 +40,10 @@ Host:
 Ip:
   sum:
     v4: Word32
-    v6: Word128
-
-# Since the standard lib lacks a definition
-# of a 128-bit word, we define a custom one
-# as a product of two 64-bit words.
-Word128:
-  product:
-    part1: Word64
-    part2: Word64
+    v6:
+      # Since the standard lib lacks a definition
+      # of a 128-bit word, we define a custom one
+      # as a product of two 64-bit words.
+      product:
+        part1: Word64
+        part2: Word64

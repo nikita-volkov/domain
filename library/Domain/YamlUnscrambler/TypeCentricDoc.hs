@@ -35,13 +35,7 @@ doc =
                 Left "Empty string"
 
 structure =
-  value [] (Just onMapping) Nothing
-  where
-    onMapping =
-      byKeyMapping (CaseSensitive True) $
-        atByKey "product" (ProductStructure <$> byFieldName appTypeString) <|>
-        atByKey "sum" (SumStructure <$> byFieldName sumTypeExpression) <|>
-        atByKey "enum" (EnumStructure <$> enumVariants)
+  value [] (Just structureMapping) Nothing
 
 byFieldName onElement =
   value onScalar (Just onMapping) Nothing
@@ -51,28 +45,49 @@ byFieldName onElement =
     onMapping =
       foldMapping (,) Fold.list textString onElement
 
-appTypeString =
-  value [
-    stringScalar $ attoparsedString "Type signature" $
-    GeneralAttoparsec.only TypeStringAttoparsec.appSeq
-    ] Nothing Nothing
-
 sumTypeExpression =
-  value onScalar Nothing (Just onSequence)
+  value onScalar (Just onMapping) (Just onSequence)
   where
     onScalar =
       [
-        nullScalar (SequenceSumTypeExpression [])
+        nullScalar []
         ,
-        fmap StringSumTypeExpression $
+        fmap (fmap AppSeqNestedTypeExpression) $
         stringScalar $ attoparsedString "Type signature" $
         GeneralAttoparsec.only TypeStringAttoparsec.commaSeq
         ]
+    onMapping =
+      pure . StructureNestedTypeExpression <$> structureMapping
     onSequence =
-      SequenceSumTypeExpression <$> foldSequence Fold.list appTypeString
+      foldSequence Fold.list nestedTypeExpression
+
+nestedTypeExpression =
+  value [onScalar] (Just onMapping) Nothing
+  where
+    onScalar =
+      AppSeqNestedTypeExpression <$> appTypeStringScalar
+    onMapping =
+      StructureNestedTypeExpression <$> structureMapping
 
 enumVariants =
   sequenceValue (foldSequence Fold.list variant)
   where
     variant =
       scalarsValue [stringScalar textString]
+
+
+-- * Scalar
+-------------------------
+
+appTypeStringScalar =
+  stringScalar $ attoparsedString "Type signature" $
+  GeneralAttoparsec.only TypeStringAttoparsec.appSeq
+
+-- * Mapping
+-------------------------
+
+structureMapping =
+  byKeyMapping (CaseSensitive True) $
+    atByKey "product" (ProductStructure <$> byFieldName nestedTypeExpression) <|>
+    atByKey "sum" (SumStructure <$> byFieldName sumTypeExpression) <|>
+    atByKey "enum" (EnumStructure <$> enumVariants)
