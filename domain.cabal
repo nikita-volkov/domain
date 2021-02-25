@@ -44,7 +44,7 @@ library
   build-depends:
     attoparsec >=0.13 && <0.14,
     base >=4.9 && <5,
-    bytestring >=0.10 && <0.11,
+    bytestring >=0.10 && <0.12,
     domain-core >=0.1 && <0.2,
     foldl >=1.4.9 && <2,
     hashable >=1 && <2,
