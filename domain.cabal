@@ -53,7 +53,8 @@ library
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
     text >=1.2.3 && <2,
     th-lego >=0.2.3 && <0.3,
-    yaml-unscrambler >=0.1 && <0.2
+    yaml-unscrambler >=0.1 && <0.2,
+    yaml >=0.11.5 && <0.12
 
 test-suite loading-demo
   type: exitcode-stdio-1.0

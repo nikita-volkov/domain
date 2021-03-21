@@ -63,6 +63,8 @@ import Domain.Prelude hiding (liftEither, readFile, lift)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.Quote
 import qualified Data.ByteString as ByteString
+import qualified Data.Yaml as Yaml
+import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Domain.Resolvers.TypeCentricDoc as TypeCentricResolver
 import qualified Domain.TH.TypeDec as TypeDec
@@ -231,8 +233,8 @@ readFile :: FilePath -> Q ByteString
 readFile path =
   do
     addDependentFile path
-    readRes <- liftIO (tryIOError (ByteString.readFile path))
-    liftEither (first showAsText readRes)
+    readRes <- liftIO $ Yaml.decodeFileEither path
+    liftEither $ bimap (Text.pack . displayException) (Yaml.encode @Yaml.Value) readRes
 
 parseString :: String -> Q Schema
 parseString =
@@ -245,7 +247,8 @@ parseText =
 parseByteString :: ByteString -> Q Schema
 parseByteString input =
   liftEither $ do
-    doc <- YamlUnscrambler.parseByteString TypeCentricYaml.doc input
+    value :: Yaml.Value <- first (Text.pack . displayException) (Yaml.decodeEither' input)
+    doc <- YamlUnscrambler.parseByteString TypeCentricYaml.doc (Yaml.encode value)
     decs <- TypeCentricResolver.eliminateDoc doc
     return (Schema decs)
 
