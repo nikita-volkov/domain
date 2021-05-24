@@ -9,12 +9,12 @@ type Doc =
   [(Text, Structure)]
 
 data Structure =
-  ProductStructure [(Text, TypeString.AppSeq)] |
-  SumStructure [(Text, SumTypeExpression)] |
+  ProductStructure [(Text, NestedTypeExpression)] |
+  SumStructure [(Text, [NestedTypeExpression])] |
   EnumStructure [Text]
   deriving (Show)
 
-data SumTypeExpression =
-  SequenceSumTypeExpression [TypeString.AppSeq] |
-  StringSumTypeExpression TypeString.CommaSeq
+data NestedTypeExpression =
+  AppSeqNestedTypeExpression TypeString.AppSeq |
+  StructureNestedTypeExpression Structure
   deriving (Show)
