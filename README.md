@@ -4,7 +4,7 @@ Template Haskell codegen removing noise and boilerplate from domain models.
 
 # Problem
 
-Imagine a real-life project, where you have to define the types for your problem domain: your **domain model**. How many types do you think there'll be? [A poll among Haskellers](https://twitter.com/NikitaYVolkov/status/1324360237827108870) shows that highly likely more than 30. That is 30 places for you to derive or define instances, work around the records problem and the problem of conflicting constructor names. That is a lot of boilerplate and noise, distracting you from your actual goal of modeling the data structures or learning an existing model during maintenance. Also don't forget about the boilerplate required to generate optics for your model to actually make it accessible.
+Imagine a real-life project, where you have to define the types for your problem domain: your domain model. How many types do you think there'll be? [A poll among Haskellers](https://twitter.com/NikitaYVolkov/status/1324360237827108870) shows that highly likely more than 30. That is 30 places for you to derive or define instances, work around the records problem and the problem of conflicting constructor names. That is a lot of boilerplate and noise, distracting you from your actual goal of modeling the data structures or learning an existing model during maintenance. Also don't forget about the boilerplate required to generate optics for your model to actually make it accessible.
 
 # Mission
 
@@ -89,7 +89,7 @@ Word128:
     part2: Word64
 ```
 
-As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we meant by focus. It makes the experience of designing and maintaining a model way smoother.
+As you can see in the specification above we're not concerned with typeclass instances or problems of name disambiguation. We're only concerned with data and relations that it has. This is what we mean by focus. It makes the experience of designing and maintaining a model distraction free.
 
 Those three methods of defining types (product, sum, enum) are all that you need to define a model of any complexity. If you understand them, there's nothing new to learn.
 
