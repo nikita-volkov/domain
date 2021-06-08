@@ -6,6 +6,7 @@ import DomainCore.Model
 import qualified Domain.Models.TypeCentricDoc as Doc
 import qualified Domain.Models.TypeString as TypeString
 import qualified Data.Text as Text
+import qualified Domain.Text as Text
 
 
 eliminateDoc :: Applicative f => Doc.Doc -> f [TypeDec]
@@ -28,10 +29,10 @@ structureGeneratedTypeDecs :: Applicative f => [Text] -> Doc.Structure -> f [Typ
 structureGeneratedTypeDecs namespace =
   \ case
     Doc.ProductStructure structure ->
-      traverse (uncurry (nestedTypeExpressionTypeDecs namespace . Text.toTitle)) structure
+      traverse (uncurry (nestedTypeExpressionTypeDecs namespace . Text.ucFirst)) structure
         & fmap join
     Doc.SumStructure structure ->
-      traverse (\(a, b) -> traverse (nestedTypeExpressionTypeDecs namespace (Text.toTitle a)) b) structure
+      traverse (\(a, b) -> traverse (nestedTypeExpressionTypeDecs namespace (Text.ucFirst a)) b) structure
         & fmap (join . join)
     _ ->
       pure []
@@ -67,7 +68,7 @@ nestedTypeExpressionType namespace name =
     Doc.AppSeqNestedTypeExpression a ->
       AppType <$> eliminateTypeStringAppSeq a
     Doc.StructureNestedTypeExpression _ ->
-      pure (RefType (Text.concat (reverse (Text.toTitle name : namespace))))
+      pure (RefType (Text.concat (reverse (Text.ucFirst name : namespace))))
 
 eliminateTypeStringCommaSeq =
   traverse eliminateTypeStringAppSeq

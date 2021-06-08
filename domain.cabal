@@ -37,6 +37,7 @@ library
     Domain.Models.TypeString
     Domain.Prelude
     Domain.Resolvers.TypeCentricDoc
+    Domain.Text
     Domain.TH.InstanceDec
     Domain.TH.InstanceDecs
     Domain.TH.TypeDec
