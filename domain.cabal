@@ -1,5 +1,5 @@
 name: domain
-version: 0.1.1
+version: 0.1.1.1
 synopsis: Codegen helping you define domain models
 description:
   - For introduction and demo skip to [Readme](#readme).
