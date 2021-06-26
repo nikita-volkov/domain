@@ -6,3 +6,4 @@ extra-deps:
   - domain-core-0.1
   - th-lego-0.2.3
   - yaml-unscrambler-0.1.0.3
+  - template-haskell-compat-v0208-0.1.6

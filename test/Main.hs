@@ -16,6 +16,7 @@ import qualified Util.TH.LeafTypes as THLeafTypes
 import qualified Language.Haskell.TH.Syntax as TH
 
 
+main :: IO ()
 main =
   defaultMain $ 
   testGroup "All tests" [

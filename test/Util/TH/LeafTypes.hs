@@ -2,6 +2,7 @@ module Util.TH.LeafTypes where
 
 import Prelude
 import Language.Haskell.TH.Syntax
+import TemplateHaskell.Compat.V0208
 
 
 fromDec =
@@ -13,11 +14,7 @@ fromDec =
       fromCon d
 
 fromTyVarBndr =
-  \ case
-    KindedTV _ a ->
-      fromType a
-    _ ->
-      []
+  maybeToList . tyVarBndrKind
 
 fromCxt =
   concatMap fromType

@@ -11,6 +11,7 @@ import Data.Word (Word16, Word32, Word64)
 import Domain
 
 
+main :: IO ()
 main =
   return ()
 
