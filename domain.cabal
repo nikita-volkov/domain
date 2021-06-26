@@ -43,13 +43,13 @@ library
     Domain.TH.TypeDec
     Domain.YamlUnscrambler.TypeCentricDoc
   build-depends:
-    attoparsec >=0.13 && <0.14,
+    attoparsec >=0.13 && <0.15,
     base >=4.9 && <5,
     bytestring >=0.10 && <0.12,
     domain-core >=0.1 && <0.2,
     foldl >=1.4.9 && <2,
     hashable >=1 && <2,
-    parser-combinators >=1.2.1 && <1.3,
+    parser-combinators >=1.3 && <1.4,
     template-haskell >=2.13 && <3,
     template-haskell-compat-v0208 >=0.1.5 && <0.2,
     text >=1.2.3 && <2,
