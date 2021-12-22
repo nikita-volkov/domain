@@ -53,7 +53,7 @@ library
     template-haskell >=2.13 && <3,
     template-haskell-compat-v0208 >=0.1.6 && <0.2,
     text >=1.2.3 && <2,
-    th-lego >=0.2.3 && <0.3,
+    th-lego >=0.2.3 && <0.4,
     yaml-unscrambler >=0.1 && <0.2
 
 test-suite loading-demo
