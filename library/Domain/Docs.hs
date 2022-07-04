@@ -242,14 +242,17 @@ module Domain.Docs
   We expect the community to publish their general custom derivers as extensional
   packages.
 
-  So far there is one package known (which we\'ve published ourselves):
+  So far the following packages are available:
 
+  - ["domain-aeson"](http://hackage.haskell.org/package/domain-aeson) - provides
+    integration with the ["aeson"](http://hackage.haskell.org/package/aeson) package.
+  - ["domain-cereal"](http://hackage.haskell.org/package/domain-cereal) - provides
+    integration with the ["cereal"](http://hackage.haskell.org/package/cereal) package.
   - ["domain-optics"](http://hackage.haskell.org/package/domain-optics) - provides
     integration with the ["optics"](http://hackage.haskell.org/package/optics) package.
 
   If you\'re looking to contribute,
-  some likely needed candidates for extensions are \"QuickCheck\", \"aeson\", \"binary\",
-  \"cereal\".
+  some likely needed candidates for extensions are \"QuickCheck\", \"binary\".
   -}
 )
 where
