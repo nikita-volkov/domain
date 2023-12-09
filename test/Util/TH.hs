@@ -1,22 +1,21 @@
 module Util.TH where
 
-import Prelude
-import Language.Haskell.TH.Syntax as TH
-import Language.Haskell.TH.Quote as TH
 import qualified Domain
 import qualified DomainCore.Model as Model
-
+import Language.Haskell.TH.Quote as TH
+import Language.Haskell.TH.Syntax as TH
+import Prelude
 
 tryQuoteExp :: QuasiQuoter -> String -> Q Exp
 tryQuoteExp q =
-  recover (pure (ConE 'Nothing)) .
-  fmap (AppE (ConE 'Just)) .
-  quoteExp q
+  recover (pure (ConE 'Nothing))
+    . fmap (AppE (ConE 'Just))
+    . quoteExp q
 
 tryExpQ :: Q Exp -> Q Exp
 tryExpQ =
-  recover (pure (ConE 'Nothing)) .
-  fmap (AppE (ConE 'Just))
+  recover (pure (ConE 'Nothing))
+    . fmap (AppE (ConE 'Just))
 
 mapQQExpQ :: (Q Exp -> Q Exp) -> QuasiQuoter -> QuasiQuoter
 mapQQExpQ mapper (QuasiQuoter a b c d) =
@@ -28,8 +27,10 @@ maybeDecsQQ =
   where
     mapper =
       AppE
-        (AppE (VarE 'fmap) 
-          (SigE (VarE 'unsafeCoerce) sig))
+        ( AppE
+            (VarE 'fmap)
+            (SigE (VarE 'unsafeCoerce) sig)
+        )
       where
         sig =
           AppT

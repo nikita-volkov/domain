@@ -1,9 +1,7 @@
-module Domain.Util.List
-where
+module Domain.Util.List where
 
-import Domain.Prelude
 import Data.List
-
+import Domain.Prelude
 
 unsnoc :: [a] -> Maybe ([a], a)
 unsnoc =
