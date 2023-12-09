@@ -15,6 +15,7 @@ jobs:
             ghc-options: ""
             ignore-haddock: true
             ignore-cabal-check: true
+            ignore-tests: true
           - ghc: latest
 
     runs-on: ubuntu-latest
@@ -27,3 +28,4 @@ jobs:
           ghc-options: ${{matrix.ghc-options}}
           ignore-haddock: ${{matrix.ignore-haddock}}
           ignore-cabal-check: ${{matrix.ignore-cabal-check}}
+          ignore-tests: ${{matrix.ignore-tests}}
