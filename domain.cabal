@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               domain
-version:            0.1.1.4
+version:            0.1.1.5
 synopsis:           Codegen helping you define domain models
 description:
   - For introduction and demo skip to [Readme](#readme).
