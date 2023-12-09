@@ -1,19 +1,16 @@
-{-|
-Model-adapted instance declaration templates.
--}
-module Domain.TH.InstanceDec
-where
+-- |
+-- Model-adapted instance declaration templates.
+module Domain.TH.InstanceDec where
 
 import Domain.Prelude
 import DomainCore.Model
-import qualified Language.Haskell.TH as TH
 import qualified DomainCore.TH as CoreTH
-import qualified Data.Text as Text
-import qualified THLego.Instances as Instances
+import qualified Language.Haskell.TH as TH
 import qualified THLego.Helpers as Helpers
-
+import qualified THLego.Instances as Instances
 
 -- * HasField
+
 -------------------------
 
 enumHasField :: Text -> Text -> TH.Dec
@@ -30,10 +27,8 @@ enumHasField typeName label =
 sumHasField :: Text -> Text -> [Type] -> TH.Dec
 sumHasField typeName label memberTypes =
   if null memberTypes
-    then 
-      Instances.enumHasField thFieldLabel thOwnerType thConstructorName
-    else
-      Instances.sumHasField thFieldLabel thOwnerType thConstructorName thMemberTypes
+    then Instances.enumHasField thFieldLabel thOwnerType thConstructorName
+    else Instances.sumHasField thFieldLabel thOwnerType thConstructorName thMemberTypes
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -46,8 +41,13 @@ sumHasField typeName label memberTypes =
 
 productHasField :: Text -> Text -> Type -> Int -> Int -> TH.Dec
 productHasField typeName fieldName projectionType numMemberTypes offset =
-  Instances.productHasField thFieldLabel thOwnerType thProjectionType
-    thConstructorName numMemberTypes offset
+  Instances.productHasField
+    thFieldLabel
+    thOwnerType
+    thProjectionType
+    thConstructorName
+    numMemberTypes
+    offset
   where
     thFieldLabel =
       Helpers.textTyLit fieldName
@@ -58,18 +58,23 @@ productHasField typeName fieldName projectionType numMemberTypes offset =
     thConstructorName =
       Helpers.textName typeName
 
-
 -- * IsLabel
+
 -------------------------
 
 -- ** Accessor
+
 -------------------------
 
 productAccessorIsLabel :: Text -> Text -> Type -> Int -> Int -> TH.Dec
 productAccessorIsLabel typeName fieldName projectionType numMemberTypes offset =
   Instances.productAccessorIsLabel
-    thFieldLabel thOwnerType thProjectionType thConstructorName
-    numMemberTypes offset
+    thFieldLabel
+    thOwnerType
+    thProjectionType
+    thConstructorName
+    numMemberTypes
+    offset
   where
     thFieldLabel =
       Helpers.textTyLit fieldName
@@ -85,10 +90,15 @@ sumAccessorIsLabel typeName label memberTypes =
   if null memberTypes
     then
       Instances.enumAccessorIsLabel
-        thFieldLabel thOwnerType thConstructorName
+        thFieldLabel
+        thOwnerType
+        thConstructorName
     else
       Instances.sumAccessorIsLabel
-        thFieldLabel thOwnerType thConstructorName thMemberTypes
+        thFieldLabel
+        thOwnerType
+        thConstructorName
+        thMemberTypes
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -102,7 +112,9 @@ sumAccessorIsLabel typeName label memberTypes =
 enumAccessorIsLabel :: Text -> Text -> TH.Dec
 enumAccessorIsLabel typeName label =
   Instances.enumAccessorIsLabel
-    thFieldLabel thOwnerType thConstructorName
+    thFieldLabel
+    thOwnerType
+    thConstructorName
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -112,12 +124,16 @@ enumAccessorIsLabel typeName label =
       CoreTH.sumConstructorName typeName label
 
 -- ** Constructor
+
 -------------------------
 
 curriedSumConstructorIsLabel :: Text -> Text -> [Type] -> TH.Dec
 curriedSumConstructorIsLabel typeName label memberTypes =
   Instances.sumConstructorIsLabel
-    thFieldLabel thOwnerType thConstructorName thMemberTypes
+    thFieldLabel
+    thOwnerType
+    thConstructorName
+    thMemberTypes
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -131,7 +147,10 @@ curriedSumConstructorIsLabel typeName label memberTypes =
 uncurriedSumConstructorIsLabel :: Text -> Text -> [Type] -> TH.Dec
 uncurriedSumConstructorIsLabel typeName label memberTypes =
   Instances.tupleAdtConstructorIsLabel
-    thFieldLabel thOwnerType thConstructorName thMemberTypes
+    thFieldLabel
+    thOwnerType
+    thConstructorName
+    thMemberTypes
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -145,7 +164,9 @@ uncurriedSumConstructorIsLabel typeName label memberTypes =
 enumConstructorIsLabel :: Text -> Text -> TH.Dec
 enumConstructorIsLabel typeName label =
   Instances.enumConstructorIsLabel
-    thFieldLabel thOwnerType thConstructorName
+    thFieldLabel
+    thOwnerType
+    thConstructorName
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -157,7 +178,10 @@ enumConstructorIsLabel typeName label =
 wrapperConstructorIsLabel :: Text -> Type -> TH.Dec
 wrapperConstructorIsLabel typeName memberType =
   Instances.newtypeConstructorIsLabel
-    thFieldLabel thOwnerType thConstructorName thMemberType
+    thFieldLabel
+    thOwnerType
+    thConstructorName
+    thMemberType
   where
     thFieldLabel =
       TH.StrTyLit "value"
@@ -169,12 +193,18 @@ wrapperConstructorIsLabel typeName memberType =
       CoreTH.typeType memberType
 
 -- ** Mapper
+
 -------------------------
 
 wrapperMapperIsLabel :: Text -> Type -> TH.Dec
 wrapperMapperIsLabel typeName memberType =
   Instances.productMapperIsLabel
-    thFieldLabel thOwnerType thMemberType thConstructorName 1 0
+    thFieldLabel
+    thOwnerType
+    thMemberType
+    thConstructorName
+    1
+    0
   where
     thFieldLabel =
       TH.StrTyLit "value"
@@ -188,8 +218,12 @@ wrapperMapperIsLabel typeName memberType =
 productMapperIsLabel :: Text -> Text -> Type -> Int -> Int -> TH.Dec
 productMapperIsLabel typeName fieldName projectionType numMemberTypes offset =
   Instances.productMapperIsLabel
-    thFieldLabel thOwnerType thProjectionType thConstructorName
-    numMemberTypes offset
+    thFieldLabel
+    thOwnerType
+    thProjectionType
+    thConstructorName
+    numMemberTypes
+    offset
   where
     thFieldLabel =
       Helpers.textTyLit fieldName
@@ -203,7 +237,10 @@ productMapperIsLabel typeName fieldName projectionType numMemberTypes offset =
 sumMapperIsLabel :: Text -> Text -> [Type] -> TH.Dec
 sumMapperIsLabel typeName label memberTypes =
   Instances.sumMapperIsLabel
-    thFieldLabel thOwnerType thConstructorName thMemberTypes
+    thFieldLabel
+    thOwnerType
+    thConstructorName
+    thMemberTypes
   where
     thFieldLabel =
       Helpers.textTyLit label
@@ -214,8 +251,6 @@ sumMapperIsLabel typeName label memberTypes =
     thMemberTypes =
       fmap CoreTH.typeType memberTypes
 
-
--- *
 -------------------------
 
 deriving_ :: TH.Name -> Text -> TH.Dec

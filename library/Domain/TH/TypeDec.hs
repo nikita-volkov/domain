@@ -1,13 +1,12 @@
-module Domain.TH.TypeDec
-where
+module Domain.TH.TypeDec where
 
 import Domain.Prelude
 import DomainCore.Model
+import qualified DomainCore.TH as CoreTH
 import qualified Language.Haskell.TH as TH
 import qualified THLego.Helpers as TH
-import qualified DomainCore.TH as CoreTH
 
-
+typeDec :: Maybe (Bool, Bool) -> TypeDec -> TH.Dec
 typeDec fieldNaming (TypeDec a b) =
   case b of
     SumTypeDef b ->

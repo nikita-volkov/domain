@@ -1,19 +1,17 @@
-module Domain.Resolvers.TypeCentricDoc
-where
+module Domain.Resolvers.TypeCentricDoc where
 
-import Domain.Prelude hiding (lookup)
-import DomainCore.Model
+import qualified Data.Text as Text
 import qualified Domain.Models.TypeCentricDoc as Doc
 import qualified Domain.Models.TypeString as TypeString
-import qualified Data.Text as Text
+import Domain.Prelude hiding (lookup)
 import qualified Domain.Text as Text
+import DomainCore.Model
 
-
-eliminateDoc :: Applicative f => Doc.Doc -> f [TypeDec]
+eliminateDoc :: (Applicative f) => Doc.Doc -> f [TypeDec]
 eliminateDoc =
   traverse (uncurry (structureTypeDecs [])) >>> fmap join
 
-structureTypeDecs :: Applicative f => [Text] -> Text -> Doc.Structure -> f [TypeDec]
+structureTypeDecs :: (Applicative f) => [Text] -> Text -> Doc.Structure -> f [TypeDec]
 structureTypeDecs namespace name structure =
   (:) <$> primary <*> structureGeneratedTypeDecs nextNamespace structure
   where
@@ -25,9 +23,9 @@ structureTypeDecs namespace name structure =
     nextNamespace =
       name : namespace
 
-structureGeneratedTypeDecs :: Applicative f => [Text] -> Doc.Structure -> f [TypeDec]
+structureGeneratedTypeDecs :: (Applicative f) => [Text] -> Doc.Structure -> f [TypeDec]
 structureGeneratedTypeDecs namespace =
-  \ case
+  \case
     Doc.ProductStructure structure ->
       traverse (uncurry (nestedTypeExpressionTypeDecs namespace . Text.ucFirst)) structure
         & fmap join
@@ -37,16 +35,17 @@ structureGeneratedTypeDecs namespace =
     _ ->
       pure []
 
+nestedTypeExpressionTypeDecs :: (Applicative f) => [Text] -> Text -> Doc.NestedTypeExpression -> f [TypeDec]
 nestedTypeExpressionTypeDecs namespace name =
-  \ case
+  \case
     Doc.StructureNestedTypeExpression a ->
       structureTypeDecs namespace name a
     _ ->
       pure []
 
-structureTypeDef :: Applicative f => [Text] -> Doc.Structure -> f TypeDef
+structureTypeDef :: (Applicative f) => [Text] -> Doc.Structure -> f TypeDef
 structureTypeDef namespace =
-  \ case
+  \case
     Doc.ProductStructure structure ->
       ProductTypeDef <$> traverse (uncurry (eliminateProductStructureUnit namespace)) structure
     Doc.SumStructure structure ->
@@ -54,45 +53,48 @@ structureTypeDef namespace =
     Doc.EnumStructure variants ->
       pure (SumTypeDef (fmap (,[]) variants))
 
-eliminateProductStructureUnit :: Applicative f => [Text] -> Text -> Doc.NestedTypeExpression -> f (Text, Type)
+eliminateProductStructureUnit :: (Applicative f) => [Text] -> Text -> Doc.NestedTypeExpression -> f (Text, Type)
 eliminateProductStructureUnit namespace name productTypeExpression =
   (,) name <$> nestedTypeExpressionType namespace name productTypeExpression
 
-eliminateSumStructureUnit :: Applicative f => [Text] -> Text -> [Doc.NestedTypeExpression] -> f (Text, [Type])
+eliminateSumStructureUnit :: (Applicative f) => [Text] -> Text -> [Doc.NestedTypeExpression] -> f (Text, [Type])
 eliminateSumStructureUnit namespace name sumTypeExpression =
   (,) name <$> traverse (nestedTypeExpressionType namespace name) sumTypeExpression
 
-nestedTypeExpressionType :: Applicative f => [Text] -> Text -> Doc.NestedTypeExpression -> f Type
+nestedTypeExpressionType :: (Applicative f) => [Text] -> Text -> Doc.NestedTypeExpression -> f Type
 nestedTypeExpressionType namespace name =
-  \ case
+  \case
     Doc.AppSeqNestedTypeExpression a ->
       AppType <$> eliminateTypeStringAppSeq a
     Doc.StructureNestedTypeExpression _ ->
       pure (RefType (Text.concat (reverse (Text.ucFirst name : namespace))))
 
+eliminateTypeStringCommaSeq :: (Traversable t, Applicative f) => t (NonEmpty TypeString.Unit) -> f (t (NonEmpty Type))
 eliminateTypeStringCommaSeq =
   traverse eliminateTypeStringAppSeq
 
-eliminateTypeStringAppSeq :: Applicative f => NonEmpty TypeString.Unit -> f (NonEmpty Type)
+eliminateTypeStringAppSeq :: (Applicative f) => NonEmpty TypeString.Unit -> f (NonEmpty Type)
 eliminateTypeStringAppSeq =
   traverse eliminateTypeStringUnit
 
+eliminateTypeStringUnit :: (Applicative f) => TypeString.Unit -> f Type
 eliminateTypeStringUnit =
-  \ case
+  \case
     TypeString.InSquareBracketsUnit appSeq ->
-      eliminateTypeStringAppSeq appSeq &
-        fmap (ListType . AppType)
+      eliminateTypeStringAppSeq appSeq
+        & fmap (ListType . AppType)
     TypeString.InParensUnit commaSeq ->
-      eliminateTypeStringCommaSeq commaSeq &
-        fmap (tupleIfNotOne . fmap AppType)
+      eliminateTypeStringCommaSeq commaSeq
+        & fmap (tupleIfNotOne . fmap AppType)
       where
         tupleIfNotOne =
-          \ case
+          \case
             [a] -> a
             a -> TupleType a
     TypeString.RefUnit typeRef ->
-      eliminateTypeRef typeRef &
-        fmap RefType
+      eliminateTypeRef typeRef
+        & fmap RefType
 
+eliminateTypeRef :: (Applicative f) => NonEmpty Text -> f Text
 eliminateTypeRef =
   pure . Text.intercalate "." . toList
