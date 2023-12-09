@@ -1,33 +1,40 @@
 module Util.TH.LeafTypes where
 
-import Prelude
 import Language.Haskell.TH.Syntax
 import TemplateHaskell.Compat.V0208
+import Prelude
 
-
+fromDec :: Dec -> [Kind]
 fromDec =
-  \ case
+  \case
     NewtypeD a _ b c d _ ->
-      fromCxt a <>
-      concatMap fromTyVarBndr b <>
-      foldMap fromType c <>
-      fromCon d
+      fromCxt a
+        <> concatMap fromTyVarBndr b
+        <> foldMap fromType c
+        <> fromCon d
+    _ -> error "TODO"
 
+fromTyVarBndr :: TyVarBndr flag -> [Kind]
 fromTyVarBndr =
   maybeToList . tyVarBndrKind
 
+fromCxt :: Cxt -> [Kind]
 fromCxt =
   concatMap fromType
 
+fromCon :: Con -> [Kind]
 fromCon =
-  \ case
+  \case
     NormalC _ bangTypes -> concatMap fromBangType bangTypes
+    _ -> error "TODO"
 
+fromBangType :: (a, Type) -> [Kind]
 fromBangType (_, t) =
   fromType t
 
+fromType :: Type -> [Kind]
 fromType =
-  \ case
+  \case
     ForallT a b c ->
       concatMap fromTyVarBndr a <> fromCxt b <> fromType c
     ForallVisT a b ->

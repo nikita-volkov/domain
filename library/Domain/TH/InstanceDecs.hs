@@ -1,11 +1,9 @@
-module Domain.TH.InstanceDecs
-where
+module Domain.TH.InstanceDecs where
 
 import Domain.Prelude
-import DomainCore.Model
 import qualified Domain.TH.InstanceDec as InstanceDec
-import qualified Language.Haskell.TH as TH (Dec, Name)
-
+import DomainCore.Model
+import qualified Language.Haskell.TH as TH (Dec)
 
 hasField :: TypeDec -> [TH.Dec]
 hasField (TypeDec typeName typeDef) =
@@ -34,10 +32,11 @@ accessorIsLabel (TypeDec typeName typeDef) =
         zipper offset (fieldName, fieldType) =
           InstanceDec.productAccessorIsLabel typeName fieldName fieldType numMembers offset
     SumTypeDef variants ->
-      variants &
-      fmap (\ (variantName, memberTypes) ->
-        InstanceDec.sumAccessorIsLabel typeName variantName memberTypes
-        )
+      variants
+        & fmap
+          ( \(variantName, memberTypes) ->
+              InstanceDec.sumAccessorIsLabel typeName variantName memberTypes
+          )
 
 constructorIsLabel :: TypeDec -> [TH.Dec]
 constructorIsLabel (TypeDec typeName typeDef) =
@@ -45,24 +44,25 @@ constructorIsLabel (TypeDec typeName typeDef) =
     ProductTypeDef members ->
       []
     SumTypeDef variants ->
-      variants &
-      fmap (\ (variantName, memberTypes) ->
-        InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes)
+      variants
+        & fmap
+          ( \(variantName, memberTypes) ->
+              InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
+          )
 
 variantConstructorIsLabel :: Text -> (Text, [Type]) -> [TH.Dec]
 variantConstructorIsLabel typeName (variantName, memberTypes) =
-  let
-    curried =
-      InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
-    uncurried =
-      InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
-    in case memberTypes of
-      [] ->
-        [curried]
-      [_] ->
-        [curried]
-      _ ->
-        [curried, uncurried]
+  let curried =
+        InstanceDec.curriedSumConstructorIsLabel typeName variantName memberTypes
+      uncurried =
+        InstanceDec.uncurriedSumConstructorIsLabel typeName variantName memberTypes
+   in case memberTypes of
+        [] ->
+          [curried]
+        [_] ->
+          [curried]
+        _ ->
+          [curried, uncurried]
 
 mapperIsLabel :: TypeDec -> [TH.Dec]
 mapperIsLabel (TypeDec typeName typeDef) =
@@ -81,8 +81,8 @@ mapperIsLabel (TypeDec typeName typeDef) =
           then empty
           else pure (InstanceDec.sumMapperIsLabel typeName variantName memberTypes)
 
-
 -- * Deriving
+
 -------------------------
 
 byNonAliasName :: (Text -> TH.Dec) -> TypeDec -> [TH.Dec]
@@ -92,37 +92,48 @@ byNonAliasName cont (TypeDec a b) =
 byEnumName :: (Text -> TH.Dec) -> TypeDec -> [TH.Dec]
 byEnumName cont (TypeDec name def) =
   case def of
-    SumTypeDef variants | all (null . snd) variants ->
-      [cont name]
+    SumTypeDef variants
+      | all (null . snd) variants ->
+          [cont name]
     _ ->
       []
 
+enum :: TypeDec -> [TH.Dec]
 enum =
   byEnumName (InstanceDec.deriving_ ''Enum)
 
+bounded :: TypeDec -> [TH.Dec]
 bounded =
   byEnumName (InstanceDec.deriving_ ''Bounded)
 
+show :: TypeDec -> [TH.Dec]
 show =
   byNonAliasName (InstanceDec.deriving_ ''Show)
 
+eq :: TypeDec -> [TH.Dec]
 eq =
   byNonAliasName (InstanceDec.deriving_ ''Eq)
 
+ord :: TypeDec -> [TH.Dec]
 ord =
   byNonAliasName (InstanceDec.deriving_ ''Ord)
 
+generic :: TypeDec -> [TH.Dec]
 generic =
   byNonAliasName (InstanceDec.deriving_ ''Generic)
 
+data_ :: TypeDec -> [TH.Dec]
 data_ =
   byNonAliasName (InstanceDec.deriving_ ''Data)
 
+typeable :: TypeDec -> [TH.Dec]
 typeable =
   byNonAliasName (InstanceDec.deriving_ ''Typeable)
 
+hashable :: TypeDec -> [TH.Dec]
 hashable =
   byNonAliasName (InstanceDec.empty ''Hashable)
 
+lift :: TypeDec -> [TH.Dec]
 lift =
   byNonAliasName (InstanceDec.deriving_ ''Lift)
